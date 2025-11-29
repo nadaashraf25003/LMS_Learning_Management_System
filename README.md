@@ -330,4 +330,16 @@ Learnify Frontend (Vite React TSX)/
 │   └── vite.config.ts
 └── Unlitled-1.sql  (possible unrelated or temp file)
 
-``` 
+```
+
+## 📌 ERD Diagram
+![ERD Diagram](./docs/LMS_ERD.png)
+
+ --- 
+📄 **Project Documentation**
+[![View Documentation](./docs/Final_Doc.jpg)]([https://drive.google.com/file/d/FILE_ID/view?usp=sharing](https://drive.google.com/file/d/1N13l1omIQMtRVqX4aLwWfz_-M9mx3uDC/view?usp=sharing))
+
+---
+📄 **Database Report**
+[![Database Report](./docs/database-report-preview.png)]([https://drive.google.com/file/d/1H2h3AbCdEfG/view?usp=sharing](https://drive.google.com/file/d/17Yp95XTu47IGROJGdJbmfgbth3Yoy2Jy/view?usp=sharing))
+
