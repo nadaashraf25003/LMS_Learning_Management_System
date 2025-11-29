@@ -339,9 +339,9 @@ Learnify Frontend (Vite React TSX)/
  --- 
 ## 📄 Project Documentation
 
-[![View Documentation](./docs/Final_Doc.jpg)]([https://drive.google.com/file/d/FILE_ID/view?usp=sharing](https://drive.google.com/file/d/1N13l1omIQMtRVqX4aLwWfz_-M9mx3uDC/view?usp=sharing))
+[![View Documentation](./docs/Final_Doc.jpg)](https://drive.google.com/file/d/1N13l1omIQMtRVqX4aLwWfz_-M9mx3uDC/view?usp=drive_link)
 
 ---
 ## 📄  Database Report
-[![Database Report](./docs/database-report-preview.jpg)]([https://drive.google.com/file/d/1H2h3AbCdEfG/view?usp=sharing](https://drive.google.com/file/d/17Yp95XTu47IGROJGdJbmfgbth3Yoy2Jy/view?usp=sharing))
+[![Database Report](./docs/database-report-preview.jpg)](https://drive.google.com/file/d/17Yp95XTu47IGROJGdJbmfgbth3Yoy2Jy/view?usp=drive_link)
 
