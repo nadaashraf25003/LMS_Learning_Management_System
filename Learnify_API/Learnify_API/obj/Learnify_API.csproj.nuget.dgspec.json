@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Desktop\\FFF\\LMS_Learning_Management_System\\Learnify_API\\Learnify_API\\Learnify_API.csproj": {}
+    "C:\\Users\\dell\\Desktop\\depii\\LMS_new\\LMS_Learning_Management_System\\Learnify_API\\Learnify_API\\Learnify_API.csproj": {}
   },
   "projects": {
-    "D:\\Desktop\\FFF\\LMS_Learning_Management_System\\Learnify_API\\Learnify_API\\Learnify_API.csproj": {
+    "C:\\Users\\dell\\Desktop\\depii\\LMS_new\\LMS_Learning_Management_System\\Learnify_API\\Learnify_API\\Learnify_API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Desktop\\FFF\\LMS_Learning_Management_System\\Learnify_API\\Learnify_API\\Learnify_API.csproj",
+        "projectUniqueName": "C:\\Users\\dell\\Desktop\\depii\\LMS_new\\LMS_Learning_Management_System\\Learnify_API\\Learnify_API\\Learnify_API.csproj",
         "projectName": "Learnify_API",
-        "projectPath": "D:\\Desktop\\FFF\\LMS_Learning_Management_System\\Learnify_API\\Learnify_API\\Learnify_API.csproj",
-        "packagesPath": "C:\\Users\\W.I\\.nuget\\packages\\",
-        "outputPath": "D:\\Desktop\\FFF\\LMS_Learning_Management_System\\Learnify_API\\Learnify_API\\obj\\",
+        "projectPath": "C:\\Users\\dell\\Desktop\\depii\\LMS_new\\LMS_Learning_Management_System\\Learnify_API\\Learnify_API\\Learnify_API.csproj",
+        "packagesPath": "C:\\Users\\dell\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\dell\\Desktop\\depii\\LMS_new\\LMS_Learning_Management_System\\Learnify_API\\Learnify_API\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\W.I\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\dell\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -120,7 +120,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.302/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

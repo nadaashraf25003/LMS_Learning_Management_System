@@ -1,28 +1,33 @@
-﻿//using Learnify_API.Data.Services;
-//using Microsoft.AspNetCore.Mvc;
+﻿using Learnify_API.Data.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
-//namespace Learnify_API.Controllers
-//{
-//    [Route("[controller]")]
-//    [ApiController]
-//    public class InstructorController : ControllerBase
-//    {
-//        private readonly InstructorService _instructorService;
+namespace Learnify_API.Controllers
+{
+    [Route("[controller]")]
+    [ApiController]
+    public class InstructorController : ControllerBase
+    {
+        private readonly InstructorService _instructorService;
 
-//        public InstructorController(InstructorService instructorService)
-//        {
-//            _instructorService = instructorService;
-//        }
+        public InstructorController(InstructorService instructorService)
+        {
+            _instructorService = instructorService;
+        }
 
-//        [HttpGet("instructor-dashboard/{userId}")]
-//        public async Task<IActionResult> GetDashboard(int userId)
-//        {
-//            var dashboard = await _instructorService.GetDashboardAsync(userId);
+        // GET: instructor payouts
+        [Authorize(Roles = "instructor")]
+        [HttpGet("payouts/{instructorId}")]
+        public async Task<IActionResult> GetInstructorPayouts(int instructorId)
+        {
+            var payouts = await _instructorService.GetPayoutsByInstructorAsync(instructorId);
 
-//            if (dashboard == null)
-//                return NotFound(new { message = "Instructor not found" });
+            if (!payouts.Any())
+                return NotFound(new { message = "No payouts found for this instructor." });
 
-//            return Ok(dashboard);
-//        }
-//    }
-//}
+            return Ok(payouts);
+        }
+
+       
+    }
+}

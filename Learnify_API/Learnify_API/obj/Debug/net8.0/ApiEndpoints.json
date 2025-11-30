@@ -58,6 +58,32 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "Learnify_API.Controllers.AdminController",
+    "Method": "GetInstructorsReport",
+    "RelativePath": "Admin/instructors-report",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Learnify_API.Controllers.AdminController",
+    "Method": "PayInstructor",
+    "RelativePath": "Admin/pay-instructor/{payoutId}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "payoutId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "Learnify_API.Controllers.AuthController",
     "Method": "AdminRegister",
     "RelativePath": "Auth/admin-register",
@@ -358,6 +384,22 @@
     "IsController": true,
     "Order": 0,
     "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Learnify_API.Controllers.InstructorController",
+    "Method": "GetInstructorPayouts",
+    "RelativePath": "Instructor/payouts/{instructorId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "instructorId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
     "ReturnTypes": []
   },
   {
