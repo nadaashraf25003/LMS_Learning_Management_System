@@ -28,8 +28,15 @@ namespace Learnify_API
                 //opts.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
                 //opts.JsonSerializerOptions.MaxDepth = 64; // optional, default is 32
             });
-            builder.Services.AddDbContext<AppDbContext>(option =>
-                option.UseSqlServer(builder.Configuration.GetConnectionString("conString")));
+            //builder.Services.AddDbContext<AppDbContext>(option =>
+            //    option.UseSqlServer(builder.Configuration.GetConnectionString("conString")));
+
+
+            builder.Services.AddDbContext<AppDbContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("conString"),
+                    sql => sql.EnableRetryOnFailure())
+            );
+
 
             //builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<AppDbContext>();
             builder.Services.AddTransient<FeedbackService>();
@@ -155,7 +162,11 @@ namespace Learnify_API
             {
                 options.AddPolicy("AllowFrontend", policy =>
                 {
-                    policy.WithOrigins("http://localhost:5173") // React app URL
+                    policy.WithOrigins(
+                        "http://localhost:5173",         // local dev
+                        "https://learnify-lms-depi.vercel.app/",  // example frontend domain
+                        "https://learnify.vercel.app"         // or Vercel domain if used
+                        ) // React app URL
                           .AllowAnyHeader()
                           .AllowAnyMethod()
                           .AllowCredentials(); // Important for sending cookies
@@ -171,11 +182,16 @@ namespace Learnify_API
             // Configure the HTTP request pipeline.
 
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
+            //if (app.Environment.IsDevelopment())
+            //{
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
             {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Learnify API V1");
+                // Optionally expose swagger at root:
+                // c.RoutePrefix = string.Empty;
+            });
+            //}
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
