@@ -7,7 +7,7 @@ import ConfirmToast from "@/utils/ConfirmToast";
 import Urls from "@/API/URL";
 import DefaultImage from "../../../public/images/default-avatar.png";
 
-// Endpoints - Add these to your Urls file
+// Endpoints 
 const GetPaymentsEndPoint = Urls.getPayments || "Admin/get-payments";
 const UpdatePaymentStatusEndPoint = Urls.updatePaymentStatus || "Admin/update-payment-status";
 const DeletePaymentEndPoint = Urls.deletePayment || "Admin/delete-payment";
