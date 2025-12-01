@@ -217,5 +217,26 @@ namespace Learnify_API.Data.Services
             return true;
         }
 
-    }
+        public async Task EnrollStudentAsync(int courseId, int studentId)
+        {
+            // سجل الطالب في جدول Enrollments
+            var enrollment = new Enrollment
+            {
+                CourseId = courseId,
+                StudentId = studentId,
+                EnrollmentDate = DateTime.Now
+            };
+            _context.Enrollments.Add(enrollment);
+
+            // زوّد عدد الطلاب في الكورس
+            var course = await _context.Courses.FindAsync(courseId);
+            if (course != null)
+            {
+                course.StudentsEnrolled += 1;
+            }
+
+            // احفظ كل التغييرات
+            await _context.SaveChangesAsync();
+        }
+        }
 }

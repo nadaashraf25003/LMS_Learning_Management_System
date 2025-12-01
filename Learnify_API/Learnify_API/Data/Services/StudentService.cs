@@ -205,12 +205,13 @@ namespace Learnify_API.Data.Services
         // -------- Enroll student in a course --------
         public async Task<bool> EnrollCourseAsync(int studentId, int courseId)
         {
-            // Check if already enrolled
+            // التأكد من أن الطالب مش مسجل قبل كده
             var exists = await _context.Enrollments
                 .AnyAsync(e => e.StudentId == studentId && e.CourseId == courseId);
 
             if (exists) return false;
 
+            // إنشاء Enrollment
             var enrollment = new Enrollment
             {
                 StudentId = studentId,
@@ -220,8 +221,38 @@ namespace Learnify_API.Data.Services
 
             _context.Enrollments.Add(enrollment);
             await _context.SaveChangesAsync();
+
+            // معالجة فلوس المدرس
+            var course = await _context.Courses
+                .Include(c => c.Instructor)
+                .FirstOrDefaultAsync(c => c.CourseId == courseId);
+
+            if (course != null)
+            {
+                decimal price = course.Price;
+                decimal platformCut = price * 0.05m; // 5% للموقع
+                decimal instructorAmount = price - platformCut;
+
+                // إنشاء سجل Payout
+                var payout = new InstructorPayout
+                {
+                    InstructorId = course.InstructorId,
+                    Amount = instructorAmount,
+                    Status = "Pending",
+                    PaymentId = enrollment.EnrollmentId
+                };
+                var cours = await _context.Courses.FindAsync(courseId);
+                if (cours != null)
+                {
+                    cours.StudentsEnrolled += 1;
+                }
+                _context.InstructorPayouts.Add(payout);
+                await _context.SaveChangesAsync();
+            }
+
             return true;
         }
+
 
         // Optional: Remove enrollment
         public async Task<bool> RemoveEnrollmentAsync(int studentId, int courseId)

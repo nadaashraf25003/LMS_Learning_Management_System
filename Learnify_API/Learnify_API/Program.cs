@@ -73,6 +73,11 @@ namespace Learnify_API
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddScoped<CheckoutService>();
+            builder.Services.AddScoped<StudentService>();
+            builder.Services.AddScoped<AdminService>();
+            builder.Services.AddScoped<InstructorService>();
+            builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             // --------------------------------- Identity --------------------------------------------
             builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
