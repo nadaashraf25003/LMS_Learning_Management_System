@@ -179,7 +179,7 @@ namespace Learnify_API
             });
             //app.UseCors("AllowFrontend");
             var app = builder.Build();
-            //app.UseCors("AllowAll");
+            app.UseCors("AllowAll");
             // -------------------------------- CORS Configuration AllowFrontend --------------------------------------------
 
 
