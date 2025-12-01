@@ -169,7 +169,7 @@ namespace Learnify_API
                 {
                     policy.WithOrigins(
                         "http://localhost:5173",         // local dev
-                        "https://learnify-lms-depi.vercel.app/",  // example frontend domain
+                        "https://learnify-lms-depi.vercel.app"  // example frontend domain
                         
                         ) // React app URL
                           .AllowAnyHeader()
@@ -179,7 +179,7 @@ namespace Learnify_API
             });
             //app.UseCors("AllowFrontend");
             var app = builder.Build();
-            app.UseCors("AllowAll");
+            app.UseCors("AllowFrontend");
             // -------------------------------- CORS Configuration AllowFrontend --------------------------------------------
 
 
@@ -205,7 +205,7 @@ namespace Learnify_API
             //app.UseCors("AllowReactApp");
 
 
-            app.UseCors("AllowFrontend"); //  Must come before authentication
+           
 
             app.UseAuthentication();
             app.UseAuthorization();
