@@ -170,7 +170,7 @@ namespace Learnify_API
                     policy.WithOrigins(
                         "http://localhost:5173",         // local dev
                         "https://learnify-lms-depi.vercel.app/",  // example frontend domain
-                        "https://learnify.vercel.app"         // or Vercel domain if used
+                        
                         ) // React app URL
                           .AllowAnyHeader()
                           .AllowAnyMethod()
