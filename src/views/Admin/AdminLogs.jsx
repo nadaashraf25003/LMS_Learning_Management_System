@@ -737,7 +737,7 @@ function AdminLogs() {
         </div>
 
         {/* Date Range Filter */}
-        <div className="mt-4 flex flex-col sm:flex-row gap-4">
+        <div className="mt-6 flex flex-col sm:flex-row gap-4">
           <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -780,7 +780,7 @@ function AdminLogs() {
       </div>
 
       {/* Logs Table */}
-      <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+      <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 mb-6">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead className="bg-gray-50 dark:bg-gray-900">
@@ -907,7 +907,7 @@ function AdminLogs() {
 
       {/* Pagination */}
       {filteredLogs.length > LOGS_PER_PAGE && (
-        <div className="mt-6">
+        <div className="mb-8">
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
