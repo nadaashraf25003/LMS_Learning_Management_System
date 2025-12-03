@@ -12,7 +12,7 @@ namespace Learnify_API.Data.Models
         public int StudentId { get; set; }
 
         [ForeignKey("StudentId")]
-        public Student Student { get; set; }
+        public Student? Student { get; set; }
 
         [Required]
         public DateTime CheckoutDate { get; set; } = DateTime.Now;
@@ -24,7 +24,7 @@ namespace Learnify_API.Data.Models
 
         public string PaymentStatus { get; set; } = "pending"; // pending, completed, failed
 
-        public ICollection<CheckoutItem> CheckoutItems { get; set; }
+        public ICollection<CheckoutItem>? CheckoutItems { get; set; }
     }
 
     public class CheckoutItem
@@ -36,13 +36,13 @@ namespace Learnify_API.Data.Models
         public int CheckoutId { get; set; }
 
         [ForeignKey("CheckoutId")]
-        public Checkout Checkout { get; set; }
+        public Checkout? Checkout { get; set; }
 
         [Required]
         public int CourseId { get; set; }
 
         [ForeignKey("CourseId")]
-        public Course Course { get; set; }
+        public Course? Course { get; set; }
 
         [Required]
         public decimal Price { get; set; }

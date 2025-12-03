@@ -312,7 +312,7 @@ namespace Learnify_API.Controllers
 
             foreach (var ans in parsedAnswers)
             {
-                var question = studentAnswer.Quiz.Questions.FirstOrDefault(q => q.QuestionId.ToString() == ans.Key);
+                var question = studentAnswer.Quiz.Questions?.FirstOrDefault(q => q.QuestionId.ToString() == ans.Key);
                 if (question != null)
                 {
                     if (question.CorrectOption.ToString() == ans.Value)
@@ -327,7 +327,7 @@ namespace Learnify_API.Controllers
                 quizId = studentAnswer.QuizId,
                 quizTitle = studentAnswer.Quiz.Title,
                 courseName = studentAnswer.Quiz.Course.Title,
-                totalQuestions = studentAnswer.Quiz.Questions.Count,
+                totalQuestions = studentAnswer.Quiz.Questions?.Count,
                 correctAnswers = correct,
                 wrongAnswers = wrong,
                 score = studentAnswer.Score,

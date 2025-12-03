@@ -17,7 +17,7 @@ namespace Learnify_API.Data.ViewModels
 
         // Relations
         //public List<LiveSession> LiveSessions { get; set; }
-        public List<Notification> Notifications { get; set; }
+        public List<Notification>? Notifications { get; set; }
     }
 
 }

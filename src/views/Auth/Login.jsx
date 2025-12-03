@@ -8,6 +8,7 @@ import { FaEnvelope, FaLock } from "react-icons/fa";
 import { useAppStore } from "@/store/app";
 import useAuth from "@/hooks/useAuth";
 import { Toaster } from 'react-hot-toast';
+import useTokenStore from "@/store/user";
 
 const LoginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -17,6 +18,7 @@ const LoginSchema = z.object({
 function Login() {
   const navigate = useNavigate();
   const { setToast } = useAppStore();
+ const { setToken } = useTokenStore();
   const { loginMutation } = useAuth();
 
   const {
@@ -33,7 +35,7 @@ const onSubmit = async (data) => {
       // If login successful
       setToken(data.token);
       setToast("Login Success", "success");
-      navigate("/");
+      // navigate("/");
     },
     onError(err) {
       // Get the error message from backend
