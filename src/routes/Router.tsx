@@ -1,16 +1,10 @@
 import { lazy } from "react";
 import { createBrowserRouter } from "react-router";
 import App from "../App.jsx";
-
-
-
-
-
 // Lazy-loaded dashboards
 const InstrDashboard = lazy(
   () => import("@/views/Instructor/InstrDashboard.jsx")
 );
-
 // Admin Views
 const UserManagement = lazy(() => import("@/views/Admin/UserManagement.jsx"));
 const AdminDashboard = lazy(() => import("@/views/Admin/AdminDashboard.jsx"));
@@ -22,7 +16,7 @@ const AdminLayout = lazy(
 );
 const AdminProfile = lazy(() => import("@/views/Admin/AdminProfile.jsx"));
 const AdminPayments = lazy(() => import("@/views/Admin/AdminPayments.jsx"));
-
+const AdminLogs = lazy(() => import("@/views/Admin/AdminLogs.jsx"));
 // Instructor Views
 const InstructorLayout = lazy(
   () => import("@/components/InstructorLayout/InstructorLayout.jsx")
@@ -47,11 +41,13 @@ const InstructorLessonDetails = lazy(
   () => import("@/views/Instructor/InstructorLessonDetails.jsx")
 );
 const EditLesson = lazy(() => import("@/views/Instructor/EditLesson.jsx"));
-
 const InstructorQuizDetails = lazy(
   () => import("@/views/Instructor/InstructorQuizDetails.jsx")
 );
 const EditQuiz = lazy(() => import("@/views/Instructor/EditQuiz.jsx"));
+const InstFinalProjects = lazy(() => import("@/views/Instructor/InstFinalProjects.jsx"));
+const InstructorPayment = lazy(() => import("@/views/Instructor/InstructorPayment.jsx"));
+const InstLiveSessions = lazy(() => import("@/views/Instructor/InstLiveSessions.jsx"));
 // Student Views
 const StuDashboard = lazy(() => import("@/views/Student/StuDashboard.jsx"));
 const StuStudentLayout = lazy(
@@ -78,8 +74,8 @@ const MyCourses = lazy(() => import("@/views/Student/MyCourses.jsx"));
 const StudentLessonPage = lazy(
   () => import("@/views/Student/StudentLessonPage.jsx")
 );
-
-
+const LiveSessions = lazy(() => import("@/views/Student/LiveSessions.jsx"));
+const StuFinalProjects = lazy(() => import("@/views/Student/StuFinalProjects.jsx"));
 // Others
 const UserLayout = lazy(() => import("@/components/UserLayout/UserLayout.jsx"));
 const ContactUs = lazy(() => import("@/views/Others/ContactUs.jsx"));
@@ -98,7 +94,6 @@ const FeedbackManagement = lazy(
 const CourseDetails = lazy(
   () => import("@/views/Others/SearchResults/CourseDetails.jsx")
 );
-
 // Landing Views
 const LandingLayout = lazy(
   () => import("@/components/Landing/LandingLayout/LandingLayout.js")
@@ -119,10 +114,8 @@ const InstructorRegister = lazy(
 );
 const VerifyEmail = lazy(() => import("../views/Auth/VerifyEmail.jsx"));
 const ResendVerification = lazy(() => import("../views/Auth/ResendVerification.jsx"));
-
 // Error Views
 const Error404 = lazy(() => import("../views/Error404.jsx"));
-
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -181,6 +174,8 @@ export const router = createBrowserRouter([
           { path: "StuShoppingCart", element: <StuShoppingCart /> },
           { path: "MyCourses", element: <MyCourses /> },
           { path: "StudentLessonPage/:courseid/:lessonId", element: <StudentLessonPage /> },
+          { path: "LiveSessions", element: <LiveSessions /> },
+          { path: "StuFinalProjects", element: <StuFinalProjects /> },
         ],
       },
       {
@@ -212,6 +207,9 @@ export const router = createBrowserRouter([
           { path: "QuizManagement", element: <QuizManagement /> },
           { path: "LessonManagement", element: <LessonManagement /> },
           { path: "InstrProfile", element: <InstrProfile /> },
+          { path: "InstFinalProjects", element: <InstFinalProjects /> },
+          { path: "InstructorPayment", element: <InstructorPayment /> },
+          { path: "InstLiveSessions", element: <InstLiveSessions /> },
         ],
       },
       {
@@ -223,6 +221,7 @@ export const router = createBrowserRouter([
           { path: "UserManagement", element: <UserManagement /> },
           { path: "CourseManagement", element: <CourseManagement /> },
           { path: "AdminPayments", element: <AdminPayments /> },
+          { path: "AdminLogs", element: <AdminLogs /> },
         ],
       },
       { path: "*", element: <Error404 /> },
