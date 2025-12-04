@@ -36,7 +36,7 @@ api.interceptors.response.use(
         // Try refreshing the token
         retry--;
         const res = await api.post(RefreshTokenEndpoint, null, {
-          withCredentials: true,
+          // withCredentials: true,
         });
 
         console.log("New token received:", res.data.token);

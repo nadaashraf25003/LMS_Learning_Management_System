@@ -15,7 +15,7 @@ namespace Learnify_API.Controllers
         public readonly AdminService _adminService;
 
         // GET: api/user
-        //[Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin")]
         [HttpGet("get-all-user")]
         public async Task<IActionResult> GetAllUsers()
         {
@@ -24,7 +24,7 @@ namespace Learnify_API.Controllers
         }
 
         //  GET: api/user/5
-        [Authorize(Roles = "admin")]
+        //[Authorize(Roles = "admin")]
         [HttpGet("get-user-by/{id}")]
         public async Task<IActionResult> GetUserById(int id)
         {
@@ -48,7 +48,7 @@ namespace Learnify_API.Controllers
             return Ok(new { Message = "User deleted successfully" });
         }
 
-        //[Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin")]
         [HttpPut("approve-user-by/{id}")]
         public async Task<IActionResult> ApproveUserById(int id)
         {

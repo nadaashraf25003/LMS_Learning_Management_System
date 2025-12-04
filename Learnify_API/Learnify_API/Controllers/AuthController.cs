@@ -1,7 +1,6 @@
 ﻿using Learnify_API.Data.DTO;
 using Learnify_API.Data.Models;
 using Learnify_API.Data.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -96,6 +95,10 @@ namespace Learnify_API.Controllers
         [HttpPost("resend-verification")]
         public async Task<IActionResult> ResendVerificationCode([FromBody] ResendVerificationRequest req)
         {
+            // Check if Email is null or empty
+            if (string.IsNullOrWhiteSpace(req?.Email))
+                return BadRequest(new { Success = false, Message = "Email is required." });
+
             var response = await _authService.ResendVerificationCodeAsync(req.Email);
 
             if (!response.Success)
@@ -140,8 +143,9 @@ namespace Learnify_API.Controllers
                 Response.Cookies.Append("refreshToken", result.RefreshToken, new CookieOptions
                 {
                     HttpOnly = true,
-                    Secure = false, // فقط للـ localhost
+                    Secure = true, // فقط للـ localhost
                     SameSite = SameSiteMode.None,
+                    //Domain = "localhost:5173",
                     Expires = DateTime.UtcNow.AddMinutes(refreshTokenExpiryMinutes)
                 });
             }
@@ -152,13 +156,13 @@ namespace Learnify_API.Controllers
             {
                 Token = result.Token,
                 ExpiresIn = result.ExpiresIn,
-                //RefreshToken = result.RefreshToken
+                RefreshToken = result.RefreshToken
             });
         }
 
 
         // Get current logged-in user info from JWT 
-        [Authorize]
+        //[Authorize]
         [HttpGet("me")]
         public async Task<IActionResult> GetCurrentUser()
         {

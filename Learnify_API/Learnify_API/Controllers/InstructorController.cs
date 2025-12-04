@@ -28,6 +28,6 @@ namespace Learnify_API.Controllers
             return Ok(payouts);
         }
 
-       
+
     }
 }

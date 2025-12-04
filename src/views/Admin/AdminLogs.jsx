@@ -529,15 +529,15 @@ function AdminLogs() {
   }
 
   return (
-    <div className="p-4 md:p-6">
+    <div className="p-3">
       <Toaster position="top-center" reverseOrder={false} />
       <LandingHeading header="System Logs" />
       
-      <div className="mb-6">
-        <p className="text-gray-600 dark:text-gray-300">
+      <div className="mb-3">
+        <p className="text-gray-600 dark:text-gray-300 text-sm">
           Monitor system activities, errors, and user actions
           {useMockData && (
-            <span className="ml-2 px-2 py-1 text-xs bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300 rounded">
+            <span className="ml-2 px-2 py-0.5 text-xs bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300 rounded">
               Using Demo Data
             </span>
           )}
@@ -545,57 +545,57 @@ function AdminLogs() {
       </div>
 
       {/* Stats Summary */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow border border-gray-200 dark:border-gray-700">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3">
+        <div className="bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-sm text-gray-500 dark:text-gray-400 font-medium">Total Logs</h3>
-              <p className="text-2xl font-bold text-gray-800 dark:text-white mt-1">{getLogStats.total}</p>
+              <h3 className="text-xs text-gray-500 dark:text-gray-400 font-medium">Total Logs</h3>
+              <p className="text-xl font-bold text-gray-800 dark:text-white mt-1">{getLogStats.total}</p>
             </div>
-            <div className="p-2 bg-gray-100 dark:bg-gray-900 rounded-lg">
-              <svg className="w-6 h-6 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="p-1.5 bg-gray-100 dark:bg-gray-900 rounded">
+              <svg className="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-sm text-gray-500 dark:text-gray-400 font-medium">Errors</h3>
-              <p className="text-2xl font-bold text-red-600 mt-1">{getLogStats.errors}</p>
+              <h3 className="text-xs text-gray-500 dark:text-gray-400 font-medium">Errors</h3>
+              <p className="text-xl font-bold text-red-600 mt-1">{getLogStats.errors}</p>
             </div>
-            <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
-              <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="p-1.5 bg-red-100 dark:bg-red-900 rounded">
+              <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.998-.833-2.732 0L4.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
               </svg>
             </div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-sm text-gray-500 dark:text-gray-400 font-medium">Warnings</h3>
-              <p className="text-2xl font-bold text-yellow-600 mt-1">{getLogStats.warnings}</p>
+              <h3 className="text-xs text-gray-500 dark:text-gray-400 font-medium">Warnings</h3>
+              <p className="text-xl font-bold text-yellow-600 mt-1">{getLogStats.warnings}</p>
             </div>
-            <div className="p-2 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
-              <svg className="w-6 h-6 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="p-1.5 bg-yellow-100 dark:bg-yellow-900 rounded">
+              <svg className="w-5 h-5 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.998-.833-2.732 0L4.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
               </svg>
             </div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-sm text-gray-500 dark:text-gray-400 font-medium">Today</h3>
-              <p className="text-2xl font-bold text-blue-600 mt-1">{getLogStats.today}</p>
+              <h3 className="text-xs text-gray-500 dark:text-gray-400 font-medium">Today</h3>
+              <p className="text-xl font-bold text-blue-600 mt-1">{getLogStats.today}</p>
             </div>
-            <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-              <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="p-1.5 bg-blue-100 dark:bg-blue-900 rounded">
+              <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
             </div>
@@ -604,8 +604,8 @@ function AdminLogs() {
       </div>
 
       {/* Filters, Search and Controls */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-4 mb-6">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-4">
+      <div className="bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 p-3 mb-3">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 mb-3">
           <div className="flex-1">
             <div className="relative">
               <input
@@ -613,23 +613,23 @@ function AdminLogs() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search logs by message, user, IP, action, or endpoint..."
-                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white"
+                className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white"
               />
               <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </div>
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
             {useMockData && (
               <button
                 onClick={handleAddTestLog}
-                className="px-4 py-2.5 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors flex items-center gap-2"
+                className="px-3 py-2 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors flex items-center gap-1 text-sm"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
                 Add Test Log
@@ -638,9 +638,9 @@ function AdminLogs() {
 
             <button
               onClick={handleRefresh}
-              className="px-4 py-2.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors flex items-center gap-2"
+              className="px-3 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors flex items-center gap-1 text-sm"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
               Refresh
@@ -648,9 +648,9 @@ function AdminLogs() {
 
             <button
               onClick={handleExportLogs}
-              className="px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors flex items-center gap-2"
+              className="px-3 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors flex items-center gap-1 text-sm"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
               Export
@@ -659,13 +659,13 @@ function AdminLogs() {
             <button
               onClick={handleClearLogs}
               disabled={logs.length === 0}
-              className={`px-4 py-2.5 rounded-lg transition-colors flex items-center gap-2 ${
+              className={`px-3 py-2 rounded transition-colors flex items-center gap-1 text-sm ${
                 logs.length === 0
                   ? "bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed"
                   : "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30"
               }`}
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
               Clear All
@@ -674,15 +674,15 @@ function AdminLogs() {
         </div>
 
         {/* Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
               Log Level
             </label>
             <select
               value={levelFilter}
               onChange={(e) => setLevelFilter(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-700 dark:text-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-primary dark:bg-gray-700 dark:text-white"
             >
               <option value="all">All Levels</option>
               <option value={LOG_LEVELS.ERROR}>Error</option>
@@ -693,13 +693,13 @@ function AdminLogs() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
               Log Type
             </label>
             <select
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-700 dark:text-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-primary dark:bg-gray-700 dark:text-white"
             >
               <option value="all">All Types</option>
               <option value={LOG_TYPES.AUTH}>Authentication</option>
@@ -713,23 +713,23 @@ function AdminLogs() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
               Auto Refresh (10s)
             </label>
-            <div className="flex items-center h-[42px]">
+            <div className="flex items-center h-[38px]">
               <button
                 onClick={() => setAutoRefresh(!autoRefresh)}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
                   autoRefresh ? "bg-green-500" : "bg-gray-300 dark:bg-gray-600"
                 }`}
               >
                 <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                    autoRefresh ? "translate-x-6" : "translate-x-1"
+                  className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
+                    autoRefresh ? "translate-x-5" : "translate-x-1"
                   }`}
                 />
               </button>
-              <span className="ml-3 text-sm text-gray-600 dark:text-gray-400">
+              <span className="ml-2 text-xs text-gray-600 dark:text-gray-400">
                 {autoRefresh ? "ON" : "OFF"}
               </span>
             </div>
@@ -737,28 +737,28 @@ function AdminLogs() {
         </div>
 
         {/* Date Range Filter */}
-        <div className="mt-4 flex flex-col sm:flex-row gap-4">
-          <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="mt-2 flex flex-col sm:flex-row gap-2">
+          <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-2">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Start Date
               </label>
               <input
                 type="date"
                 value={dateRange.start}
                 onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-700 dark:text-white"
+                className="w-full px-2 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-primary dark:bg-gray-700 dark:text-white"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
                 End Date
               </label>
               <input
                 type="date"
                 value={dateRange.end}
                 onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-700 dark:text-white"
+                className="w-full px-2 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-primary dark:bg-gray-700 dark:text-white"
               />
             </div>
           </div>
@@ -767,9 +767,9 @@ function AdminLogs() {
             <div className="flex items-end">
               <button
                 onClick={() => setDateRange({ start: "", end: "" })}
-                className="px-4 py-2.5 text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors flex items-center gap-2"
+                className="px-3 py-2 text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors flex items-center gap-1"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
                 Clear Dates
@@ -780,30 +780,30 @@ function AdminLogs() {
       </div>
 
       {/* Logs Table */}
-      <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+      <div className="bg-white dark:bg-gray-800 shadow rounded overflow-hidden border border-gray-200 dark:border-gray-700 mb-3">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead className="bg-gray-50 dark:bg-gray-900">
               <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Timestamp
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Level
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Type
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Message
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   User
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   IP
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -811,17 +811,17 @@ function AdminLogs() {
             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
               {pageLogs.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center">
+                  <td colSpan={7} className="px-3 py-6 text-center">
                     <div className="flex flex-col items-center justify-center text-gray-500 dark:text-gray-400">
-                      <svg className="w-16 h-16 mb-4 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-12 h-12 mb-3 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
-                      <p className="text-lg font-medium mb-2">No logs found</p>
-                      <p className="text-sm">Try adjusting your filters or search term</p>
+                      <p className="text-sm font-medium mb-1">No logs found</p>
+                      <p className="text-xs">Try adjusting your filters or search term</p>
                       {useMockData && logs.length === 0 && (
                         <button
                           onClick={handleAddTestLog}
-                          className="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-700 transition-colors"
+                          className="mt-2 px-3 py-1.5 text-sm bg-primary text-white rounded hover:bg-blue-700 transition-colors"
                         >
                           Add Demo Logs
                         </button>
@@ -838,30 +838,30 @@ function AdminLogs() {
                     }`}
                     onClick={() => setSelectedLog(log)}
                   >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900 dark:text-white">
+                    <td className="px-3 py-2 whitespace-nowrap">
+                      <div className="text-xs text-gray-900 dark:text-white">
                         {formatRelativeTime(log.timestamp || log.createdAt)}
                       </div>
                       <div className="text-xs text-gray-500 dark:text-gray-400">
                         {formatDate(log.timestamp || log.createdAt)}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getLevelColor(log.level)}`}>
+                    <td className="px-3 py-2 whitespace-nowrap">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getLevelColor(log.level)}`}>
                         {log.level?.toUpperCase()}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTypeColor(log.type)}`}>
+                    <td className="px-3 py-2 whitespace-nowrap">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getTypeColor(log.type)}`}>
                         {log.type?.charAt(0).toUpperCase() + log.type?.slice(1)}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-gray-900 dark:text-white max-w-md truncate">
+                    <td className="px-3 py-2">
+                      <div className="text-xs text-gray-900 dark:text-white max-w-xs truncate">
                         {log.message}
                       </div>
                       {log.action && (
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                           Action: {log.action}
                         </div>
                       )}
@@ -871,8 +871,8 @@ function AdminLogs() {
                         </div>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900 dark:text-white">
+                    <td className="px-3 py-2 whitespace-nowrap">
+                      <div className="text-xs text-gray-900 dark:text-white">
                         {log.user?.name || "System"}
                       </div>
                       {log.user?.email && (
@@ -881,18 +881,18 @@ function AdminLogs() {
                         </div>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-mono text-gray-900 dark:text-white">
+                    <td className="px-3 py-2 whitespace-nowrap">
+                      <div className="text-xs font-mono text-gray-900 dark:text-white">
                         {log.ip || "N/A"}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <td className="px-3 py-2 whitespace-nowrap text-xs font-medium">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           setSelectedLog(log);
                         }}
-                        className="px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-md hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors text-xs font-medium"
+                        className="px-2 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
                       >
                         Details
                       </button>
@@ -907,7 +907,7 @@ function AdminLogs() {
 
       {/* Pagination */}
       {filteredLogs.length > LOGS_PER_PAGE && (
-        <div className="mt-6">
+        <div className="mt-3">
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
@@ -916,7 +916,7 @@ function AdminLogs() {
         </div>
       )}
 
-      {/* Log Details Modal */}
+      {/* Log Details Modal - Keep this as is, only adjust container padding */}
       {selectedLog && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fade-in">
           <div 
