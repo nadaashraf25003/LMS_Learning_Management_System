@@ -22,8 +22,7 @@ const QuizManagement = lazy(() => import("@/views/Instructor/QuizManagement.jsx"
 const LessonManagement = lazy(() => import("@/views/Instructor/LessonManagement.jsx"));
 const InstrProfile = lazy(() => import("@/views/Instructor/InstrProfile.jsx"));
 const CreateCourse = lazy(() => import("@/views/Instructor/CreateCourse.jsx"));
-// FIXED: Added .jsx extension below
-const CreateLesson = lazy(() => import("@/views/Instructor/CreateLesson.jsx")); 
+const CreateLesson = lazy(() => import("@/views/Instructor/CreateLesson.jsx"));
 const CreateQuiz = lazy(() => import("@/views/Instructor/CreateQuiz.jsx"));
 const CreateQuestions = lazy(() => import("@/views/Instructor/CreateQuestions.jsx"));
 const InstructorCourseDetails = lazy(() => import("@/views/Instructor/InstructorCourseDetails.jsx"));
@@ -66,25 +65,23 @@ const FeedbackManagement = lazy(() => import("@/views/Admin/FeedbackManagement.j
 const CourseDetails = lazy(() => import("@/views/Others/SearchResults/CourseDetails.jsx"));
 
 // Landing Views
-// FIXED: Changed .js to .jsx to match standard React component naming
 const LandingLayout = lazy(() => import("@/components/Landing/LandingLayout/LandingLayout.jsx"));
-const Landing = lazy(() => import("../views/Landing/Landing.jsx"));
-const Courses = lazy(() => import("../views/Landing/Courses.jsx"));
-const About = lazy(() => import("../views/Landing/About.jsx"));
+const Landing = lazy(() => import("@/views/Landing/Landing.jsx"));
+const Courses = lazy(() => import("@/views/Landing/Courses.jsx"));
+const About = lazy(() => import("@/views/Landing/About.jsx"));
 
 // Auth Views
-// FIXED: Changed .js to .jsx
 const AuthLayout = lazy(() => import("@/components/Auth/AuthLayout/AuthLayout.jsx"));
-const Login = lazy(() => import("../views/Auth/Login.jsx"));
-const Register = lazy(() => import("../views/Auth/Register/Register.jsx"));
-const ForgetPassword = lazy(() => import("../views/Auth/ForgetPassword.jsx"));
-const ResetPassword = lazy(() => import("../views/Auth/ResetPassword.jsx"));
-const InstructorRegister = lazy(() => import("../views/Auth/InstructorRegister.jsx"));
-const VerifyEmail = lazy(() => import("../views/Auth/VerifyEmail.jsx"));
-const ResendVerification = lazy(() => import("../views/Auth/ResendVerification.jsx"));
+const Login = lazy(() => import("@/views/Auth/Login.jsx"));
+const Register = lazy(() => import("@/views/Auth/Register/Register.jsx"));
+const ForgetPassword = lazy(() => import("@/views/Auth/ForgetPassword.jsx"));
+const ResetPassword = lazy(() => import("@/views/Auth/ResetPassword.jsx"));
+const InstructorRegister = lazy(() => import("@/views/Auth/InstructorRegister.jsx"));
+const VerifyEmail = lazy(() => import("@/views/Auth/VerifyEmail.jsx"));
+const ResendVerification = lazy(() => import("@/views/Auth/ResendVerification.jsx"));
 
 // Error Views
-const Error404 = lazy(() => import("../views/Error404.jsx"));
+const Error404 = lazy(() => import("@/views/Error404.jsx"));
 
 export const router = createBrowserRouter([
   {
