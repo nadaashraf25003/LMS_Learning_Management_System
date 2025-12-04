@@ -774,7 +774,7 @@ function InstructorLiveSessions() {
   }
 
   return (
-    <div className="mx-auto px-2 sm:px-4 lg:px-6 max-w-7xl">
+    <div className="mx-auto px-6 sm:px-8 lg:px-10 max-w-7xl">
       <Toaster position="top-center" reverseOrder={false} />
       <LandingHeading header="Live Sessions Management" />
      
