@@ -78,7 +78,7 @@ namespace Learnify_API
                 };
             });
 
-<<<<<<< HEAD
+
             builder.Services.ConfigureApplicationCookie(options =>
             {
                 options.LoginPath = ""; // remove default redirect
@@ -94,8 +94,7 @@ namespace Learnify_API
                     return Task.CompletedTask;
                 };
             });
-=======
->>>>>>> f07e4b7660dca0a3342d6afad82f583d4ffa0dc2
+
             // JWT
             builder.Services.AddAuthentication(options =>
             {
@@ -173,26 +172,22 @@ namespace Learnify_API
             // Middleware
             //if (app.Environment.IsDevelopment())
             //{
-<<<<<<< HEAD
+
             app.UseSwagger();
             app.UseSwaggerUI(c =>
               {
                   c.SwaggerEndpoint("/swagger/v1/swagger.json", "Learnify API V1");
               });
             //}
-=======
+
             //    app.UseSwagger();
             //    app.UseSwaggerUI(c =>
             //    {
             //        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Learnify API V1");
             //    });
             //}
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
->>>>>>> f07e4b7660dca0a3342d6afad82f583d4ffa0dc2
+
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy(new CookiePolicyOptions
