@@ -35,7 +35,7 @@ const onSubmit = async (data) => {
       // If login successful
       setToken(data.token);
       setToast("Login Success", "success");
-      // navigate("/");
+      navigate("/");
     },
     onError(err) {
       // Get the error message from backend

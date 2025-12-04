@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+This file is used by the publish/package process of your Web project. You can customize the behavior of this process
+by editing this MSBuild file. In order to learn more about this please visit https://go.microsoft.com/fwlink/?LinkID=208121. 
+-->
+<Project>
+  <PropertyGroup>
+    <TimeStampOfAssociatedLegacyPublishXmlFile />
+    <EncryptedPassword>AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAldoP0U57WUqu+eQ6XvrIfQAAAAACAAAAAAAQZgAAAAEAACAAAAAULRE8ykfcwY2nVXu4oImwI8lLoCP+r+nM1AayFSBj+wAAAAAOgAAAAAIAACAAAADbScwMlG80f+QWzA392le65yuaUmyT0Qg/qSe37hE0OSAAAADn1dmTrnLjYYCisrBwiz9yamHqYoSP+a6dr8ucTgIkrkAAAACU2mWKhWWSkeocHclKIyuUbJObn48ieBx2TmMJA0A60rdKz502GiEs9mNNnSP1U7DWIpYy7dCZXfHR2aWfB4Fg</EncryptedPassword>
+    <History>True|2025-12-04T11:39:32.6780933Z||;True|2025-12-04T13:36:04.5569104+02:00||;</History>
+    <LastFailureDetails />
+  </PropertyGroup>
+  <ItemGroup>
+    <DestinationConnectionStrings Include="conString">
+      <Value>Data Source=SQL8011.site4now.net%3bInitial Catalog=db_ac1ceb_learnifydb%3bUser Id=db_ac1ceb_learnifydb_admin%3bPassword=learnify252003%3b</Value>
+    </DestinationConnectionStrings>
+  </ItemGroup>
+</Project>
