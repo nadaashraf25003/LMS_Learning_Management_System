@@ -21,6 +21,7 @@ function Login() {
   const { loginMutation } = useAuth();
 
   const {
+    // register,
     control,
     handleSubmit,
     formState: { errors },
