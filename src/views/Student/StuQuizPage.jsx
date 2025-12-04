@@ -10,29 +10,42 @@ const AnswersEndPoint = "studentanswers";
 // ---------------- Timer Component ----------------
 function Timer({ initialSeconds = 3600, onTimeUp }) {
   const [secs, setSecs] = useState(initialSeconds);
-  const [isWarning, setIsWarning] = useState(false);
+    const [isWarning, setIsWarning] = useState(false);
+  const [finished, setFinished] = useState(false);
 
   useEffect(() => {
-    if (secs === 300) { // 5 minutes warning
+    if (secs === 300 && !isWarning) { // 5 minutes warning
       setIsWarning(true);
       toast.error("Only 5 minutes remaining! ⏰", { duration: 5000 });
     }
     if (secs === 60) { // 1 minute warning
       toast.error("Hurry! Only 1 minute left! 🚨", { duration: 3000 });
     }
-    if (secs === 0) {
-      onTimeUp();
+    if (secs === 0 && !finished) {
+      setFinished(true);
+      onTimeUp(); // run only once
     }
-  }, [secs, onTimeUp]);
+  }, [secs, isWarning, finished, onTimeUp]);
 
   const handleTimeUp = () => {
   toast.error("Time's up! Submitting your quiz automatically...");
   handleSubmit();
 };
-  useEffect(() => {
-    const timer = setInterval(() => setSecs((s) => (s > 0 ? s - 1 : 0)), 1000);
+ useEffect(() => {
+    if (finished) return; // stop timer completely when done
+
+    const timer = setInterval(() => {
+      setSecs((s) => (s > 0 ? s - 1 : 0));
+    }, 1000);
+
     return () => clearInterval(timer);
-  }, []);
+  }, [finished]);
+
+  const formatTime = (s) => {
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return `${m}:${sec < 10 ? "0" : ""}${sec}`;
+  };
 
   const hours = Math.floor(secs / 3600);
   const minutes = Math.floor((secs % 3600) / 60);
@@ -172,6 +185,9 @@ function QuestionNavigation({ questions, answers, currentQuestion, onQuestionCli
 
 // ---------------- Questions List ----------------
 function QuestionsList({ questions, answers, onAnswerChange, currentQuestion, onQuestionChange }) {
+    if (!questions || questions.length === 0 || currentQuestion >= questions.length || currentQuestion < 0) {
+    return <div className="text-center text-text-secondary">No questions available</div>;
+  }
   const currentQ = questions[currentQuestion];
 
   return (

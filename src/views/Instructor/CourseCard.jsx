@@ -1,6 +1,9 @@
 import React from "react";
 
+
 function CourseCard({ course, onClick, onRemove, onAddToCart, onEdit }) {
+  console.log(course.image)
+const image = course.image && course.image.trim() ? `/${course.image.trim()}` : "https://www.google.com/url?sa=t&source=web&rct=j&url=https%3A%2F%2Fwww.linkedin.com%2Fpulse%2Fe-courses-everything-you-need-know-quickly-easily-create-luis-madrid&ved=0CBUQjRxqFwoTCIjIpe70pJEDFQAAAAAdAAAAABAI&opi=89978449";
   return (
     <div
       className="card card-hover w-full max-w-sm bg-surface rounded-xl shadow-lg overflow-hidden transition-transform transform hover:-translate-y-1 hover:shadow-2xl cursor-pointer"
@@ -9,9 +12,9 @@ function CourseCard({ course, onClick, onRemove, onAddToCart, onEdit }) {
       {/* Course Image */}
       <div className="relative h-48 w-full overflow-hidden">
         <img
-          src={course.image || "/placeholder.png"}
-          alt={course.title}
-          className="object-cover w-full h-full transition-transform duration-300 hover:scale-105"
+          src={image}
+          // alt={course.title}
+          className="object-cover w-full h-full"
         />
         {!course.isApproved && (
           <span className="absolute top-2 right-2 bg-destructive text-white text-xs px-2 py-1 rounded-full">

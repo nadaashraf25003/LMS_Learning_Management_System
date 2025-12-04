@@ -315,7 +315,7 @@ namespace Learnify_API.Controllers
                 var question = studentAnswer.Quiz.Questions?.FirstOrDefault(q => q.QuestionId.ToString() == ans.Key);
                 if (question != null)
                 {
-                    if (question.CorrectOption.ToString() == ans.Value)
+                    if (question.CorrectOption.ToString().ToLower() == ans.Value.ToLower())
                         correct++;
                     else
                         wrong++;
@@ -337,6 +337,7 @@ namespace Learnify_API.Controllers
                 answers = parsedAnswers
             });
         }
+
         [HttpGet("check/{quizId}")]
         [Authorize(Roles = "student")]
         public async Task<IActionResult> CheckQuizStatus(int quizId)

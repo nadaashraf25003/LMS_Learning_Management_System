@@ -16,6 +16,7 @@
         public decimal? Price { get; set; }
         public string? Tag { get; set; }
         public string? Image { get; set; }
+        public IFormFile? ImageFormFile { get; set; }
         public int StudentsEnrolled { get; set; }
         public bool CertificateIncluded { get; set; }
         public string? Duration { get; set; }

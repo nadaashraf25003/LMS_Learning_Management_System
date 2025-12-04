@@ -42,6 +42,7 @@
         public DateTime CreatedAt { get; set; }
         public List<QuizVM>? Quizzes { get; set; }
         public int TotalQuizzes => Quizzes?.Count ?? 0;
+        public bool IsCompleted { get; set; } = false;
     }
 
     // Progress tracking view model

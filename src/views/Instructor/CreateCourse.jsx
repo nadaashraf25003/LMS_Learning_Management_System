@@ -226,15 +226,14 @@ function CreateCourse() {
 
         {/* Cover Image */}
         <div className="flex flex-col gap-2 md:col-span-2">
-          <label className="text-text-secondary font-medium">
-            Cover Image URL
-          </label>
+          <label className="text-text-secondary font-medium">Cover Image</label>
+
           <input
-            type="text"
+            accept="image/*"
+            type="file"
             name="image"
-            value={form.image}
+            accept="image/*"
             onChange={handleChange}
-            placeholder="https://..."
             className="border border-input p-3 rounded-xl focus:ring-2 focus:ring-primary bg-surface text-text-primary"
           />
         </div>

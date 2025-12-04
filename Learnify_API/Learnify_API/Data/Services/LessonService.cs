@@ -288,7 +288,9 @@ namespace Learnify_API.Data.Services
                 IsFreePreview = lesson.IsFreePreview,
                 Order = lesson.Order,
                 CreatedAt = lesson.CreatedAt,
-                Quizzes = quizzes
+                Quizzes = quizzes,
+                IsCompleted = await _context.LessonProgresses
+                    .AnyAsync(p => p.LessonId == lessonId && p.StudentId == studentId && p.IsCompleted)
             };
         }
 
@@ -327,16 +329,40 @@ namespace Learnify_API.Data.Services
         // Course Progress
         public async Task<double?> GetProgressAsync(int courseId, int studentId)
         {
-            if (!await IsStudentEnrolled(studentId, courseId)) return null;
+            if (!await IsStudentEnrolled(studentId, courseId))
+                return null;
 
+            // ===== Lessons =====
             var totalLessons = await _context.Lessons
-                .Where(l => l.CourseId == courseId).CountAsync();
-
-            var completed = await _context.LessonProgresses
-                .Where(p => p.StudentId == studentId && p.IsCompleted && p.Lesson.CourseId == courseId)
+                .Where(l => l.CourseId == courseId)
                 .CountAsync();
 
-            return totalLessons == 0 ? 0 : (completed / (double)totalLessons) * 100;
+            var completedLessons = await _context.LessonProgresses
+                .Where(p => p.StudentId == studentId &&
+                            p.IsCompleted &&
+                            p.Lesson.CourseId == courseId)
+                .CountAsync();
+
+            // ===== Quizzes =====
+            var totalQuizzes = await _context.Quizzes
+                .Where(q => q.CourseId == courseId)
+                .CountAsync();
+
+            var completedQuizzes = await _context.StudentAnswers
+                .Where(sa => sa.StudentId == studentId &&
+                             sa.Quiz.CourseId == courseId)
+                .Select(sa => sa.QuizId)
+                .Distinct()
+                .CountAsync();
+
+            // ===== Total Items =====
+            int totalItems = totalLessons + totalQuizzes;
+            int completedItems = completedLessons + completedQuizzes;
+
+            if (totalItems == 0) return 0;
+
+            return (completedItems / (double)totalItems) * 100;
         }
+
     }
 }
