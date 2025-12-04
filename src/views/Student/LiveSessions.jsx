@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState, useRef } from "react";
 import toast, { Toaster } from "react-hot-toast";
-
 // Mock router hook
 const useNavigate = () => {
   return (path) => {
@@ -8,21 +7,18 @@ const useNavigate = () => {
     toast.success(`Navigating to ${path}`);
   };
 };
-
 // Mock LandingHeading component
 const LandingHeading = ({ header }) => (
   <div className="mb-6">
     <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{header}</h1>
   </div>
 );
-
 // Mock Pagination component
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   const pages = [];
   for (let i = 1; i <= totalPages; i++) {
     pages.push(i);
   }
-
   return (
     <div className="flex items-center justify-center gap-2">
       <button
@@ -32,7 +28,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
       >
         Previous
       </button>
-      
+     
       {pages.map(page => (
         <button
           key={page}
@@ -46,7 +42,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
           {page}
         </button>
       ))}
-      
+     
       <button
         onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
         disabled={currentPage === totalPages}
@@ -57,7 +53,6 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
     </div>
   );
 };
-
 // Mock API config
 const api = {
   get: async (endpoint, options) => {
@@ -77,54 +72,6 @@ const api = {
     });
   }
 };
-
-// Dark Mode Toggle Component
-const DarkModeToggle = () => {
-  const [darkMode, setDarkMode] = useState(false);
-
-  useEffect(() => {
-    const isDarkMode = localStorage.getItem('darkMode') === 'true' ||
-      (!('darkMode' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
-    
-    setDarkMode(isDarkMode);
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, []);
-
-  const toggleDarkMode = () => {
-    const newDarkMode = !darkMode;
-    setDarkMode(newDarkMode);
-    localStorage.setItem('darkMode', newDarkMode.toString());
-    
-    if (newDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  };
-
-  return (
-    <button
-      onClick={toggleDarkMode}
-      className="fixed top-4 right-4 z-50 p-3 rounded-full bg-gray-100 dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow"
-      aria-label="Toggle dark mode"
-    >
-      {darkMode ? (
-        <svg className="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
-          <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clipRule="evenodd" />
-        </svg>
-      ) : (
-        <svg className="w-5 h-5 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-        </svg>
-      )}
-    </button>
-  );
-};
-
 // Define URLs directly in the component
 const URLS = {
   getLiveSessions: "Student/get-live-sessions",
@@ -137,7 +84,6 @@ const URLS = {
   getSessionResources: "Student/get-session-resources",
   enrollInSession: "Student/enroll-in-session",
 };
-
 const GetLiveSessionsEndPoint = URLS.getLiveSessions;
 const GetUpcomingSessionsEndPoint = URLS.getUpcomingSessions;
 const GetPastSessionsEndPoint = URLS.getPastSessions;
@@ -147,16 +93,13 @@ const GetSessionDetailsEndPoint = URLS.getSessionDetails;
 const RateSessionEndPoint = URLS.rateSession;
 const GetSessionResourcesEndPoint = URLS.getSessionResources;
 const EnrollInSessionEndPoint = URLS.enrollInSession;
-
 const SESSIONS_PER_PAGE = 9;
-
 const SESSION_STATUS = {
   UPCOMING: "upcoming",
   LIVE: "live",
   ENDED: "ended",
   CANCELLED: "cancelled"
 };
-
 const SESSION_CATEGORIES = {
   LECTURE: "lecture",
   QUIZ: "quiz",
@@ -165,7 +108,6 @@ const SESSION_CATEGORIES = {
   REVIEW: "review",
   OTHER: "other"
 };
-
 // Mock data for demonstration
 const MOCK_SESSIONS = [
   {
@@ -326,7 +268,6 @@ const MOCK_SESSIONS = [
     notes: "Challenging but fair questions"
   }
 ];
-
 function LiveSession() {
   const navigate = useNavigate();
   const [sessions, setSessions] = useState([]);
@@ -342,57 +283,49 @@ function LiveSession() {
   const [useMockData, setUseMockData] = useState(true);
   const [ratingModal, setRatingModal] = useState({ show: false, sessionId: null, rating: 0 });
   const [notesModal, setNotesModal] = useState({ show: false, sessionId: null, notes: "" });
-  
+ 
   const autoRefreshInterval = useRef(null);
-
   // Fetch sessions data
   const fetchSessions = async (showLoading = true) => {
     if (showLoading) setLoading(true);
-    
+   
     // Always use mock data for this standalone version
     setTimeout(() => {
       setSessions(MOCK_SESSIONS);
       if (showLoading) setLoading(false);
     }, 500);
   };
-
   // Initial fetch
   useEffect(() => {
     fetchSessions();
-    
+   
     // Set up auto-refresh for live sessions
     autoRefreshInterval.current = setInterval(() => {
       if (statusFilter === "all" || statusFilter === SESSION_STATUS.LIVE) {
         fetchSessions(false);
       }
     }, 30000); // Refresh every 30 seconds for live sessions
-
     return () => {
       if (autoRefreshInterval.current) {
         clearInterval(autoRefreshInterval.current);
       }
     };
   }, []);
-
   // Reset page on filters
   useEffect(() => {
     setCurrentPage(1);
   }, [statusFilter, categoryFilter, search, dateRange, showOnlyEnrolled, showOnlyFavorites]);
-
   // Filtered sessions
   const filteredSessions = useMemo(() => {
     let filtered = sessions;
-
     // Apply status filter
     if (statusFilter !== "all") {
       filtered = filtered.filter(session => session.status === statusFilter);
     }
-
     // Apply category filter
     if (categoryFilter !== "all") {
       filtered = filtered.filter(session => session.category === categoryFilter);
     }
-
     // Apply date range filter
     if (dateRange.start) {
       const startDate = new Date(dateRange.start);
@@ -411,17 +344,14 @@ function LiveSession() {
         return sessionDate <= endDate;
       });
     }
-
     // Apply enrolled filter
     if (showOnlyEnrolled) {
       filtered = filtered.filter(session => session.isEnrolled);
     }
-
     // Apply favorites filter
     if (showOnlyFavorites) {
       filtered = filtered.filter(session => session.isFavorite);
     }
-
     // Apply search filter
     const q = search.toLowerCase().trim();
     if (q) {
@@ -434,10 +364,8 @@ function LiveSession() {
           session.course?.category?.toLowerCase().includes(q)
       );
     }
-
     return filtered;
   }, [sessions, statusFilter, categoryFilter, search, dateRange, showOnlyEnrolled, showOnlyFavorites]);
-
   const totalPages = Math.max(
     1,
     Math.ceil(filteredSessions.length / SESSIONS_PER_PAGE)
@@ -447,7 +375,6 @@ function LiveSession() {
     pageStartIndex,
     pageStartIndex + SESSIONS_PER_PAGE
   );
-
   // Get session status color
   const getStatusColor = (status) => {
     switch (status) {
@@ -463,7 +390,6 @@ function LiveSession() {
         return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300 border border-gray-200 dark:border-gray-800";
     }
   };
-
   // Get category color
   const getCategoryColor = (category) => {
     switch (category) {
@@ -481,7 +407,6 @@ function LiveSession() {
         return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
     }
   };
-
   // Format date
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
@@ -493,7 +418,6 @@ function LiveSession() {
       day: 'numeric'
     });
   };
-
   // Format time
   const formatTime = (dateString) => {
     if (!dateString) return "";
@@ -504,19 +428,17 @@ function LiveSession() {
       hour12: true
     });
   };
-
   // Format duration
   const formatDuration = (minutes) => {
     if (!minutes) return "";
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
-    
+   
     if (hours > 0) {
       return `${hours}h ${mins}m`;
     }
     return `${mins}m`;
   };
-
   // Format relative time
   const formatRelativeTime = (dateString) => {
     if (!dateString) return "";
@@ -527,7 +449,6 @@ function LiveSession() {
     const diffMin = Math.floor(diffSec / 60);
     const diffHour = Math.floor(diffMin / 60);
     const diffDay = Math.floor(diffHour / 24);
-
     if (diffMs < 0) {
       const absDiffMin = Math.abs(diffMin);
       if (absDiffMin < 60) return `${absDiffMin}m ago`;
@@ -539,24 +460,20 @@ function LiveSession() {
       return `in ${diffDay}d`;
     }
   };
-
   // Handle join session
   const handleJoinSession = async (session) => {
     if (!session.isEnrolled) {
       toast.error("You need to enroll in this session first");
       return;
     }
-
     if (session.status !== SESSION_STATUS.LIVE) {
       toast.error("This session is not live yet");
       return;
     }
-
     if (!session.meetingLink) {
       toast.error("Meeting link not available");
       return;
     }
-
     try {
       // Open meeting link in new tab
       window.open(session.meetingLink, '_blank');
@@ -566,23 +483,20 @@ function LiveSession() {
       toast.error("Failed to join session");
     }
   };
-
   // Handle enroll in session
   const handleEnrollSession = async (session) => {
     if (session.isEnrolled) {
       toast.error("You are already enrolled in this session");
       return;
     }
-
     if (session.enrolledCount >= session.maxParticipants) {
       toast.error("This session is full");
       return;
     }
-
     try {
       // Mock enrollment
-      setSessions(prev => prev.map(s => 
-        s.id === session.id 
+      setSessions(prev => prev.map(s =>
+        s.id === session.id
           ? { ...s, isEnrolled: true, enrolledCount: s.enrolledCount + 1 }
           : s
       ));
@@ -592,13 +506,12 @@ function LiveSession() {
       toast.error("Failed to enroll in session");
     }
   };
-
   // Handle toggle favorite
   const handleToggleFavorite = async (session) => {
     try {
       // Mock favorite toggle
-      setSessions(prev => prev.map(s => 
-        s.id === session.id 
+      setSessions(prev => prev.map(s =>
+        s.id === session.id
           ? { ...s, isFavorite: !s.isFavorite }
           : s
       ));
@@ -608,18 +521,16 @@ function LiveSession() {
       toast.error("Failed to update favorites");
     }
   };
-
   // Handle submit rating
   const handleSubmitRating = async () => {
     if (ratingModal.rating < 1 || ratingModal.rating > 5) {
       toast.error("Please select a rating between 1 and 5");
       return;
     }
-
     try {
       // Mock rating submission
-      setSessions(prev => prev.map(s => 
-        s.id === ratingModal.sessionId 
+      setSessions(prev => prev.map(s =>
+        s.id === ratingModal.sessionId
           ? { ...s, rating: ratingModal.rating }
           : s
       ));
@@ -630,13 +541,12 @@ function LiveSession() {
       toast.error("Failed to submit rating");
     }
   };
-
   // Handle save notes
   const handleSaveNotes = async () => {
     try {
       // Mock notes save
-      setSessions(prev => prev.map(s => 
-        s.id === notesModal.sessionId 
+      setSessions(prev => prev.map(s =>
+        s.id === notesModal.sessionId
           ? { ...s, notes: notesModal.notes }
           : s
       ));
@@ -647,7 +557,6 @@ function LiveSession() {
       toast.error("Failed to save notes");
     }
   };
-
   // Get session statistics
   const getSessionStats = useMemo(() => {
     const stats = {
@@ -664,13 +573,11 @@ function LiveSession() {
     };
     return stats;
   }, [sessions]);
-
   // Refresh sessions
   const handleRefresh = () => {
     fetchSessions();
     toast.success("Sessions refreshed");
   };
-
   if (loading && sessions.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-[60vh] bg-gray-50 dark:bg-gray-900">
@@ -681,21 +588,19 @@ function LiveSession() {
       </div>
     );
   }
-
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <DarkModeToggle />
-      <Toaster 
-        position="top-right" 
+      <Toaster
+        position="top-right"
         reverseOrder={false}
         toastOptions={{
           className: 'dark:bg-gray-800 dark:text-white dark:border dark:border-gray-700',
         }}
       />
-      
+     
       <div className="p-4 md:p-6">
         <LandingHeading header="Live Sessions" />
-        
+       
         <div className="mb-6">
           <p className="text-gray-600 dark:text-gray-300">
             Join live lectures, workshops, and interactive sessions with your instructors and classmates
@@ -704,7 +609,6 @@ function LiveSession() {
             </span>
           </p>
         </div>
-
         {/* Stats Summary */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
@@ -721,7 +625,6 @@ function LiveSession() {
               </div>
             </div>
           </div>
-
           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <div>
@@ -735,7 +638,6 @@ function LiveSession() {
               </div>
             </div>
           </div>
-
           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <div>
@@ -749,7 +651,6 @@ function LiveSession() {
               </div>
             </div>
           </div>
-
           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <div>
@@ -764,7 +665,6 @@ function LiveSession() {
             </div>
           </div>
         </div>
-
         {/* Filters, Search and Controls */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 mb-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-4">
@@ -784,7 +684,6 @@ function LiveSession() {
                 </div>
               </div>
             </div>
-
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
               <button
                 onClick={handleRefresh}
@@ -797,7 +696,6 @@ function LiveSession() {
               </button>
             </div>
           </div>
-
           {/* Filters */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <div>
@@ -816,7 +714,6 @@ function LiveSession() {
                 <option value={SESSION_STATUS.CANCELLED}>Cancelled</option>
               </select>
             </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Category
@@ -835,7 +732,6 @@ function LiveSession() {
                 <option value={SESSION_CATEGORIES.OTHER}>Other</option>
               </select>
             </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Date Range
@@ -848,7 +744,6 @@ function LiveSession() {
                 placeholder="Start Date"
               />
             </div>
-
             <div className="flex items-end">
               <div className="w-full">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -863,7 +758,6 @@ function LiveSession() {
                 />
               </div>
             </div>
-
             <div className="flex items-center gap-4 pt-2">
               <div className="flex items-center">
                 <input
@@ -877,7 +771,7 @@ function LiveSession() {
                   Enrolled Only
                 </label>
               </div>
-              
+             
               <div className="flex items-center">
                 <input
                   type="checkbox"
@@ -892,7 +786,6 @@ function LiveSession() {
               </div>
             </div>
           </div>
-
           {/* Clear Filters Button */}
           {(dateRange.start || dateRange.end || showOnlyEnrolled || showOnlyFavorites || search || statusFilter !== "all" || categoryFilter !== "all") && (
             <div className="mt-4 flex justify-end">
@@ -915,7 +808,6 @@ function LiveSession() {
             </div>
           )}
         </div>
-
         {/* Sessions Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {pageSessions.length === 0 ? (
@@ -960,7 +852,7 @@ function LiveSession() {
                         {session.category?.replace('_', ' ')?.toUpperCase()}
                       </span>
                     </div>
-                    
+                   
                     <button
                       onClick={() => handleToggleFavorite(session)}
                       className="text-gray-400 hover:text-yellow-500 dark:hover:text-yellow-400 transition-colors"
@@ -976,16 +868,14 @@ function LiveSession() {
                       )}
                     </button>
                   </div>
-
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 line-clamp-2">
                     {session.title}
                   </h3>
-                  
+                 
                   <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-2">
                     {session.description}
                   </p>
                 </div>
-
                 {/* Session Body */}
                 <div className="p-4">
                   {/* Instructor Info */}
@@ -1005,14 +895,12 @@ function LiveSession() {
                       </div>
                     </div>
                   </div>
-
                   {/* Course Info */}
                   <div className="mb-4">
                     <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Course</p>
                     <p className="font-medium text-gray-900 dark:text-white">{session.course?.title}</p>
                     <p className="text-sm text-gray-600 dark:text-gray-400">{session.course?.category}</p>
                   </div>
-
                   {/* Session Details */}
                   <div className="grid grid-cols-2 gap-4 mb-4">
                     <div>
@@ -1028,7 +916,6 @@ function LiveSession() {
                       <p className="text-sm text-gray-600 dark:text-gray-400">{formatRelativeTime(session.startTime)}</p>
                     </div>
                   </div>
-
                   {/* Enrollment Status */}
                   <div className="flex items-center justify-between mb-4">
                     <div>
@@ -1045,7 +932,7 @@ function LiveSession() {
                         </div>
                       </div>
                     </div>
-                    
+                   
                     {session.rating && (
                       <div className="text-right">
                         <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Your Rating</p>
@@ -1064,7 +951,6 @@ function LiveSession() {
                       </div>
                     )}
                   </div>
-
                   {/* Requirements */}
                   {session.requirements && session.requirements.length > 0 && (
                     <div className="mb-4">
@@ -1078,7 +964,6 @@ function LiveSession() {
                       </div>
                     </div>
                   )}
-
                   {/* Action Buttons */}
                   <div className="flex flex-col gap-2">
                     {session.status === SESSION_STATUS.LIVE && session.isEnrolled ? (
@@ -1126,7 +1011,6 @@ function LiveSession() {
                         Watch Recording
                       </a>
                     ) : null}
-
                     {/* Additional Actions */}
                     <div className="flex gap-2">
                       <button
@@ -1135,7 +1019,7 @@ function LiveSession() {
                       >
                         Details
                       </button>
-                      
+                     
                       {session.status === SESSION_STATUS.ENDED && !session.rating && session.isEnrolled && (
                         <button
                           onClick={() => setRatingModal({ show: true, sessionId: session.id, rating: 0 })}
@@ -1144,7 +1028,7 @@ function LiveSession() {
                           Rate
                         </button>
                       )}
-                      
+                     
                       {session.isEnrolled && (
                         <button
                           onClick={() => setNotesModal({ show: true, sessionId: session.id, notes: session.notes || "" })}
@@ -1160,7 +1044,6 @@ function LiveSession() {
             ))
           )}
         </div>
-
         {/* Pagination */}
         {filteredSessions.length > SESSIONS_PER_PAGE && (
           <div className="mb-8">
@@ -1171,11 +1054,10 @@ function LiveSession() {
             />
           </div>
         )}
-
         {/* Session Details Modal */}
         {selectedSession && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div 
+            <div
               className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden border border-gray-200 dark:border-gray-700"
               onClick={(e) => e.stopPropagation()}
             >
@@ -1196,7 +1078,6 @@ function LiveSession() {
                   </svg>
                 </button>
               </div>
-
               {/* Content */}
               <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
                 <div className="space-y-6">
@@ -1221,7 +1102,6 @@ function LiveSession() {
                         </div>
                       </div>
                     </div>
-
                     <div>
                       <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">Course</h3>
                       <div className="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
@@ -1230,7 +1110,6 @@ function LiveSession() {
                       </div>
                     </div>
                   </div>
-
                   {/* Session Details */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
@@ -1250,7 +1129,6 @@ function LiveSession() {
                         </div>
                       </div>
                     </div>
-
                     <div>
                       <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">Participation</h3>
                       <div className="space-y-2">
@@ -1272,7 +1150,6 @@ function LiveSession() {
                         </div>
                       </div>
                     </div>
-
                     <div>
                       <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">Session Info</h3>
                       <div className="space-y-2">
@@ -1291,7 +1168,6 @@ function LiveSession() {
                       </div>
                     </div>
                   </div>
-
                   {/* Description */}
                   <div>
                     <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">Description</h3>
@@ -1299,7 +1175,6 @@ function LiveSession() {
                       <p className="text-gray-900 dark:text-white whitespace-pre-wrap">{selectedSession.description}</p>
                     </div>
                   </div>
-
                   {/* Requirements */}
                   {selectedSession.requirements && selectedSession.requirements.length > 0 && (
                     <div>
@@ -1313,7 +1188,6 @@ function LiveSession() {
                       </div>
                     </div>
                   )}
-
                   {/* Materials */}
                   {selectedSession.materials && selectedSession.materials.length > 0 && (
                     <div>
@@ -1338,7 +1212,6 @@ function LiveSession() {
                   )}
                 </div>
               </div>
-
               {/* Footer */}
               <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
                 <div className="text-sm text-gray-500 dark:text-gray-400">
@@ -1351,7 +1224,7 @@ function LiveSession() {
                   >
                     Close
                   </button>
-                  
+                 
                   {selectedSession.status === SESSION_STATUS.LIVE && selectedSession.isEnrolled ? (
                     <button
                       onClick={() => handleJoinSession(selectedSession)}
@@ -1372,14 +1245,13 @@ function LiveSession() {
             </div>
           </div>
         )}
-
         {/* Rating Modal */}
         {ratingModal.show && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md p-6 border border-gray-200 dark:border-gray-700">
               <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Rate This Session</h3>
               <p className="text-gray-600 dark:text-gray-300 mb-6">How would you rate this live session?</p>
-              
+             
               <div className="flex justify-center mb-6">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
@@ -1401,7 +1273,7 @@ function LiveSession() {
                   </button>
                 ))}
               </div>
-              
+             
               <div className="flex justify-end gap-3">
                 <button
                   onClick={() => setRatingModal({ show: false, sessionId: null, rating: 0 })}
@@ -1419,7 +1291,6 @@ function LiveSession() {
             </div>
           </div>
         )}
-
         {/* Notes Modal */}
         {notesModal.show && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -1431,7 +1302,7 @@ function LiveSession() {
                 placeholder="Add your notes for this session..."
                 className="w-full h-48 p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4 dark:placeholder-gray-400"
               />
-              
+             
               <div className="flex justify-end gap-3">
                 <button
                   onClick={() => setNotesModal({ show: false, sessionId: null, notes: "" })}
@@ -1453,5 +1324,4 @@ function LiveSession() {
     </div>
   );
 }
-
 export default LiveSession;
