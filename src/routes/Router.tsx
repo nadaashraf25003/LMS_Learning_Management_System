@@ -1,12 +1,10 @@
 import { lazy } from "react";
-import { createBrowserRouter } from "react-router-dom";  // Changed to react-router-dom
+import { createBrowserRouter } from "react-router-dom";
 import App from "../App.jsx";
-
 // Lazy-loaded dashboards
 const InstrDashboard = lazy(
   () => import("@/views/Instructor/InstrDashboard.jsx")
 );
-
 // Admin Views
 const UserManagement = lazy(() => import("@/views/Admin/UserManagement.jsx"));
 const AdminDashboard = lazy(() => import("@/views/Admin/AdminDashboard.jsx"));
@@ -19,7 +17,6 @@ const AdminLayout = lazy(
 const AdminProfile = lazy(() => import("@/views/Admin/AdminProfile.jsx"));
 const AdminPayments = lazy(() => import("@/views/Admin/AdminPayments.jsx"));
 const AdminLogs = lazy(() => import("@/views/Admin/AdminLogs.jsx"));
-
 // Instructor Views
 const InstructorLayout = lazy(
   () => import("@/components/InstructorLayout/InstructorLayout.jsx")
@@ -34,7 +31,7 @@ const LessonManagement = lazy(
 );
 const InstrProfile = lazy(() => import("@/views/Instructor/InstrProfile.jsx"));
 const CreateCourse = lazy(() => import("@/views/Instructor/CreateCourse.jsx"));
-const CreateLesson = lazy(() => import("@/views/Instructor/CreateLesson.jsx")); // Fixed extension
+const CreateLesson = lazy(() => import("@/views/Instructor/CreateLesson"));
 const CreateQuiz = lazy(() => import("@/views/Instructor/CreateQuiz.jsx"));
 const CreateQuestions = lazy(() => import("@/views/Instructor/CreateQuestions.jsx"));
 const InstructorCourseDetails = lazy(
@@ -51,7 +48,6 @@ const EditQuiz = lazy(() => import("@/views/Instructor/EditQuiz.jsx"));
 const InstFinalProjects = lazy(() => import("@/views/Instructor/InstFinalProjects.jsx"));
 const InstructorPayment = lazy(() => import("@/views/Instructor/InstructorPayment.jsx"));
 const InstLiveSessions = lazy(() => import("@/views/Instructor/InstLiveSessions.jsx"));
-
 // Student Views
 const StuDashboard = lazy(() => import("@/views/Student/StuDashboard.jsx"));
 const StuStudentLayout = lazy(
@@ -80,7 +76,6 @@ const StudentLessonPage = lazy(
 );
 const LiveSessions = lazy(() => import("@/views/Student/LiveSessions.jsx"));
 const StuFinalProjects = lazy(() => import("@/views/Student/StuFinalProjects.jsx"));
-
 // Others
 const UserLayout = lazy(() => import("@/components/UserLayout/UserLayout.jsx"));
 const ContactUs = lazy(() => import("@/views/Others/ContactUs.jsx"));
@@ -99,7 +94,6 @@ const FeedbackManagement = lazy(
 const CourseDetails = lazy(
   () => import("@/views/Others/SearchResults/CourseDetails.jsx")
 );
-
 // Landing Views
 const LandingLayout = lazy(
   () => import("@/components/Landing/LandingLayout/LandingLayout.js")
@@ -107,7 +101,6 @@ const LandingLayout = lazy(
 const Landing = lazy(() => import("../views/Landing/Landing.jsx"));
 const Courses = lazy(() => import("../views/Landing/Courses.jsx"));
 const About = lazy(() => import("../views/Landing/About.jsx"));
-
 // Auth Views
 const AuthLayout = lazy(
   () => import("@/components/Auth/AuthLayout/AuthLayout.js")
@@ -121,117 +114,116 @@ const InstructorRegister = lazy(
 );
 const VerifyEmail = lazy(() => import("../views/Auth/VerifyEmail.jsx"));
 const ResendVerification = lazy(() => import("../views/Auth/ResendVerification.jsx"));
-
 // Error Views
 const Error404 = lazy(() => import("../views/Error404.jsx"));
-
 export const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
-    errorElement: <Error404 />,
     children: [
-      // Landing routes
       {
         element: <LandingLayout />,
         children: [
           { index: true, element: <Landing /> },
-          { path: "courses", element: <Courses /> },
-          { path: "about", element: <About /> },
-          { path: "search-results", element: <SearchResults /> },
-          { path: "course-details/:id", element: <CourseDetails /> },
-          { path: "contact-us", element: <ContactUs /> },
-          { path: "send-feedback", element: <SendFeedback /> },
-          { path: "terms-of-use", element: <TermsofUse /> },
+          { path: "Courses", element: <Courses /> },
+          { path: "About", element: <About /> },
+          { path: "SearchResults", element: <SearchResults /> },
+          { path: "CourseDetails/:id", element: <CourseDetails /> },
+          { path: "ContactUs", element: <ContactUs /> },
+          { path: "SendFeedback", element: <SendFeedback /> },
+          { path: "TermsofUse", element: <TermsofUse /> },
         ],
       },
-      // Auth routes
       {
-        path: "auth",
+        path: "User",
         element: <AuthLayout />,
         children: [
-          { path: "login", element: <Login /> },
-          { path: "register", element: <Register /> },
-          { path: "instructor-register", element: <InstructorRegister /> },
-          { path: "forgot-password", element: <ForgetPassword /> },
+          { path: "Login", element: <Login /> },
+          { path: "Register", element: <Register /> },
+          { path: "InstructorRegister", element: <InstructorRegister /> },
+          { path: "ForgetPassword", element: <ForgetPassword /> },
           { path: "verify-email", element: <VerifyEmail /> },
           { path: "resend-verification", element: <ResendVerification /> },
-          { path: "reset-password", element: <ResetPassword /> },
+          { path: "ResetPassword", element: <ResetPassword /> },
         ],
       },
-      // User routes
       {
-        path: "user",
+        path: "UserLayout",
         element: <UserLayout />,
         children: [
-          { path: "help", element: <HelpPage /> },
-          { path: "notifications", element: <Notifications /> },
-          { path: "settings", element: <SettingPage /> },
-          { path: "edit-profile", element: <EditProfile /> },
+          { path: "HelpPage", element: <HelpPage /> },
+          { path: "AllFeedback", element: <FeedbackManagement /> },
+          { path: "Notifications", element: <Notifications /> },
+          { path: "SettingPage", element: <SettingPage /> },
+          { path: "EditProfile", element: <EditProfile /> },
         ],
       },
-      // Student routes
       {
-        path: "student",
+        path: "StudentLayout",
         element: <StuStudentLayout />,
         children: [
-          { path: "dashboard", element: <StuDashboard /> },
-          { path: "checkout", element: <StuCheckout /> },
-          { path: "profile", element: <StuProfile /> },
-          { path: "invoice", element: <StuInvoice /> },
-          { path: "certificates", element: <StuMyCertificates /> },
-          { path: "quiz/:courseid/:quizid", element: <StuQuizPage /> },
-          { path: "quiz-result/:quizId", element: <StuQuizResult /> },
-          { path: "course-details/:id", element: <StuCourseDetails /> },
-          { path: "saved-courses", element: <StuSavedCourses /> },
-          { path: "cart", element: <StuShoppingCart /> },
-          { path: "my-courses", element: <MyCourses /> },
-          { path: "lesson/:courseid/:lessonId", element: <StudentLessonPage /> },
-          { path: "live-sessions", element: <LiveSessions /> },
-          { path: "final-projects", element: <StuFinalProjects /> },
+          { path: "StuCheckout", element: <StuCheckout /> },
+          { path: "StuProfile", element: <StuProfile /> },
+          { path: "StuDashboard", element: <StuDashboard /> },
+          { path: "StuInvoice", element: <StuInvoice /> },
+          { path: "StuMyCertificates", element: <StuMyCertificates /> },
+          { path: "StuQuizPage/:courseid/:quizid", element: <StuQuizPage /> },
+          { path: "StuQuizResult/:quizId", element: <StuQuizResult /> },
+          { path: "StuCourseDetails/:id", element: <StuCourseDetails /> },
+          { path: "StuSavedCourses", element: <StuSavedCourses /> },
+          { path: "StuShoppingCart", element: <StuShoppingCart /> },
+          { path: "MyCourses", element: <MyCourses /> },
+          { path: "StudentLessonPage/:courseid/:lessonId", element: <StudentLessonPage /> },
+          { path: "LiveSessions", element: <LiveSessions /> },
+          { path: "StuFinalProjects", element: <StuFinalProjects /> },
         ],
       },
-      // Instructor routes
       {
-        path: "instructor",
+        path: "InstructorLayout",
         element: <InstructorLayout />,
         children: [
-          { path: "dashboard", element: <InstrDashboard /> },
-          { path: "courses", element: <InstCourses /> },
-          { path: "create-course", element: <CreateCourse /> },
-          { path: "edit-course/:courseid", element: <CreateCourse /> },
-          { path: "create-lesson/:courseid", element: <CreateLesson /> },
-          { path: "edit-lesson/:lessonid", element: <EditLesson /> },
-          { path: "create-quiz/:courseid/:lessonId", element: <CreateQuiz /> },
-          { path: "create-questions/:courseid/:lessonId/:quizid", element: <CreateQuestions /> },
-          { path: "edit-quiz/:quizid/:courseId/:lessonId", element: <EditQuiz /> },
-          { path: "course-details/:id", element: <InstructorCourseDetails /> },
-          { path: "lesson-details/:id", element: <InstructorLessonDetails /> },
-          { path: "quiz-details/:quizid/:courseId/:lessonId", element: <InstructorQuizDetails /> },
-          { path: "students", element: <AllStudents /> },
-          { path: "quizzes", element: <QuizManagement /> },
-          { path: "lessons", element: <LessonManagement /> },
-          { path: "profile", element: <InstrProfile /> },
-          { path: "final-projects", element: <InstFinalProjects /> },
-          { path: "payments", element: <InstructorPayment /> },
-          { path: "live-sessions", element: <InstLiveSessions /> },
+          { path: "InstrDashboard", element: <InstrDashboard /> },
+          { path: "MyCourses", element: <InstCourses /> },
+          { path: "CreateCourse", element: <CreateCourse /> },
+          { path: "CreateLesson/:courseid", element: <CreateLesson /> },
+          { path: "EditLesson/:lessonid", element: <EditLesson /> },
+          { path: "CreateQuiz/:courseid/:lessonId", element: <CreateQuiz /> },
+          { path: "CreateQuestions/:courseid/:lessonId/:quizid", element: <CreateQuestions /> },
+          { path: "EditQuiz/:quizid/:courseId/:lessonId", element: <EditQuiz /> },
+          { path: "CreateCourse/:courseid", element: <CreateCourse /> },
+          {
+            path: "InstCourseDetails/:id",
+            element: <InstructorCourseDetails />,
+          },
+          {
+            path: "InstLessonDetails/:id",
+            element: <InstructorLessonDetails />,
+          },
+          {
+            path: "InstQuizDetails/:quizid/:courseId/:lessonId",
+            element: <InstructorQuizDetails />,
+          },
+          { path: "AllStudents", element: <AllStudents /> },
+          { path: "QuizManagement", element: <QuizManagement /> },
+          { path: "LessonManagement", element: <LessonManagement /> },
+          { path: "InstrProfile", element: <InstrProfile /> },
+          { path: "InstFinalProjects", element: <InstFinalProjects /> },
+          { path: "InstructorPayment", element: <InstructorPayment /> },
+          { path: "InstLiveSessions", element: <InstLiveSessions /> },
         ],
       },
-      // Admin routes
       {
-        path: "admin",
+        path: "AdminLayout",
         element: <AdminLayout />,
         children: [
-          { path: "dashboard", element: <AdminDashboard /> },
-          { path: "profile", element: <AdminProfile /> },
-          { path: "users", element: <UserManagement /> },
-          { path: "courses", element: <CourseManagement /> },
-          { path: "payments", element: <AdminPayments /> },
-          { path: "logs", element: <AdminLogs /> },
-          { path: "feedback", element: <FeedbackManagement /> },
+          { path: "AdminDashboard", element: <AdminDashboard /> },
+          { path: "AdminProfile", element: <AdminProfile /> },
+          { path: "UserManagement", element: <UserManagement /> },
+          { path: "CourseManagement", element: <CourseManagement /> },
+          { path: "AdminPayments", element: <AdminPayments /> },
+          { path: "AdminLogs", element: <AdminLogs /> },
         ],
       },
-      // 404 route
       { path: "*", element: <Error404 /> },
     ],
   },
