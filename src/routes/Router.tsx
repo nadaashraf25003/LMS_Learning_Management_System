@@ -1,5 +1,5 @@
 import { lazy } from "react";
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter } from "react-router-dom";  // Changed to react-router-dom
 import App from "../App.jsx";
 
 // Lazy-loaded dashboards
@@ -34,7 +34,7 @@ const LessonManagement = lazy(
 );
 const InstrProfile = lazy(() => import("@/views/Instructor/InstrProfile.jsx"));
 const CreateCourse = lazy(() => import("@/views/Instructor/CreateCourse.jsx"));
-const CreateLesson = lazy(() => import("@/views/Instructor/CreateLesson"));
+const CreateLesson = lazy(() => import("@/views/Instructor/CreateLesson.jsx")); // Fixed extension
 const CreateQuiz = lazy(() => import("@/views/Instructor/CreateQuiz.jsx"));
 const CreateQuestions = lazy(() => import("@/views/Instructor/CreateQuestions.jsx"));
 const InstructorCourseDetails = lazy(
@@ -131,19 +131,21 @@ export const router = createBrowserRouter([
     element: <App />,
     errorElement: <Error404 />,
     children: [
+      // Landing routes
       {
         element: <LandingLayout />,
         children: [
           { index: true, element: <Landing /> },
           { path: "courses", element: <Courses /> },
           { path: "about", element: <About /> },
-          { path: "search", element: <SearchResults /> },
-          { path: "course/:id", element: <CourseDetails /> },
-          { path: "contact", element: <ContactUs /> },
-          { path: "feedback", element: <SendFeedback /> },
-          { path: "terms", element: <TermsofUse /> },
+          { path: "search-results", element: <SearchResults /> },
+          { path: "course-details/:id", element: <CourseDetails /> },
+          { path: "contact-us", element: <ContactUs /> },
+          { path: "send-feedback", element: <SendFeedback /> },
+          { path: "terms-of-use", element: <TermsofUse /> },
         ],
       },
+      // Auth routes
       {
         path: "auth",
         element: <AuthLayout />,
@@ -157,6 +159,7 @@ export const router = createBrowserRouter([
           { path: "reset-password", element: <ResetPassword /> },
         ],
       },
+      // User routes
       {
         path: "user",
         element: <UserLayout />,
@@ -167,6 +170,7 @@ export const router = createBrowserRouter([
           { path: "edit-profile", element: <EditProfile /> },
         ],
       },
+      // Student routes
       {
         path: "student",
         element: <StuStudentLayout />,
@@ -178,7 +182,7 @@ export const router = createBrowserRouter([
           { path: "certificates", element: <StuMyCertificates /> },
           { path: "quiz/:courseid/:quizid", element: <StuQuizPage /> },
           { path: "quiz-result/:quizId", element: <StuQuizResult /> },
-          { path: "course/:id", element: <StuCourseDetails /> },
+          { path: "course-details/:id", element: <StuCourseDetails /> },
           { path: "saved-courses", element: <StuSavedCourses /> },
           { path: "cart", element: <StuShoppingCart /> },
           { path: "my-courses", element: <MyCourses /> },
@@ -187,6 +191,7 @@ export const router = createBrowserRouter([
           { path: "final-projects", element: <StuFinalProjects /> },
         ],
       },
+      // Instructor routes
       {
         path: "instructor",
         element: <InstructorLayout />,
@@ -200,9 +205,9 @@ export const router = createBrowserRouter([
           { path: "create-quiz/:courseid/:lessonId", element: <CreateQuiz /> },
           { path: "create-questions/:courseid/:lessonId/:quizid", element: <CreateQuestions /> },
           { path: "edit-quiz/:quizid/:courseId/:lessonId", element: <EditQuiz /> },
-          { path: "course/:id", element: <InstructorCourseDetails /> },
-          { path: "lesson/:id", element: <InstructorLessonDetails /> },
-          { path: "quiz/:quizid/:courseId/:lessonId", element: <InstructorQuizDetails /> },
+          { path: "course-details/:id", element: <InstructorCourseDetails /> },
+          { path: "lesson-details/:id", element: <InstructorLessonDetails /> },
+          { path: "quiz-details/:quizid/:courseId/:lessonId", element: <InstructorQuizDetails /> },
           { path: "students", element: <AllStudents /> },
           { path: "quizzes", element: <QuizManagement /> },
           { path: "lessons", element: <LessonManagement /> },
@@ -212,6 +217,7 @@ export const router = createBrowserRouter([
           { path: "live-sessions", element: <InstLiveSessions /> },
         ],
       },
+      // Admin routes
       {
         path: "admin",
         element: <AdminLayout />,
@@ -225,6 +231,7 @@ export const router = createBrowserRouter([
           { path: "feedback", element: <FeedbackManagement /> },
         ],
       },
+      // 404 route
       { path: "*", element: <Error404 /> },
     ],
   },
