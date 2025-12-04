@@ -143,7 +143,7 @@ namespace Learnify_API.Controllers
                 Response.Cookies.Append("refreshToken", result.RefreshToken, new CookieOptions
                 {
                     HttpOnly = true,
-                    Secure = true, // فقط للـ localhost
+                    Secure = false, // فقط للـ localhost
                     SameSite = SameSiteMode.None,
                     //Domain = "localhost:5173",
                     Expires = DateTime.UtcNow.AddMinutes(refreshTokenExpiryMinutes)
