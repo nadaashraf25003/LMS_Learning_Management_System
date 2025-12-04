@@ -1,345 +1,487 @@
-import React, { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
-import useFinalProjects from "@/hooks/useFinalProjects"; // Assuming a custom hook similar to useLesson
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useAppStore } from "@/store/app";
 import toast, { Toaster } from "react-hot-toast";
-import ConfirmToast from "@/utils/ConfirmToast";
 
-export default function InstructorFinalProjects() {
-  const navigate = useNavigate();
-  const [currentTab, setCurrentTab] = useState("overview");
-  const [search, setSearch] = useState("");
-
-  const { getProjects, gradeProjectMutation, deleteProjectMutation } = useFinalProjects();
-  const { data: projectsData, isLoading } = getProjects();
-
-  const projects = projectsData?.projects || [];
-
-  // Filtered projects
-  const filteredProjects = useMemo(() => {
-    let filtered = projects;
-    if (search.trim()) {
-      const q = search.toLowerCase().trim();
-      filtered = filtered.filter(
-        (project) =>
-          project.studentName?.toLowerCase().includes(q) ||
-          project.title?.toLowerCase().includes(q) ||
-          project.description?.toLowerCase().includes(q)
-      );
-    }
-    return filtered;
-  }, [projects, search]);
-
-  const totalProjects = useMemo(() => projects.length, [projects]);
-  const pendingProjects = useMemo(() => projects.filter((p) => p.status === "pending").length, [projects]);
-  const gradedProjects = useMemo(() => projects.filter((p) => p.status === "graded").length, [projects]);
-  const averageGrade = useMemo(() => {
-    const graded = projects.filter((p) => p.grade !== null && p.grade > 0);
-    return graded.length > 0 ? (graded.reduce((sum, p) => sum + p.grade, 0) / graded.length).toFixed(1) : 0;
-  }, [projects]);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-fade-in-up card prose">Loading final projects...</div>
-      </div>
-    );
+class ProjectService {
+  constructor() {
+    this.storageKey = "projects";
   }
 
-  const handleGradeProject = (projectId) => {
-    // Navigate to grading page or open modal; here assuming navigation
-    navigate(`/InstructorLayout/GradeProject/${projectId}`);
+  async getProjectById(id) {
+    try {
+      const projects = JSON.parse(localStorage.getItem(this.storageKey) || "[]");
+      return projects.find(project => project.id === id) || null;
+    } catch (error) {
+      console.error("Error getting project:", error);
+      return null;
+    }
+  }
+
+  async addProject(projectData) {
+    try {
+      const projects = JSON.parse(localStorage.getItem(this.storageKey) || "[]");
+      const newProject = {
+        id: Date.now().toString(),
+        ...projectData,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      projects.push(newProject);
+      localStorage.setItem(this.storageKey, JSON.stringify(projects));
+      return newProject;
+    } catch (error) {
+      console.error("Error adding project:", error);
+      return null;
+    }
+  }
+
+  async updateProject(id, projectData) {
+    try {
+      const projects = JSON.parse(localStorage.getItem(this.storageKey) || "[]");
+      const index = projects.findIndex(project => project.id === id);
+      
+      if (index === -1) return null;
+      
+      const updatedProject = {
+        ...projects[index],
+        ...projectData,
+        updatedAt: new Date().toISOString()
+      };
+      
+      projects[index] = updatedProject;
+      localStorage.setItem(this.storageKey, JSON.stringify(projects));
+      return updatedProject;
+    } catch (error) {
+      console.error("Error updating project:", error);
+      return null;
+    }
+  }
+}
+
+function InstFinalProjects() {
+  const projectService = new ProjectService();
+  const { saveLoading, setSaveLoading } = useAppStore();
+  const { projectid } = useParams();
+  const navigate = useNavigate();
+  const isEdit = Boolean(projectid);
+
+  const [form, setForm] = useState({
+    title: "",
+    description: "",
+    courseId: "",
+    difficulty: "intermediate",
+    estimatedTime: "",
+    requirements: "",
+    deliverables: "",
+    resources: "",
+    submissionDeadline: "",
+    points: 100,
+    isPublished: false,
+  });
+
+  useEffect(() => {
+    if (!isEdit) return;
+    loadProject();
+  }, [projectid]);
+
+  const loadProject = async () => {
+    try {
+      const project = await projectService.getProjectById(projectid);
+      if (project) {
+        setForm({
+          ...project,
+          requirements: Array.isArray(project.requirements) 
+            ? project.requirements.join("\n") 
+            : project.requirements || "",
+          deliverables: Array.isArray(project.deliverables) 
+            ? project.deliverables.join("\n") 
+            : project.deliverables || "",
+          resources: Array.isArray(project.resources) 
+            ? project.resources.join("\n") 
+            : project.resources || "",
+        });
+      }
+    } catch {
+      toast.error("Failed to load project");
+    }
   };
 
-  const handleDeleteProject = (projectId) => {
-    toast.custom((t) => (
-      <ConfirmToast
-        message="Are you sure you want to delete this project submission? This action cannot be undone."
-        onConfirm={async () => {
-          try {
-            await deleteProjectMutation.mutateAsync(projectId);
-            toast.success("Project deleted successfully!");
-          } catch (err) {
-            console.error(err);
-            toast.error("Failed to delete project.");
-          }
-          toast.dismiss(t.id);
-        }}
-        onCancel={() => {
-          toast.dismiss(t.id);
-        }}
-      />
-    ));
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setForm(prev => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      setSaveLoading(true);
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "pending":
-        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
-      case "graded":
-        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
-      case "rejected":
-        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
-      default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
+      const submitForm = {
+        title: form.title.trim(),
+        description: form.description.trim(),
+        courseId: form.courseId.trim(),
+        difficulty: form.difficulty,
+        estimatedTime: form.estimatedTime.trim(),
+        requirements: form.requirements
+          .split("\n")
+          .filter(item => item.trim() !== "")
+          .map(item => item.trim()),
+        deliverables: form.deliverables
+          .split("\n")
+          .filter(item => item.trim() !== "")
+          .map(item => item.trim()),
+        resources: form.resources
+          .split("\n")
+          .filter(item => item.trim() !== "")
+          .map(item => item.trim()),
+        submissionDeadline: form.submissionDeadline,
+        points: Number(form.points) || 0,
+        isPublished: form.isPublished,
+      };
+
+      let result;
+      if (isEdit) {
+        result = await projectService.updateProject(projectid, submitForm);
+      } else {
+        result = await projectService.addProject(submitForm);
+      }
+
+      if (result) {
+        toast.success(
+          isEdit ? "Project updated successfully!" : "Project created successfully!"
+        );
+        if (!isEdit) {
+          setForm({
+            title: "",
+            description: "",
+            courseId: "",
+            difficulty: "intermediate",
+            estimatedTime: "",
+            requirements: "",
+            deliverables: "",
+            resources: "",
+            submissionDeadline: "",
+            points: 100,
+            isPublished: false,
+          });
+        } else {
+          navigate("/InstructorLayout/MyProjects");
+        }
+      } else {
+        toast.error("Failed to save project.");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to save project.");
+    } finally {
+      setSaveLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-background text-text-primary">
-      <Toaster position="top-center" />
-      <div className="custom-container py-8 space-y-6">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-          <h1 className="text-3xl font-bold text-text-primary">Final Projects Management</h1>
-          <div className="flex flex-wrap gap-3">
-            <button
-              className="btn btn-primary btn-hover"
-              onClick={() => navigate("/InstructorLayout/CreateProjectGuidelines")}
-            >
-              Set Guidelines
-            </button>
-            <button
-              className="btn btn-secondary btn-hover"
-              onClick={() => {/* Export logic */ toast.success("Exporting projects...")}}
-            >
-              Export All
-            </button>
-          </div>
-        </div>
-
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="card p-6 text-center border border-border">
-            <h3 className="text-sm font-medium text-text-secondary uppercase tracking-wide">Total Submissions</h3>
-            <p className="text-3xl font-bold text-secondary mt-2">{totalProjects}</p>
-          </div>
-          <div className="card p-6 text-center border border-border">
-            <h3 className="text-sm font-medium text-text-secondary uppercase tracking-wide">Pending Review</h3>
-            <p className="text-3xl font-bold text-primary mt-2">{pendingProjects}</p>
-          </div>
-          <div className="card p-6 text-center border border-border">
-            <h3 className="text-sm font-medium text-text-secondary uppercase tracking-wide">Graded</h3>
-            <p className="text-3xl font-bold text-green-600 mt-2">{gradedProjects}</p>
-          </div>
-          <div className="card p-6 text-center border border-border">
-            <h3 className="text-sm font-medium text-text-secondary uppercase tracking-wide">Avg Grade</h3>
-            <p className="text-3xl font-bold text-blue-600 mt-2">{averageGrade}/100</p>
-          </div>
-        </div>
-
-        {/* Search */}
-        <div className="card p-4 border border-border">
-          <div className="relative">
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by student name, project title..."
-              className="w-full pl-10 pr-4 py-2 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background text-text-primary"
-            />
-            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-text-secondary">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
+    <div className="min-h-screen bg-gray-50">
+      <Toaster position="top-center" reverseOrder={false} />
+      
+      {/* Main Container */}
+      <div className="max-w-4xl mx-auto py-8 px-4">
+        
+        {/* Header Section */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">
+                {isEdit ? "Edit Final Project" : "Create Final Project"}
+              </h1>
+              <p className="text-gray-600 mt-2">
+                {isEdit 
+                  ? "Update your project details below." 
+                  : "Design a comprehensive final project for your students"
+                }
+              </p>
             </div>
+            <button
+              onClick={() => navigate(-1)}
+              className="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              ← Back
+            </button>
           </div>
+          <div className="h-px bg-gray-200"></div>
         </div>
 
-        {/* Tabs */}
-        <div className="card space-y-4 border border-border">
-          <div className="flex gap-6 border-b border-border pb-3">
-            <button
-              className={`pb-2 font-semibold transition-colors duration-200 ${
-                currentTab === "overview"
-                  ? "text-secondary border-b-2 border-secondary"
-                  : "text-text-secondary hover:text-text-primary"
-              }`}
-              onClick={() => setCurrentTab("overview")}
-            >
-              Overview
-            </button>
-            <button
-              className={`pb-2 font-semibold transition-colors duration-200 ${
-                currentTab === "pending"
-                  ? "text-secondary border-b-2 border-secondary"
-                  : "text-text-secondary hover:text-text-primary"
-              }`}
-              onClick={() => setCurrentTab("pending")}
-            >
-              Pending Review ({pendingProjects})
-            </button>
-            <button
-              className={`pb-2 font-semibold transition-colors duration-200 ${
-                currentTab === "graded"
-                  ? "text-secondary border-b-2 border-secondary"
-                  : "text-text-secondary hover:text-text-primary"
-              }`}
-              onClick={() => setCurrentTab("graded")}
-            >
-              Graded ({gradedProjects})
-            </button>
-          </div>
+        {/* Form Container */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          
+          <form onSubmit={handleSubmit} className="divide-y divide-gray-200">
+            
+            {/* Section 1: Basic Information */}
+            <div className="p-8">
+              <h2 className="text-xl font-semibold text-gray-900 mb-6">Project Information</h2>
+              
+              {/* Project Title */}
+              <div className="mb-8">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Project Title <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="title"
+                  value={form.title}
+                  onChange={handleChange}
+                  placeholder="E-commerce Web Application"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400"
+                  required
+                />
+              </div>
 
-          {currentTab === "overview" && (
-            <div className="prose mt-4 text-text-secondary">
-              <p className="text-lg font-medium text-text-primary mb-4">Projects Summary</p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Grid: Course Details */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                
+                {/* Course ID */}
                 <div>
-                  <h4 className="font-semibold text-text-primary mb-2">Status Breakdown</h4>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span>Pending</span>
-                      <span className="text-primary">{pendingProjects}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Graded</span>
-                      <span className="text-green-600">{gradedProjects}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Rejected</span>
-                      <span className="text-red-600">{projects.filter((p) => p.status === "rejected").length}</span>
-                    </div>
-                  </div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Course ID <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="courseId"
+                    value={form.courseId}
+                    onChange={handleChange}
+                    placeholder="CS101"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400"
+                    required
+                  />
                 </div>
+
+                {/* Difficulty */}
                 <div>
-                  <h4 className="font-semibold text-text-primary mb-2">Grade Distribution</h4>
-                  <p className="text-sm">Average: {averageGrade}/100</p>
-                  {/* Placeholder for chart */}
-                  <div className="h-32 bg-muted rounded-lg mt-2 flex items-center justify-center">
-                    <span className="text-text-secondary">Grade Chart Placeholder</span>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Difficulty Level
+                  </label>
+                  <select
+                    name="difficulty"
+                    value={form.difficulty}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
+                  >
+                    <option value="beginner">Beginner</option>
+                    <option value="intermediate">Intermediate</option>
+                    <option value="advanced">Advanced</option>
+                  </select>
+                </div>
+
+                {/* Estimated Time */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Estimated Time <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="estimatedTime"
+                    value={form.estimatedTime}
+                    onChange={handleChange}
+                    placeholder="20-30 hours"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400"
+                    required
+                  />
+                </div>
+
+                {/* Points */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Points
+                  </label>
+                  <input
+                    type="number"
+                    name="points"
+                    value={form.points}
+                    onChange={handleChange}
+                    placeholder="100"
+                    min="0"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400"
+                  />
+                </div>
+
+                {/* Submission Deadline */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Submission Deadline <span className="text-red-500">*</span>
+                  </label>
+                  <div className="max-w-xs">
+                    <input
+                      type="date"
+                      name="submissionDeadline"
+                      value={form.submissionDeadline}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                      required
+                    />
                   </div>
                 </div>
               </div>
             </div>
-          )}
 
-          {(currentTab === "pending" || currentTab === "graded") && (
-            <div className="space-y-3 mt-4">
-              {filteredProjects.length > 0 ? (
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-border">
-                    <thead className="bg-muted/50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Student</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Project Title</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Submission Date</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Status</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Grade</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-border dark:bg-card">
-                      {filteredProjects
-                        .filter((p) => currentTab === "pending" ? p.status === "pending" : p.status === "graded")
-                        .map((project, index) => (
-                          <tr key={project.id || index} className="hover:bg-muted">
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-text-primary">
-                              {project.studentName || "Anonymous"}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">
-                              {project.title || "Untitled Project"}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">
-                              {formatDate(project.submissionDate)}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(project.status)}`}>
-                                {project.status?.charAt(0).toUpperCase() + project.status?.slice(1)}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-text-primary">
-                              {project.grade ? `${project.grade}/100` : "N/A"}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                              <div className="flex space-x-2">
-                                <button
-                                  className="text-primary hover:text-secondary"
-                                  onClick={() => navigate(`/InstructorLayout/ViewProject/${project.id}`)}
-                                >
-                                  View
-                                </button>
-                                {project.status === "pending" && (
-                                  <button
-                                    className="text-green-600 hover:text-green-800"
-                                    onClick={() => handleGradeProject(project.id)}
-                                  >
-                                    Grade
-                                  </button>
-                                )}
-                                <button
-                                  className="text-destructive hover:text-red-800"
-                                  onClick={() => handleDeleteProject(project.id)}
-                                >
-                                  Delete
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                    </tbody>
-                  </table>
+            {/* Section 2: Requirements */}
+            <div className="p-8">
+              <h2 className="text-xl font-semibold text-gray-900 mb-6">Requirements & Deliverables</h2>
+              
+              <div className="space-y-8">
+                {/* Requirements */}
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Project Requirements <span className="text-red-500">*</span>
+                    </label>
+                    <span className="text-xs text-gray-500">One per line</span>
+                  </div>
+                  <p className="text-sm text-gray-500 mb-3">
+                    List all requirements that students must fulfill
+                  </p>
+                  <textarea
+                    name="requirements"
+                    value={form.requirements}
+                    onChange={handleChange}
+                    placeholder={`1. Implement user authentication\n2. Create product catalog\n3. Add shopping cart functionality\n4. Implement payment gateway\n5. Add admin dashboard`}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400 h-48 font-mono text-sm resize-none"
+                    required
+                  />
                 </div>
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-text-secondary mb-4">No {currentTab} projects found.</p>
+
+                {/* Deliverables */}
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Expected Deliverables <span className="text-red-500">*</span>
+                    </label>
+                    <span className="text-xs text-gray-500">One per line</span>
+                  </div>
+                  <p className="text-sm text-gray-500 mb-3">
+                    What students need to submit for evaluation
+                  </p>
+                  <textarea
+                    name="deliverables"
+                    value={form.deliverables}
+                    onChange={handleChange}
+                    placeholder={`1. Source code repository (GitHub/GitLab)\n2. Live demo URL\n3. Project documentation\n4. Presentation slides\n5. Video demonstration (optional)`}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400 h-48 font-mono text-sm resize-none"
+                    required
+                  />
                 </div>
-              )}
+              </div>
             </div>
-          )}
+
+            {/* Section 3: Resources & Description */}
+            <div className="p-8">
+              <h2 className="text-xl font-semibold text-gray-900 mb-6">Resources & Description</h2>
+              
+              <div className="space-y-8">
+                {/* Resources */}
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Learning Resources
+                    </label>
+                    <span className="text-xs text-gray-500">One per line</span>
+                  </div>
+                  <p className="text-sm text-gray-500 mb-3">
+                    Provide helpful resources, documentation, and references
+                  </p>
+                  <textarea
+                    name="resources"
+                    value={form.resources}
+                    onChange={handleChange}
+                    placeholder={`https://developer.mozilla.org/\nhttps://reactjs.org/docs/\nDatabase Design Fundamentals\nAPI Integration Guide\nUI/UX Best Practices`}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400 h-40 font-mono text-sm resize-none"
+                  />
+                </div>
+
+                {/* Project Description */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Project Description <span className="text-red-500">*</span>
+                  </label>
+                  <p className="text-sm text-gray-500 mb-3">
+                    Describe the project objectives, learning outcomes, and evaluation criteria
+                  </p>
+                  <textarea
+                    name="description"
+                    value={form.description}
+                    onChange={handleChange}
+                    placeholder={`In this final project, students will build a complete e-commerce web application from scratch. The project aims to demonstrate proficiency in full-stack development, database design, and API integration.\n\nLearning Objectives:\n- Implement user authentication and authorization\n- Design and develop a product catalog system\n- Create a shopping cart with real-time updates\n- Integrate payment gateway for transactions\n- Build an admin dashboard for product management\n\nEvaluation will be based on functionality, code quality, UI/UX design, and documentation.`}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400 h-64 resize-none leading-relaxed"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Section 4: Publish Settings */}
+            <div className="p-8 bg-gray-50">
+              <div className="flex items-start space-x-3">
+                <div className="flex items-center h-5 mt-1">
+                  <input
+                    type="checkbox"
+                    name="isPublished"
+                    checked={form.isPublished}
+                    onChange={handleChange}
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700">
+                    Publish project immediately
+                  </label>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Students will be able to see and access this project in their dashboard. 
+                    You can always unpublish it later.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Section 5: Actions */}
+            <div className="p-8 bg-white">
+              <div className="flex flex-col sm:flex-row justify-end gap-4">
+                <button
+                  type="button"
+                  onClick={() => navigate(-1)}
+                  className="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={saveLoading}
+                  className={`px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors ${
+                    saveLoading ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                >
+                  {saveLoading ? (
+                    <span className="flex items-center justify-center">
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Processing...
+                    </span>
+                  ) : isEdit ? "Update Project" : "Create Project"}
+                </button>
+              </div>
+            </div>
+          </form>
         </div>
 
-        {/* Sidebar Information */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="card p-6 space-y-4 border border-border lg:col-span-2">
-            <h2 className="text-xl font-semibold text-text-primary mb-4">Project Guidelines</h2>
-            <div className="prose text-text-secondary">
-              <p className="whitespace-pre-wrap bg-muted p-4 rounded-lg border border-border">
-                Final projects should demonstrate mastery of course concepts. Submissions due by end of semester. Include code, report, and presentation.
-              </p>
-              <button
-                className="btn btn-primary btn-hover mt-4"
-                onClick={() => navigate("/InstructorLayout/EditGuidelines")}
-              >
-                Edit Guidelines
-              </button>
-            </div>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="card p-6 space-y-4 border border-border">
-            <h2 className="text-xl font-semibold text-text-primary mb-4">Quick Actions</h2>
-            <div className="space-y-3">
-              <button
-                className="w-full btn btn-primary btn-hover"
-                onClick={() => navigate("/InstructorLayout/BulkGrade")}
-              >
-                Bulk Grade
-              </button>
-              <button
-                className="w-full btn btn-secondary btn-hover"
-                onClick={() => {/* Export */ toast.success("Exporting...")}}
-              >
-                Export Grades
-              </button>
-              <button
-                className="w-full btn bg-transparent border border-input text-text-primary btn-hover"
-                onClick={() => navigate("/InstructorLayout/ProjectRubric")}
-              >
-                View Rubric
-              </button>
-            </div>
-          </div>
+        {/* Footer Note */}
+        <div className="mt-6 text-center text-sm text-gray-500">
+          <p>All fields marked with <span className="text-red-500">*</span> are required</p>
         </div>
       </div>
     </div>
   );
 }
+
+export default InstFinalProjects;
