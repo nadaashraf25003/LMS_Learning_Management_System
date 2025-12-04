@@ -1,10 +1,12 @@
 import { lazy } from "react";
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter } from "react-router";
 import App from "../App.jsx";
+
 // Lazy-loaded dashboards
 const InstrDashboard = lazy(
   () => import("@/views/Instructor/InstrDashboard.jsx")
 );
+
 // Admin Views
 const UserManagement = lazy(() => import("@/views/Admin/UserManagement.jsx"));
 const AdminDashboard = lazy(() => import("@/views/Admin/AdminDashboard.jsx"));
@@ -17,6 +19,7 @@ const AdminLayout = lazy(
 const AdminProfile = lazy(() => import("@/views/Admin/AdminProfile.jsx"));
 const AdminPayments = lazy(() => import("@/views/Admin/AdminPayments.jsx"));
 const AdminLogs = lazy(() => import("@/views/Admin/AdminLogs.jsx"));
+
 // Instructor Views
 const InstructorLayout = lazy(
   () => import("@/components/InstructorLayout/InstructorLayout.jsx")
@@ -48,6 +51,7 @@ const EditQuiz = lazy(() => import("@/views/Instructor/EditQuiz.jsx"));
 const InstFinalProjects = lazy(() => import("@/views/Instructor/InstFinalProjects.jsx"));
 const InstructorPayment = lazy(() => import("@/views/Instructor/InstructorPayment.jsx"));
 const InstLiveSessions = lazy(() => import("@/views/Instructor/InstLiveSessions.jsx"));
+
 // Student Views
 const StuDashboard = lazy(() => import("@/views/Student/StuDashboard.jsx"));
 const StuStudentLayout = lazy(
@@ -76,6 +80,7 @@ const StudentLessonPage = lazy(
 );
 const LiveSessions = lazy(() => import("@/views/Student/LiveSessions.jsx"));
 const StuFinalProjects = lazy(() => import("@/views/Student/StuFinalProjects.jsx"));
+
 // Others
 const UserLayout = lazy(() => import("@/components/UserLayout/UserLayout.jsx"));
 const ContactUs = lazy(() => import("@/views/Others/ContactUs.jsx"));
@@ -94,6 +99,7 @@ const FeedbackManagement = lazy(
 const CourseDetails = lazy(
   () => import("@/views/Others/SearchResults/CourseDetails.jsx")
 );
+
 // Landing Views
 const LandingLayout = lazy(
   () => import("@/components/Landing/LandingLayout/LandingLayout.js")
@@ -101,6 +107,7 @@ const LandingLayout = lazy(
 const Landing = lazy(() => import("../views/Landing/Landing.jsx"));
 const Courses = lazy(() => import("../views/Landing/Courses.jsx"));
 const About = lazy(() => import("../views/Landing/About.jsx"));
+
 // Auth Views
 const AuthLayout = lazy(
   () => import("@/components/Auth/AuthLayout/AuthLayout.js")
@@ -114,8 +121,10 @@ const InstructorRegister = lazy(
 );
 const VerifyEmail = lazy(() => import("../views/Auth/VerifyEmail.jsx"));
 const ResendVerification = lazy(() => import("../views/Auth/ResendVerification.jsx"));
+
 // Error Views
 const Error404 = lazy(() => import("../views/Error404.jsx"));
+
 export const router = createBrowserRouter([
   {
     path: "/",
