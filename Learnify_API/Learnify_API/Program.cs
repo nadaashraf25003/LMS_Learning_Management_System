@@ -27,7 +27,7 @@ namespace Learnify_API
                 {
                     opts.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
                 });
-
+            builder.Services.AddTransient<FeedbackService>();
             // Single DbContext registration
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("conString"),
@@ -62,7 +62,6 @@ namespace Learnify_API
             })
             .AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();
-
             builder.Services.ConfigureApplicationCookie(options =>
             {
                 options.LoginPath = ""; // remove default redirect
@@ -78,6 +77,25 @@ namespace Learnify_API
                     return Task.CompletedTask;
                 };
             });
+
+<<<<<<< HEAD
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = ""; // remove default redirect
+                options.AccessDeniedPath = ""; // remove access denied redirect
+                options.Events.OnRedirectToLogin = context =>
+                {
+                    context.Response.StatusCode = 401;
+                    return Task.CompletedTask;
+                };
+                options.Events.OnRedirectToAccessDenied = context =>
+                {
+                    context.Response.StatusCode = 403;
+                    return Task.CompletedTask;
+                };
+            });
+=======
+>>>>>>> f07e4b7660dca0a3342d6afad82f583d4ffa0dc2
             // JWT
             builder.Services.AddAuthentication(options =>
             {
@@ -135,6 +153,7 @@ namespace Learnify_API
             });
 
             // CORS
+
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowFrontend", policy =>
@@ -154,12 +173,26 @@ namespace Learnify_API
             // Middleware
             //if (app.Environment.IsDevelopment())
             //{
+<<<<<<< HEAD
             app.UseSwagger();
             app.UseSwaggerUI(c =>
               {
                   c.SwaggerEndpoint("/swagger/v1/swagger.json", "Learnify API V1");
               });
             //}
+=======
+            //    app.UseSwagger();
+            //    app.UseSwaggerUI(c =>
+            //    {
+            //        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Learnify API V1");
+            //    });
+            //}
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
+>>>>>>> f07e4b7660dca0a3342d6afad82f583d4ffa0dc2
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy(new CookiePolicyOptions

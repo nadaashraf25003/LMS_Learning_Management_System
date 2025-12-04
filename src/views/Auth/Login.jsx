@@ -9,7 +9,6 @@ import { useAppStore } from "@/store/app";
 import useAuth from "@/hooks/useAuth";
 import { Toaster } from 'react-hot-toast';
 import useTokenStore from "@/store/user";
-
 const LoginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
@@ -18,10 +17,11 @@ const LoginSchema = z.object({
 function Login() {
   const navigate = useNavigate();
   const { setToast } = useAppStore();
- const { setToken } = useTokenStore();
+   const { setToken } = useTokenStore();
   const { loginMutation } = useAuth();
 
   const {
+    // register,
     control,
     handleSubmit,
     formState: { errors },
