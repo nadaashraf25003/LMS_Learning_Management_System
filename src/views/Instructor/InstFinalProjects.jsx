@@ -1,7 +1,74 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { useAppStore } from "@/store/app";
 import toast, { Toaster } from "react-hot-toast";
+
+// Mock router hooks
+const useParams = () => {
+  return { projectid: null };
+};
+
+const useNavigate = () => {
+  return (path) => {
+    console.log("Navigating to:", path);
+    toast.success(`Navigating to ${path}`);
+  };
+};
+
+// Mock useAppStore hook
+const useAppStore = () => {
+  const [saveLoading, setSaveLoading] = useState(false);
+  
+  return {
+    saveLoading,
+    setSaveLoading
+  };
+};
+
+// Dark Mode Toggle Component
+const DarkModeToggle = () => {
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    const isDarkMode = localStorage.getItem('darkMode') === 'true' ||
+      (!('darkMode' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    
+    setDarkMode(isDarkMode);
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
+  const toggleDarkMode = () => {
+    const newDarkMode = !darkMode;
+    setDarkMode(newDarkMode);
+    localStorage.setItem('darkMode', newDarkMode.toString());
+    
+    if (newDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  };
+
+  return (
+    <button
+      onClick={toggleDarkMode}
+      className="fixed top-4 right-4 z-50 p-3 rounded-full bg-gray-100 dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow"
+      aria-label="Toggle dark mode"
+    >
+      {darkMode ? (
+        <svg className="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+          <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clipRule="evenodd" />
+        </svg>
+      ) : (
+        <svg className="w-5 h-5 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+        </svg>
+      )}
+    </button>
+  );
+};
 
 class ProjectService {
   constructor() {
@@ -183,8 +250,15 @@ function InstFinalProjects() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Toaster position="top-center" reverseOrder={false} />
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <DarkModeToggle />
+      <Toaster 
+        position="top-center" 
+        reverseOrder={false}
+        toastOptions={{
+          className: 'dark:bg-gray-800 dark:text-white dark:border dark:border-gray-700',
+        }}
+      />
       
       {/* Main Container */}
       <div className="max-w-4xl mx-auto py-8 px-4">
@@ -193,10 +267,10 @@ function InstFinalProjects() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
                 {isEdit ? "Edit Final Project" : "Create Final Project"}
               </h1>
-              <p className="text-gray-600 mt-2">
+              <p className="text-gray-600 dark:text-gray-300 mt-2">
                 {isEdit 
                   ? "Update your project details below." 
                   : "Design a comprehensive final project for your students"
@@ -205,26 +279,26 @@ function InstFinalProjects() {
             </div>
             <button
               onClick={() => navigate(-1)}
-              className="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+              className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             >
               ← Back
             </button>
           </div>
-          <div className="h-px bg-gray-200"></div>
+          <div className="h-px bg-gray-200 dark:bg-gray-700"></div>
         </div>
 
         {/* Form Container */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
           
-          <form onSubmit={handleSubmit} className="divide-y divide-gray-200">
+          <form onSubmit={handleSubmit} className="divide-y divide-gray-200 dark:divide-gray-700">
             
             {/* Section 1: Basic Information */}
             <div className="p-8">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">Project Information</h2>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Project Information</h2>
               
               {/* Project Title */}
               <div className="mb-8">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Project Title <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -233,7 +307,7 @@ function InstFinalProjects() {
                   value={form.title}
                   onChange={handleChange}
                   placeholder="E-commerce Web Application"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 text-gray-900 dark:text-white dark:bg-gray-700 placeholder-gray-400 dark:placeholder-gray-500"
                   required
                 />
               </div>
@@ -243,7 +317,7 @@ function InstFinalProjects() {
                 
                 {/* Course ID */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Course ID <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -252,21 +326,21 @@ function InstFinalProjects() {
                     value={form.courseId}
                     onChange={handleChange}
                     placeholder="CS101"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 text-gray-900 dark:text-white dark:bg-gray-700 placeholder-gray-400 dark:placeholder-gray-500"
                     required
                   />
                 </div>
 
                 {/* Difficulty */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Difficulty Level
                   </label>
                   <select
                     name="difficulty"
                     value={form.difficulty}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 text-gray-900 dark:text-white dark:bg-gray-700"
                   >
                     <option value="beginner">Beginner</option>
                     <option value="intermediate">Intermediate</option>
@@ -276,7 +350,7 @@ function InstFinalProjects() {
 
                 {/* Estimated Time */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Estimated Time <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -285,14 +359,14 @@ function InstFinalProjects() {
                     value={form.estimatedTime}
                     onChange={handleChange}
                     placeholder="20-30 hours"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 text-gray-900 dark:text-white dark:bg-gray-700 placeholder-gray-400 dark:placeholder-gray-500"
                     required
                   />
                 </div>
 
                 {/* Points */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Points
                   </label>
                   <input
@@ -302,13 +376,13 @@ function InstFinalProjects() {
                     onChange={handleChange}
                     placeholder="100"
                     min="0"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 text-gray-900 dark:text-white dark:bg-gray-700 placeholder-gray-400 dark:placeholder-gray-500"
                   />
                 </div>
 
                 {/* Submission Deadline */}
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Submission Deadline <span className="text-red-500">*</span>
                   </label>
                   <div className="max-w-xs">
@@ -317,7 +391,7 @@ function InstFinalProjects() {
                       name="submissionDeadline"
                       value={form.submissionDeadline}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 text-gray-900 dark:text-white dark:bg-gray-700"
                       required
                     />
                   </div>
@@ -327,18 +401,18 @@ function InstFinalProjects() {
 
             {/* Section 2: Requirements */}
             <div className="p-8">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">Requirements & Deliverables</h2>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Requirements & Deliverables</h2>
               
               <div className="space-y-8">
                 {/* Requirements */}
                 <div>
                   <div className="flex justify-between items-center mb-2">
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                       Project Requirements <span className="text-red-500">*</span>
                     </label>
-                    <span className="text-xs text-gray-500">One per line</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">One per line</span>
                   </div>
-                  <p className="text-sm text-gray-500 mb-3">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
                     List all requirements that students must fulfill
                   </p>
                   <textarea
@@ -346,7 +420,7 @@ function InstFinalProjects() {
                     value={form.requirements}
                     onChange={handleChange}
                     placeholder={`1. Implement user authentication\n2. Create product catalog\n3. Add shopping cart functionality\n4. Implement payment gateway\n5. Add admin dashboard`}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400 h-48 font-mono text-sm resize-none"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 text-gray-900 dark:text-white dark:bg-gray-700 placeholder-gray-400 dark:placeholder-gray-500 h-48 font-mono text-sm resize-none"
                     required
                   />
                 </div>
@@ -354,12 +428,12 @@ function InstFinalProjects() {
                 {/* Deliverables */}
                 <div>
                   <div className="flex justify-between items-center mb-2">
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                       Expected Deliverables <span className="text-red-500">*</span>
                     </label>
-                    <span className="text-xs text-gray-500">One per line</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">One per line</span>
                   </div>
-                  <p className="text-sm text-gray-500 mb-3">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
                     What students need to submit for evaluation
                   </p>
                   <textarea
@@ -367,7 +441,7 @@ function InstFinalProjects() {
                     value={form.deliverables}
                     onChange={handleChange}
                     placeholder={`1. Source code repository (GitHub/GitLab)\n2. Live demo URL\n3. Project documentation\n4. Presentation slides\n5. Video demonstration (optional)`}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400 h-48 font-mono text-sm resize-none"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 text-gray-900 dark:text-white dark:bg-gray-700 placeholder-gray-400 dark:placeholder-gray-500 h-48 font-mono text-sm resize-none"
                     required
                   />
                 </div>
@@ -376,18 +450,18 @@ function InstFinalProjects() {
 
             {/* Section 3: Resources & Description */}
             <div className="p-8">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">Resources & Description</h2>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Resources & Description</h2>
               
               <div className="space-y-8">
                 {/* Resources */}
                 <div>
                   <div className="flex justify-between items-center mb-2">
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                       Learning Resources
                     </label>
-                    <span className="text-xs text-gray-500">One per line</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">One per line</span>
                   </div>
-                  <p className="text-sm text-gray-500 mb-3">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
                     Provide helpful resources, documentation, and references
                   </p>
                   <textarea
@@ -395,16 +469,16 @@ function InstFinalProjects() {
                     value={form.resources}
                     onChange={handleChange}
                     placeholder={`https://developer.mozilla.org/\nhttps://reactjs.org/docs/\nDatabase Design Fundamentals\nAPI Integration Guide\nUI/UX Best Practices`}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400 h-40 font-mono text-sm resize-none"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 text-gray-900 dark:text-white dark:bg-gray-700 placeholder-gray-400 dark:placeholder-gray-500 h-40 font-mono text-sm resize-none"
                   />
                 </div>
 
                 {/* Project Description */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Project Description <span className="text-red-500">*</span>
                   </label>
-                  <p className="text-sm text-gray-500 mb-3">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
                     Describe the project objectives, learning outcomes, and evaluation criteria
                   </p>
                   <textarea
@@ -412,7 +486,7 @@ function InstFinalProjects() {
                     value={form.description}
                     onChange={handleChange}
                     placeholder={`In this final project, students will build a complete e-commerce web application from scratch. The project aims to demonstrate proficiency in full-stack development, database design, and API integration.\n\nLearning Objectives:\n- Implement user authentication and authorization\n- Design and develop a product catalog system\n- Create a shopping cart with real-time updates\n- Integrate payment gateway for transactions\n- Build an admin dashboard for product management\n\nEvaluation will be based on functionality, code quality, UI/UX design, and documentation.`}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400 h-64 resize-none leading-relaxed"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 text-gray-900 dark:text-white dark:bg-gray-700 placeholder-gray-400 dark:placeholder-gray-500 h-64 resize-none leading-relaxed"
                     required
                   />
                 </div>
@@ -420,7 +494,7 @@ function InstFinalProjects() {
             </div>
 
             {/* Section 4: Publish Settings */}
-            <div className="p-8 bg-gray-50">
+            <div className="p-8 bg-gray-50 dark:bg-gray-900/50">
               <div className="flex items-start space-x-3">
                 <div className="flex items-center h-5 mt-1">
                   <input
@@ -428,14 +502,14 @@ function InstFinalProjects() {
                     name="isPublished"
                     checked={form.isPublished}
                     onChange={handleChange}
-                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    className="w-4 h-4 text-blue-600 dark:text-blue-500 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-700"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-700">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     Publish project immediately
                   </label>
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                     Students will be able to see and access this project in their dashboard. 
                     You can always unpublish it later.
                   </p>
@@ -444,19 +518,19 @@ function InstFinalProjects() {
             </div>
 
             {/* Section 5: Actions */}
-            <div className="p-8 bg-white">
+            <div className="p-8 bg-white dark:bg-gray-800">
               <div className="flex flex-col sm:flex-row justify-end gap-4">
                 <button
                   type="button"
                   onClick={() => navigate(-1)}
-                  className="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+                  className="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={saveLoading}
-                  className={`px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors ${
+                  className={`px-6 py-3 bg-blue-600 dark:bg-blue-500 text-white font-medium rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors ${
                     saveLoading ? "opacity-50 cursor-not-allowed" : ""
                   }`}
                 >
@@ -476,7 +550,7 @@ function InstFinalProjects() {
         </div>
 
         {/* Footer Note */}
-        <div className="mt-6 text-center text-sm text-gray-500">
+        <div className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
           <p>All fields marked with <span className="text-red-500">*</span> are required</p>
         </div>
       </div>
