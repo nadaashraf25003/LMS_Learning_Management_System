@@ -1,7 +1,6 @@
 ﻿using Learnify_API.Data.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Learnify_API.Controllers
 {
@@ -64,7 +63,7 @@ namespace Learnify_API.Controllers
         public async Task<IActionResult> PayInstructor(int payoutId)
         {
             var payout = await _adminService.GetInstructorPayoutByIdAsync(payoutId);
- 
+
 
             if (payout == null)
                 return NotFound(new { message = "Payout not found." });
