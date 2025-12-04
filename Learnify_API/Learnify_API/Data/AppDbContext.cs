@@ -10,7 +10,7 @@ namespace Learnify_API.Data
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
         ///
-        public DbSet<User> Users { get; set; }
+        public new DbSet<User> Users { get; set; }
         public DbSet<Student> Students { get; set; }
         public DbSet<Instructor> Instructors { get; set; }
         public DbSet<Admin> Admins { get; set; }
@@ -34,6 +34,10 @@ namespace Learnify_API.Data
 
         public DbSet<LessonProgress> LessonProgresses { get; set; }
         public DbSet<SavedCourse> SavedCourses { get; set; }
+        public DbSet<CartItem> CartItems { get; set; }
+        public DbSet<Checkout> Checkouts { get; set; }
+        public DbSet<StudentAnswer> StudentAnswers { get; set; }
+
         //public object Notifications { get; internal set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -97,7 +101,7 @@ namespace Learnify_API.Data
             base.OnModelCreating(modelBuilder);
 
 
-            base.OnModelCreating(modelBuilder);
+            //base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
@@ -127,6 +131,46 @@ namespace Learnify_API.Data
                 .WithMany(c => c.SavedCourses)
                 .HasForeignKey(sc => sc.CourseId)
                 .OnDelete(DeleteBehavior.Restrict); // <-- Optional
+
+
+            modelBuilder.Entity<CartItem>()
+              .HasOne(c => c.Student)
+              .WithMany()
+              .HasForeignKey(c => c.StudentId)
+              .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<CartItem>()
+                .HasOne(c => c.Course)
+                .WithMany()
+                .HasForeignKey(c => c.CourseId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            // Checkout → CheckoutItems cascade
+            modelBuilder.Entity<CheckoutItem>()
+                .HasOne(ci => ci.Checkout)
+                .WithMany(c => c.CheckoutItems)
+                .HasForeignKey(ci => ci.CheckoutId)
+                .OnDelete(DeleteBehavior.Cascade); // ✅ Cascade delete from Checkout
+
+            // Course → CheckoutItems restrict delete
+            modelBuilder.Entity<CheckoutItem>()
+                .HasOne(ci => ci.Course)
+                .WithMany()
+                .HasForeignKey(ci => ci.CourseId)
+                .OnDelete(DeleteBehavior.Restrict); // ❌ Prevent cascade from Course
+
+            modelBuilder.Entity<StudentAnswer>()
+                .HasOne(sa => sa.Student)
+                .WithMany()
+                .HasForeignKey(sa => sa.StudentId)
+                .OnDelete(DeleteBehavior.Restrict); // <-- NO CASCADE
+
+            modelBuilder.Entity<StudentAnswer>()
+                .HasOne(sa => sa.Quiz)
+                .WithMany()
+                .HasForeignKey(sa => sa.QuizId)
+                .OnDelete(DeleteBehavior.Cascade); // optional, only if Quiz deletion should remove answers
+
 
         }
 

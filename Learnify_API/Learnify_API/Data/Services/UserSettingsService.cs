@@ -1,6 +1,4 @@
-﻿using Learnify_API.Data.Models;
-using Learnify_API.Data.ViewModels;
-using Microsoft.EntityFrameworkCore;
+﻿using Learnify_API.Data.ViewModels;
 
 namespace Learnify_API.Data.Services
 {
@@ -46,8 +44,8 @@ namespace Learnify_API.Data.Services
 
             // باقي البيانات تتعدل
             user.FullName = $"{vm.FirstName} {vm.LastName}".Trim();
-            user.Headline = vm.Headline;
-            user.About = vm.About;
+            user.Headline = vm.Headline ?? "";
+            user.About = vm.About ?? "";
             user.Phone = vm.Phone;
             user.Newsletter = vm.Newsletter;
 

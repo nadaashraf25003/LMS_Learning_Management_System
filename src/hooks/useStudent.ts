@@ -10,6 +10,14 @@ export interface CourseVM {
   price?: number;
   [key: string]: any;
 }
+export interface CheckoutVM {
+  checkoutId: number;
+  checkoutDate: string;
+  totalPrice: number;
+  paymentMethod: string;
+  paymentStatus: string;
+  items: CourseVM[];
+}
 
 const useStudent = () => {
   const queryClient = useQueryClient();
@@ -62,7 +70,7 @@ const useStudent = () => {
     },
   });
 
-  // -------- Enroll in a course --------
+  // -------- Enroll --------
   const enrollCourse = useMutation({
     mutationFn: async (courseId: number) => {
       const res = await api.post<{ success: boolean; data: any }>(
@@ -88,13 +96,100 @@ const useStudent = () => {
     },
   });
 
+  // -------- Add to Cart --------
+  const addToCart = useMutation({
+    mutationFn: async (courseId: number) => {
+      const res = await api.post(Urls.addToCart + `?courseId=${courseId}`);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+    },
+  });
+
+  // -------- Get Cart --------
+  const cart = useQuery({
+    queryKey: ["cart"],
+    queryFn: async () => {
+      const res = await api.get(Urls.getCart);
+      return res.data;
+    },
+  });
+
+  // -------- Remove Cart Item --------
+  const removeCartItem = useMutation({
+    mutationFn: async (courseId: number) => {
+      const res = await api.delete(
+        Urls.removeCartItem + `?courseId=${courseId}`
+      );
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+    },
+  });
+
+  // -------- Checkout: Create a checkout --------
+  const createCheckout = useMutation({
+    mutationFn: async (paymentMethod: string = "card") => {
+      const res = await api.post<{ success: boolean; data: any }>(
+        Urls.createCheckout + `?paymentMethod=${paymentMethod}`
+      );
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+      queryClient.invalidateQueries({ queryKey: ["checkouts"] });
+    },
+  });
+
+  // In your useStudent hook
+const getCheckouts = useQuery({
+  queryKey: ["myCheckouts"],
+  queryFn: async () => {
+    const res = await api.get<{ success: boolean; data: CheckoutVM[] }>(
+      Urls.myCheckouts
+    );
+    // make sure to return an array even if API returns undefined
+    return res.data?.data || [];
+  },
+  staleTime: 1000 * 60, // 1 minute caching
+  retry: 1,
+});
+
+  // -------- Checkout: Get single checkout details --------
+  const getCheckoutDetails = (checkoutId: number) =>
+    useQuery({
+      queryKey: ["checkoutDetails", checkoutId],
+      queryFn: async () => {
+        const res = await api.get<{ success: boolean; data: CheckoutVM }>(
+          Urls.getCheckoutDetails.replace("{checkoutId}", checkoutId.toString())
+        );
+        return res.data.data;
+      },
+      enabled: !!checkoutId,
+    });
+
   return {
+    // Saves
     saveCourse,
     savedCourses,
     removeSavedCourse,
+
+    // Enrollment
     myEnrollments,
     enrollCourse,
     removeEnrollment,
+
+    // Cart
+    addToCart,
+    cart,
+    removeCartItem,
+
+    // Checkout
+    createCheckout,
+    getCheckouts,
+    getCheckoutDetails,
   };
 };
 

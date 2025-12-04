@@ -1,6 +1,5 @@
 ﻿using Learnify_API.Data.DTO;
 using Learnify_API.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -18,7 +17,7 @@ namespace Learnify_API.Controllers
         }
 
         // Send a notification from one user to another
-        [Authorize]
+        //[Authorize]
         [HttpPost("user-send")]
         public async Task<IActionResult> SendNotification([FromBody] NotificationCreateDTO dto)
         {

@@ -1,12 +1,15 @@
 import useCourse from "@/hooks/useCourse";
 import useStudent from "@/hooks/useStudent";
 import React, { useState } from "react";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import toast, { Toaster } from "react-hot-toast";
 import ConfirmToast from "@/utils/ConfirmToast";
+import useLesson from "@/hooks/useLesson";
+import useQuiz from "@/hooks/useQuiz";
 
 export default function StuCourseDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [currentTab, setCurrentTab] = useState("about");
 
   const { CourseById } = useCourse(id);
@@ -19,14 +22,26 @@ export default function StuCourseDetails() {
     enrollCourse,
     myEnrollments,
     removeEnrollment,
+    addToCart,
+    cart,
   } = useStudent();
-
+  console.log(course);
+  const { getStudentcourseProgress } = useLesson();
+const { checkQuizStatusMutation } = useQuiz();
+  const { data: progressData } = getStudentcourseProgress(id);
+  const isInCart = cart.data?.some((c) => c.id === course?.id);
   const isSaved = savedCourses.data?.some((c) => c.id === course?.id);
   const isEnrolled = myEnrollments.data?.some((c) => c.id === course?.id);
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-fade-in-up card prose">Loading course...</div>
+        <div className="animate-fade-in-up card p-8 text-center max-w-md">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <h3 className="text-xl font-semibold text-text-primary">
+            Loading course details...
+          </h3>
+        </div>
       </div>
     );
   }
@@ -34,107 +49,338 @@ export default function StuCourseDetails() {
   if (!course) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="card prose">No course found.</div>
+        <div className="card p-8 text-center max-w-md">
+          <div className="w-16 h-16 bg-destructive/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg
+              className="w-8 h-8 text-destructive"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
+              />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-text-primary mb-2">
+            Course Not Found
+          </h2>
+          <p className="text-text-secondary">
+            The course you're looking for doesn't exist or is no longer
+            available.
+          </p>
+        </div>
       </div>
     );
   }
 
+  const handleSaveCourse = () => {
+    saveCourse.mutate(course.id, {
+      onSuccess: () => toast.success("Course saved successfully! 💾"),
+      onError: () => toast.error("Failed to save course"),
+    });
+  };
+
+  const handleRemoveSaved = () => {
+    toast.custom((t) => (
+      <ConfirmToast
+        message="Are you sure you want to remove this course from saved?"
+        onConfirm={() => {
+          removeSavedCourse.mutate(course.id, {
+            onSuccess: () => toast.success("Course removed from saved!"),
+            onError: () => toast.error("Failed to remove course"),
+          });
+        }}
+        onCancel={() => toast.dismiss(t.id)}
+      />
+    ));
+  };
+
+  const handleAddToCart = () => {
+    addToCart.mutate(course.id, {
+      onSuccess: () => toast.success("Course added to cart! 🛒"),
+      onError: () => toast.error("Failed to add course to cart"),
+    });
+  };
+
+  const handleEnroll = () => {
+    enrollCourse.mutate(course.id, {
+      onSuccess: () => toast.success("Successfully enrolled in course! 🎉"),
+      onError: () => toast.error("Failed to enroll in course"),
+    });
+  };
+const isSubmitted = (quizId) => {
+  checkQuizStatusMutation.mutate(quizId, {
+    onSuccess: (data) => {
+      if (data?.status === "submitted") {
+        toast.error("You have already submitted this quiz.");
+        navigate(`/StudentLayout/StuQuizResult/${quizId}`);
+      } else {
+        navigate(`/StudentLayout/StuQuizPage/${quizId}`);
+      }
+    },
+    onError: () => {
+      toast.error("Failed to check quiz status.");
+    }
+  });
+};
+
   return (
     <div className="min-h-screen bg-background text-text-primary">
-      <Toaster position="top-right" reverseOrder={false} />
+      <Toaster
+        position="top-right"
+        reverseOrder={false}
+        toastOptions={{
+          className: "dark:bg-surface dark:text-text-primary",
+        }}
+      />
+
       <div className="custom-container py-8">
         <div className="grid lg:grid-cols-3 gap-8 items-start">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Course Header Card */}
-            <div className="card border border-border p-6 card-hover">
-              <div className="flex flex-col md:flex-row gap-6">
-                <img
-                  src={
-                    course.image ||
-                    "https://via.placeholder.com/300x200?text=No+Image"
-                  }
-                  alt={course.title}
-                  className="w-full md:w-64 h-48 object-cover rounded-lg shadow-md"
-                />
+            <div className="card border border-border p-8 card-hover">
+              <div className="flex flex-col md:flex-row gap-8">
+                <div className="relative">
+                  <img
+                    src={
+                      course.image ||
+                      "https://via.placeholder.com/300x200?text=No+Image"
+                    }
+                    alt={course.title}
+                    className="w-full md:w-80 h-48 object-cover rounded-xl shadow-lg"
+                  />
+                  {course.isNew && (
+                    <span className="absolute top-3 left-3 px-3 py-1 bg-green-500 text-white text-sm font-bold rounded-full">
+                      NEW
+                    </span>
+                  )}
+                </div>
 
-                <div className="flex-1 space-y-4">
-                  <div>
-                    <h1 className="text-2xl md:text-3xl font-bold text-text-primary mb-2">
-                      {course.title}
-                    </h1>
+                <div className="flex-1 space-y-6">
+                  <div className="space-y-4">
+                    <div>
+                      <h1 className="text-3xl md:text-4xl font-bold text-text-primary leading-tight">
+                        {course.title}
+                      </h1>
 
-                    <div className="flex flex-wrap items-center gap-3 mb-4">
-                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-semibold">
-                        ⭐ {course.rating ?? "No ratings"}
-                      </span>
-                      <span className="text-text-secondary text-sm">
-                        {course.studentsEnrolled} students enrolled
-                      </span>
-                      <span className="text-text-secondary text-sm">
-                        Posted {course.posted}
-                      </span>
+                      <div className="flex flex-wrap items-center gap-3 mt-3">
+                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-semibold">
+                          ⭐ {course.rating ?? "No ratings"}
+                        </span>
+                        {/* <span className="text-text-secondary text-sm flex items-center gap-1">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                          </svg>
+                          {course.studentsEnrolled || 0} students
+                        </span> */}
+                      </div>
                     </div>
 
-                    {/* <p className="text-text-secondary line-clamp-2">
-                      {course.description || "No description provided."}
-                    </p> */}
+                    {/* Instructor Info */}
+                    <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
+                      <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white font-bold">
+                        {course.author?.[0]?.toUpperCase() || "I"}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-text-primary">
+                          {course.author || "Instructor"}
+                        </p>
+                        <p className="text-sm text-text-secondary">
+                          Course Instructor
+                        </p>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                    {isSaved ? (
-                      <button
-                        onClick={() => {
-                          toast.custom((t) => (
-                            <ConfirmToast
-                              message="Are you sure you want to remove this course from saved?"
-                              onConfirm={() => {
-                                removeSavedCourse.mutate(course.id, {
-                                  onSuccess: () =>
-                                    toast.success("Course removed from saved!"),
-                                  onError: () =>
-                                    toast.error("Failed to remove course"),
-                                });
+                  {/* Progress or Action Buttons */}
+                  {isEnrolled ? (
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-lg font-semibold text-text-primary">
+                          Your Progress
+                        </span>
+                        {/* <span className="text-sm text-text-secondary">
+                          {progressData?.completedItems || 0} of {progressData?.totalItems || 0} completed
+                        </span> */}
+                      </div>
+
+                      {/* Enhanced Progress Bar */}
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-4">
+                          <div className="flex-1 bg-muted rounded-full h-3 shadow-inner overflow-hidden">
+                            <div
+                              className="bg-gradient-to-r from-primary to-secondary h-3 rounded-full transition-all duration-1000 ease-out relative"
+                              style={{
+                                width: `${progressData?.progressPercent ?? 0}%`,
                               }}
-                              onCancel={() => toast.dismiss(t.id)}
+                            >
+                              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-pulse"></div>
+                            </div>
+                          </div>
+                          <span
+                            className={`text-lg font-bold min-w-12 transition-all duration-700 ${
+                              progressData?.progressPercent === 100
+                                ? "text-green-500 scale-110"
+                                : "text-text-primary"
+                            }`}
+                          >
+                            {progressData?.progressPercent ?? 0}%
+                          </span>
+                        </div>
+
+                        {progressData?.progressPercent === 100 && (
+                          <div className="flex items-center gap-2 text-green-600">
+                            <svg
+                              className="w-5 h-5"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                            <span className="font-semibold">
+                              Course Completed! 🎉
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        {isInCart ? (
+                          <button className="btn flex-1 py-4 bg-yellow-500 text-white font-semibold rounded-lg flex items-center justify-center gap-2 cursor-not-allowed">
+                            <svg
+                              className="w-5 h-5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M5 13l4 4L19 7"
+                              />
+                            </svg>
+                            Already in Cart
+                          </button>
+                        ) : isSaved ? (
+                          <>
+                            <button
+                              onClick={handleRemoveSaved}
+                              className="btn flex-1 py-4 bg-red-500 text-white font-semibold rounded-lg flex items-center justify-center gap-2 btn-hover"
+                            >
+                              <svg
+                                className="w-5 h-5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M19 9l-7 7-7-7"
+                                />
+                              </svg>
+                              Remove Saved
+                            </button>
+                            <button
+                              onClick={handleAddToCart}
+                              className="btn flex-1 py-4 bg-primary text-white font-semibold rounded-lg flex items-center justify-center gap-2 btn-hover"
+                            >
+                              <svg
+                                className="w-5 h-5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                                />
+                              </svg>
+                              Add to Cart
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              onClick={handleSaveCourse}
+                              className="btn flex-1 py-4 bg-secondary text-white font-semibold rounded-lg flex items-center justify-center gap-2 btn-hover"
+                            >
+                              <svg
+                                className="w-5 h-5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+                                />
+                              </svg>
+                              Save Course
+                            </button>
+                            <button
+                              onClick={handleAddToCart}
+                              className="btn flex-1 py-4 bg-primary text-white font-semibold rounded-lg flex items-center justify-center gap-2 btn-hover"
+                            >
+                              <svg
+                                className="w-5 h-5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                                />
+                              </svg>
+                              Add to Cart
+                            </button>
+                          </>
+                        )}
+                      </div>
+
+                      {!isEnrolled && (
+                        <button
+                          onClick={handleEnroll}
+                          className="w-full py-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-lg flex items-center justify-center gap-2 btn-hover shadow-lg"
+                        >
+                          <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M13 10V3L4 14h7v7l9-11h-7z"
                             />
-                          ));
-                        }}
-                        className="btn flex-1 py-3 font-semibold bg-red-500 cursor-pointer"
-                      >
-                        Remove from Saved
-                      </button>
-                    ) : (
-                      <p>Your Progress is </p>
-                    )}
-
-                    {isSaved ? (
-                      <button
-                        className="btn bg-transparent border border-input text-text-primary btn-hover flex-1 py-3 font-semibold"
-                        onClick={() => {
-                          // First, enroll in course
-                          enrollCourse.mutate(course.id, {
-                            onSuccess: () =>
-                              toast.success("Enrolled in course successfully!"),
-                            onError: () =>
-                              toast.error("Failed to enroll in course"),
-                          });
-
-                          // Then, remove from saved (if you want to do both)
-                          removeSavedCourse.mutate(course.id, {
-                            // onSuccess: () =>
-                            //   toast.success("Course removed from saved!"),
-                            // onError: () =>
-                            //   toast.error("Failed to remove course"),
-                          });
-                        }}
-                      >
-                        Checkout Now
-                      </button>
-                    ) : (
-                      ""
-                    )}
-                  </div>
+                          </svg>
+                          Enroll Now - ${course.price || "Free"}
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -142,80 +388,130 @@ export default function StuCourseDetails() {
             {/* Tabs Section */}
             <div className="card border border-border">
               <div className="border-b border-border">
-                <div className="flex gap-8">
-                  <button
-                    className={`pb-4 font-semibold transition-colors duration-200 ${
-                      currentTab === "about"
-                        ? "text-secondary border-b-2 border-secondary"
-                        : "text-text-secondary hover:text-text-primary"
-                    }`}
-                    onClick={() => setCurrentTab("about")}
-                  >
-                    About Course
-                  </button>
-                  <button
-                    className={`pb-4 font-semibold transition-colors duration-200 ${
-                      currentTab === "content"
-                        ? "text-secondary border-b-2 border-secondary"
-                        : "text-text-secondary hover:text-text-primary"
-                    }`}
-                    onClick={() => setCurrentTab("content")}
-                  >
-                    Course Content
-                  </button>
-                </div>
+                <nav className="flex gap-8">
+                  {[
+                    { id: "about", label: "About Course", icon: "📚" },
+                    { id: "content", label: "Course Content", icon: "📋" },
+                    { id: "reviews", label: "Reviews", icon: "⭐" },
+                  ].map((tab) => (
+                    <button
+                      key={tab.id}
+                      className={`pb-4 font-semibold transition-all duration-300 flex items-center gap-2 ${
+                        currentTab === tab.id
+                          ? "text-secondary border-b-2 border-secondary"
+                          : "text-text-secondary hover:text-text-primary"
+                      }`}
+                      onClick={() => setCurrentTab(tab.id)}
+                    >
+                      <span>{tab.icon}</span>
+                      {tab.label}
+                    </button>
+                  ))}
+                </nav>
               </div>
 
-              <div className="p-6">
+              <div className="p-8">
                 {currentTab === "about" && (
-                  <div className="space-y-6">
+                  <div className="space-y-8">
                     <div>
-                      <h2 className="text-xl font-semibold text-text-primary mb-3">
+                      <h2 className="text-2xl font-bold text-text-primary mb-4">
                         Course Description
                       </h2>
-                      <p className="text-text-secondary leading-relaxed">
+                      <p className="text-text-secondary leading-relaxed text-lg">
                         {course.description || "No description provided."}
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
-                      <div>
-                        <h3 className="text-lg font-semibold text-text-primary mb-2">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                      <div className="space-y-4">
+                        <h3 className="text-xl font-semibold text-text-primary flex items-center gap-2">
+                          <svg
+                            className="w-5 h-5 text-secondary"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
                           What You'll Learn
                         </h3>
-                        <ul className="space-y-2 text-text-secondary">
-                          <li className="flex items-center gap-2">
-                            <span className="w-2 h-2 bg-secondary rounded-full"></span>
-                            Master key concepts and skills
-                          </li>
-                          <li className="flex items-center gap-2">
-                            <span className="w-2 h-2 bg-secondary rounded-full"></span>
-                            Practical hands-on projects
-                          </li>
-                          <li className="flex items-center gap-2">
-                            <span className="w-2 h-2 bg-secondary rounded-full"></span>
-                            Industry best practices
-                          </li>
+                        <ul className="space-y-3">
+                          {[
+                            "Master key concepts and skills",
+                            "Practical hands-on projects",
+                            "Industry best practices",
+                            "Real-world applications",
+                            "Problem-solving techniques",
+                          ].map((item, index) => (
+                            <li
+                              key={index}
+                              className="flex items-start gap-3 text-text-secondary"
+                            >
+                              <svg
+                                className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                              {item}
+                            </li>
+                          ))}
                         </ul>
                       </div>
 
-                      <div>
-                        <h3 className="text-lg font-semibold text-text-primary mb-2">
+                      <div className="space-y-4">
+                        <h3 className="text-xl font-semibold text-text-primary flex items-center gap-2">
+                          <svg
+                            className="w-5 h-5 text-primary"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"
+                            />
+                          </svg>
                           Requirements
                         </h3>
-                        <ul className="space-y-2 text-text-secondary">
-                          <li className="flex items-center gap-2">
-                            <span className="w-2 h-2 bg-primary rounded-full"></span>
-                            Basic computer knowledge
-                          </li>
-                          <li className="flex items-center gap-2">
-                            <span className="w-2 h-2 bg-primary rounded-full"></span>
-                            Internet connection
-                          </li>
-                          <li className="flex items-center gap-2">
-                            <span className="w-2 h-2 bg-primary rounded-full"></span>
-                            Willingness to learn
-                          </li>
+                        <ul className="space-y-3">
+                          {[
+                            "Basic computer knowledge",
+                            "Internet connection",
+                            "Willingness to learn",
+                            "Dedication to complete the course",
+                            "No prior experience required",
+                          ].map((item, index) => (
+                            <li
+                              key={index}
+                              className="flex items-start gap-3 text-text-secondary"
+                            >
+                              <svg
+                                className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                              {item}
+                            </li>
+                          ))}
                         </ul>
                       </div>
                     </div>
@@ -223,108 +519,218 @@ export default function StuCourseDetails() {
                 )}
 
                 {currentTab === "content" && (
-                  <div className="space-y-6">
+                  <div className="space-y-8">
                     {/* Lessons Section */}
                     <div>
-                      <h2 className="text-xl font-semibold text-text-primary mb-4">
-                        Course Lessons ({course.lessons?.length || 0})
-                      </h2>
+                      <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-2xl font-bold text-text-primary">
+                          Course Lessons ({course.lessons?.length || 0})
+                        </h2>
+                        <span className="text-text-secondary">
+                          Total duration: {course.hours || "N/A"} hours
+                        </span>
+                      </div>
+
                       {course.lessons && course.lessons.length > 0 ? (
-                        <div className="space-y-3">
+                        <div className="space-y-4">
                           {course.lessons.map((lesson, index) => (
                             <div
                               key={index}
-                              className={`card p-4 cursor-pointer hover:bg-muted card-hover border border-border ${
-                                !isEnrolled
-                                  ? "opacity-50 cursor-not-allowed"
-                                  : ""
+                              className={`card p-6 cursor-pointer border border-border transition-all duration-300 hover:shadow-lg ${
+                                !isEnrolled ? "opacity-60" : "card-hover"
                               }`}
                               onClick={() => {
-                                // if (isEnrolled) {
-                                  // Navigate to lesson details with lesson id
-                                  navigate(`/StudentLayout/StudentLessonPage/${lesson.lessonId}`);
-                                // } else {
-                                //   toast.error(
-                                //     "You must enroll in the course to view lessons!"
-                                //   );
-                                // }
+                                navigate(
+                                  `/StudentLayout/StudentLessonPage/${course.id}/${lesson.lessonId}`
+                                );
                               }}
                             >
                               <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                  <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                                    <span className="text-primary font-semibold text-sm">
+                                <div className="flex items-center gap-4">
+                                  <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+                                    <span className="text-primary font-bold text-lg">
                                       {index + 1}
                                     </span>
                                   </div>
                                   <div>
-                                    <h4 className="font-medium text-text-primary">
+                                    <h4 className="font-semibold text-text-primary text-lg">
                                       {lesson.title || `Lesson ${index + 1}`}
                                     </h4>
-                                    <p className="text-text-secondary text-sm">
-                                      {lesson.duration || "10:30"} •{" "}
-                                      {lesson.type || "Video"}
-                                    </p>
+                                    <div className="flex items-center gap-3 mt-1">
+                                      <span className="text-text-secondary text-sm flex items-center gap-1">
+                                        <svg
+                                          className="w-4 h-4"
+                                          fill="none"
+                                          stroke="currentColor"
+                                          viewBox="0 0 24 24"
+                                        >
+                                          <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                                          />
+                                        </svg>
+                                        {lesson.duration || "10:30"}
+                                      </span>
+                                      <span className="text-text-secondary text-sm">
+                                        {lesson.type || "Video"}
+                                      </span>
+                                    </div>
                                   </div>
                                 </div>
-                                {lesson.isFreePreview && (
-                                  <span className="px-2 py-1 bg-secondary/10 text-secondary text-xs font-medium rounded">
-                                    Free Preview
-                                  </span>
-                                )}
+                                <div className="flex items-center gap-3">
+                                  {lesson.isFreePreview && (
+                                    <span className="px-3 py-1 bg-secondary/10 text-secondary text-sm font-medium rounded-full">
+                                      Free Preview
+                                    </span>
+                                  )}
+                                  <svg
+                                    className="w-5 h-5 text-text-secondary"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M9 5l7 7-7 7"
+                                    />
+                                  </svg>
+                                </div>
                               </div>
                             </div>
                           ))}
                         </div>
                       ) : (
-                        <div className="text-center py-8 text-text-secondary">
-                          No lessons available for this course.
+                        <div className="text-center py-12 text-text-secondary">
+                          <svg
+                            className="w-16 h-16 mx-auto mb-4 text-muted-foreground"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                            />
+                          </svg>
+                          <p className="text-lg">
+                            No lessons available for this course yet.
+                          </p>
                         </div>
                       )}
                     </div>
 
                     {/* Quizzes Section */}
                     <div>
-                      <h2 className="text-xl font-semibold text-text-primary mb-4">
+                      <h2 className="text-2xl font-bold text-text-primary mb-6">
                         Course Quizzes ({course.quizzes?.length || 0})
                       </h2>
                       {course.quizzes && course.quizzes.length > 0 ? (
-                        <div className="space-y-3">
+                        <div className="space-y-4">
                           {course.quizzes.map((quiz, index) => (
                             <div
                               key={index}
-                              className="card p-4 cursor-pointer hover:bg-muted card-hover border border-border"
+                              className="card p-6 cursor-pointer border border-border card-hover"
+                              onClick={() => {
+                                isSubmitted(quiz.id);
+                              }}
                             >
                               <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                  <div className="w-8 h-8 bg-secondary/10 rounded-full flex items-center justify-center">
-                                    <span className="text-secondary font-semibold text-sm">
+                                <div className="flex items-center gap-4">
+                                  <div className="w-12 h-12 bg-secondary/10 rounded-xl flex items-center justify-center">
+                                    <span className="text-secondary font-bold text-lg">
                                       Q{index + 1}
                                     </span>
                                   </div>
                                   <div>
-                                    <h4 className="font-medium text-text-primary">
+                                    <h4 className="font-semibold text-text-primary text-lg">
                                       {quiz.title || `Quiz ${index + 1}`}
                                     </h4>
-                                    <p className="text-text-secondary text-sm">
-                                      {quiz.questions?.length || 0} questions •{" "}
-                                      {quiz.duration || "15 mins"}
-                                    </p>
+                                    <div className="flex items-center gap-3 mt-1">
+                                      <span className="text-text-secondary text-sm">
+                                        {quiz.totalQuestions || 0} questions
+                                      </span>
+                                      <span className="text-text-secondary text-sm flex items-center gap-1">
+                                        <svg
+                                          className="w-4 h-4"
+                                          fill="none"
+                                          stroke="currentColor"
+                                          viewBox="0 0 24 24"
+                                        >
+                                          <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                                          />
+                                        </svg>
+                                        {quiz.duration || "15 mins"}
+                                      </span>
+                                    </div>
                                   </div>
                                 </div>
-                                <span className="text-text-secondary text-sm">
-                                  Score: {quiz.totalMarks || "--"}
-                                </span>
+                                <div className="text-right">
+                                  <span className="text-text-primary font-semibold">
+                                    Score: {quiz.totalMarks || "--"}
+                                  </span>
+                                  <div className="text-sm text-text-secondary">
+                                    Passing: {quiz.passingScore || "N/A"}
+                                  </div>
+                                </div>
                               </div>
                             </div>
                           ))}
                         </div>
                       ) : (
-                        <div className="text-center py-8 text-text-secondary">
-                          No quizzes available for this course.
+                        <div className="text-center py-12 text-text-secondary">
+                          <svg
+                            className="w-16 h-16 mx-auto mb-4 text-muted-foreground"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
+                          <p className="text-lg">
+                            No quizzes available for this course yet.
+                          </p>
                         </div>
                       )}
                     </div>
+                  </div>
+                )}
+
+                {currentTab === "reviews" && (
+                  <div className="text-center py-12">
+                    <svg
+                      className="w-16 h-16 mx-auto mb-4 text-muted-foreground"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+                      />
+                    </svg>
+                    <h3 className="text-xl font-semibold text-text-primary mb-2">
+                      Reviews Coming Soon
+                    </h3>
+                    <p className="text-text-secondary">
+                      Student reviews and ratings will be available here soon.
+                    </p>
                   </div>
                 )}
               </div>
@@ -334,52 +740,121 @@ export default function StuCourseDetails() {
           {/* Right Sidebar */}
           <aside className="space-y-6">
             {/* Course Info Card */}
-            <div className="card border border-border p-6">
-              <h2 className="text-xl font-semibold text-text-primary mb-4">
+            <div className="card border border-border p-6 sticky top-6">
+              <h2 className="text-xl font-bold text-text-primary mb-6 pb-4 border-b border-border">
                 Course Information
               </h2>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center pb-3 border-b border-border">
-                  <span className="text-text-secondary">Price</span>
-                  <span className="text-2xl font-bold text-primary">
+              <div className="space-y-5">
+                <div className="flex justify-between items-center pb-4 border-b border-border">
+                  <span className="text-text-secondary text-lg">Price</span>
+                  <span className="text-3xl font-bold text-primary">
                     ${course.price || "Free"}
                   </span>
                 </div>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-text-secondary">Duration</span>
-                    <span className="font-medium text-text-primary">
-                      {course.hours} Hours
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-text-secondary flex items-center gap-2">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      Duration
+                    </span>
+                    <span className="font-semibold text-text-primary">
+                      {course.hours || "N/A"} Hours
                     </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-text-secondary">Students</span>
-                    <span className="font-medium text-text-primary">
-                      {course.studentsEnrolled}
+                  <div className="flex justify-between items-center">
+                    <span className="text-text-secondary flex items-center gap-2">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                      </svg>
+                      Views
+                    </span>
+                    <span className="font-semibold text-text-primary">
+                      {course.views || 0}
                     </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-text-secondary">Views</span>
-                    <span className="font-medium text-text-primary">
-                      {course.views}
+                  <div className="flex justify-between items-center">
+                    <span className="text-text-secondary flex items-center gap-2">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                        />
+                      </svg>
+                      Author
+                    </span>
+                    <span className="font-semibold text-text-primary">
+                      {course.author || "Unknown"}
                     </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-text-secondary">Author</span>
-                    <span className="font-medium text-text-primary">
-                      {course.author}
+                  <div className="flex justify-between items-center">
+                    <span className="text-text-secondary flex items-center gap-2">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                        />
+                      </svg>
+                      Category
                     </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-text-secondary">Category</span>
-                    <span className="font-medium text-text-primary">
+                    <span className="font-semibold text-text-primary">
                       {course.category || "N/A"}
                     </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-text-secondary">Certificate</span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-text-secondary flex items-center gap-2">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      Certificate
+                    </span>
                     <span
-                      className={`font-medium ${
+                      className={`font-semibold ${
                         course.certificateIncluded
                           ? "text-green-600"
                           : "text-text-secondary"
@@ -394,42 +869,75 @@ export default function StuCourseDetails() {
 
             {/* Features Card */}
             <div className="card border border-border p-6">
-              <h2 className="text-xl font-semibold text-text-primary mb-4">
+              <h2 className="text-xl font-bold text-text-primary mb-6 pb-4 border-b border-border">
                 Course Features
               </h2>
-              <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                    <span className="text-primary">📚</span>
+              <div className="space-y-4">
+                <div className="flex items-center gap-4 p-3 bg-primary/5 rounded-lg">
+                  <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                    <span className="text-primary text-lg">📚</span>
                   </div>
-                  <span className="text-text-primary">
-                    {course.lessons?.length || 0} Lessons
-                  </span>
+                  <div>
+                    <div className="font-semibold text-text-primary">
+                      {course.lessons?.length || 0} Lessons
+                    </div>
+                    <div className="text-sm text-text-secondary">
+                      Comprehensive content
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-secondary/10 rounded-full flex items-center justify-center">
-                    <span className="text-secondary">📝</span>
+                <div className="flex items-center gap-4 p-3 bg-secondary/5 rounded-lg">
+                  <div className="w-10 h-10 bg-secondary/10 rounded-full flex items-center justify-center">
+                    <span className="text-secondary text-lg">📝</span>
                   </div>
-                  <span className="text-text-primary">
-                    {course.quizzes?.length || 0} Quizzes
-                  </span>
+                  <div>
+                    <div className="font-semibold text-text-primary">
+                      {course.quizzes?.length || 0} Quizzes
+                    </div>
+                    <div className="text-sm text-text-secondary">
+                      Test your knowledge
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                    <span className="text-green-600">🏆</span>
+                <div className="flex items-center gap-4 p-3 bg-green-500/5 rounded-lg">
+                  <div className="w-10 h-10 bg-green-500/10 rounded-full flex items-center justify-center">
+                    <span className="text-green-600 text-lg">🏆</span>
                   </div>
-                  <span className="text-text-primary">
-                    Certificate of Completion
-                  </span>
+                  <div>
+                    <div className="font-semibold text-text-primary">
+                      Certificate
+                    </div>
+                    <div className="text-sm text-text-secondary">
+                      Upon completion
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                    <span className="text-blue-600">🔄</span>
+                <div className="flex items-center gap-4 p-3 bg-blue-500/5 rounded-lg">
+                  <div className="w-10 h-10 bg-blue-500/10 rounded-full flex items-center justify-center">
+                    <span className="text-blue-600 text-lg">🔄</span>
                   </div>
-                  <span className="text-text-primary">Lifetime Access</span>
+                  <div>
+                    <div className="font-semibold text-text-primary">
+                      Lifetime Access
+                    </div>
+                    <div className="text-sm text-text-secondary">
+                      Learn at your pace
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
+
+            {/* Support Card */}
+            {/* <div className="card border border-border p-6 bg-gradient-to-br from-primary/5 to-secondary/5">
+              <h3 className="text-lg font-bold text-text-primary mb-3">Need Help?</h3>
+              <p className="text-text-secondary text-sm mb-4">
+                Have questions about this course? Our support team is here to help you.
+              </p>
+              <button className="w-full py-3 bg-primary text-white font-semibold rounded-lg btn-hover">
+                Contact Support
+              </button>
+            </div> */}
           </aside>
         </div>
       </div>

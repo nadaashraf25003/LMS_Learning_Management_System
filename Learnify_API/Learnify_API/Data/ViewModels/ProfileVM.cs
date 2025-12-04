@@ -6,11 +6,11 @@ namespace Learnify_API.Data.ViewModels
 {
     public class ProfileVM
     {
-        public string Role { get; set; }
-        public UserInformationVM User { get; set; }
-        public SocialLinks SocialLinks { get; set; }
-        public List<Stat> Stats { get; set; }
-        public string About { get; set; }
+        public string? Role { get; set; }
+        public UserInformationVM? User { get; set; }
+        public SocialLinks? SocialLinks { get; set; }
+        public List<Stat>? Stats { get; set; }
+        public string? About { get; set; }
         [NotMapped]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public InstructorTabContent InstructorTabContent { get; set; } = new InstructorTabContent();
@@ -21,23 +21,23 @@ namespace Learnify_API.Data.ViewModels
         [NotMapped]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public StudentTabContent StudentTabContent { get; set; } = new StudentTabContent();
-        public List<ActionButton> Actions { get; set; }
+        public List<ActionButton>? Actions { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? Department { get; set; }
     }
     public class UserInformationVM
     {
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public string? Avatar { get; set; }
-        public string RoleTitle { get; set; }
+        public string? RoleTitle { get; set; }
     }
 
     public class EditStudentProfileVM
     {
-        public string Name { get; set; } = string.Empty;
+        public string? Name { get; set; } = string.Empty;
         public IFormFile? Avatar { get; set; }   // ← الصورة الجديدة فقط
-        public string RoleTitle { get; set; } = string.Empty;
-        public string About { get; set; } = string.Empty;
+        public string? RoleTitle { get; set; } = string.Empty;
+        public string? About { get; set; } = string.Empty;
 
         public string? Phone { get; set; }
         public string? Address { get; set; }
@@ -56,10 +56,10 @@ namespace Learnify_API.Data.ViewModels
 
     public class EditInstructorProfileVM
     {
-        public string Name { get; set; } = string.Empty;
+        public string? Name { get; set; } = string.Empty;
         public IFormFile? Avatar { get; set; }
-        public string RoleTitle { get; set; } = "Instructor";
-        public string About { get; set; } = string.Empty;
+        public string? RoleTitle { get; set; } = "Instructor";
+        public string? About { get; set; } = string.Empty;
 
         // Instructor-specific fields
         public string? Phone { get; set; }

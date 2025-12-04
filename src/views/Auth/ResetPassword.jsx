@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useTheme } from "@/utils/ThemeProvider";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
@@ -5,9 +6,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
 import { useNavigate, useLocation } from "react-router";
 import { FaEnvelope, FaLock } from "react-icons/fa";
-import axios from "axios";
+import useAuth from "@/hooks/useAuth";
+import toast from "react-hot-toast";
 
-// Zod schema for reset password
 const ResetPasswordSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   code: z.string().min(6, "Enter the 6-digit code"),
@@ -17,36 +18,46 @@ const ResetPasswordSchema = z.object({
 function ResetPassword() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { theme } = useTheme();
+  const defaultEmail = location.state?.email ?? "";
 
-  // If user navigated from ForgetPassword, get email from state
-  const defaultEmail = (location.state)?.email || "";
+  const { resetPasswordMutation, resendVerificationMutation } = useAuth();
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    watch,
+    formState: { errors },
   } = useForm({
     resolver: zodResolver(ResetPasswordSchema),
     defaultValues: { email: defaultEmail },
   });
 
-  const onSubmit = async (data) => {
-    try {
-      const response = await axios.post("/Auth/reset-password", {
-        email: data.email,
-        code: data.code,
-        newPassword: data.newPassword,
-      });
+  const emailValue = watch("email");
 
-      if (response.status === 200) {
-        alert(response.data.message); // e.g., "Password updated successfully"
+  const onSubmit = (data) => {
+    resetPasswordMutation.mutate(data, {
+      onSuccess: (res) => {
+        toast.success(res.message || "Password reset successfully");
         navigate("/User/Login");
+      },
+      onError: (err) => {
+        toast.error(err.message || "Something went wrong");
+      },
+    });
+  };
+
+  const handleResendCode = () => {
+    resendVerificationMutation.mutate(
+      { email: emailValue },
+      {
+        onSuccess: (res) => {
+          toast.success(res.message || "Verification code sent!");
+        },
+        onError: (err) => {
+          toast.error(err.message || "Failed to resend code");
+        },
       }
-    } catch (error) {
-      console.error(error);
-      alert(error.response?.data?.message || "Something went wrong!");
-    }
+    );
   };
 
   return (
@@ -61,19 +72,29 @@ function ResetPassword() {
             placeholder="Enter your email..."
             className="bg-input px-10 py-2"
           />
-          <p className="text-red-500 text-sm mt-1">{errors.email?.message}</p>
+          <p className="text-red-500 text-sm">{errors.email?.message}</p>
         </div>
 
-        {/* Reset Code */}
+        {/* Verification Code */}
         <div className="mb-4 relative">
           <Input
             {...register("code")}
             type="text"
-            placeholder="Enter reset code"
+            placeholder="Enter verification code"
             className="bg-input px-3 py-2"
           />
-          <p className="text-red-500 text-sm mt-1">{errors.code?.message}</p>
+          <p className="text-red-500 text-sm">{errors.code?.message}</p>
         </div>
+
+        {/* Resend Button */}
+        {/* <p
+          className="text-secondary text-sm cursor-pointer hover:underline font-bold mb-2"
+          onClick={handleResendCode}
+        >
+          {resendVerificationMutation.isPending
+            ? "Sending..."
+            : "Resend Verification Code"}
+        </p> */}
 
         {/* New Password */}
         <div className="mb-4 relative">
@@ -84,20 +105,20 @@ function ResetPassword() {
             placeholder="Enter new password"
             className="bg-input px-10 py-2"
           />
-          <p className="text-red-500 text-sm mt-1">{errors.newPassword?.message}</p>
+          <p className="text-red-500 text-sm">{errors.newPassword?.message}</p>
         </div>
 
         {/* Submit Button */}
         <button
           type="submit"
           className="btn bg-secondary w-full cursor-pointer hover:scale-102 my-5"
-          disabled={isSubmitting}
+          disabled={resetPasswordMutation.isPending}
         >
-          {isSubmitting ? "Resetting..." : "Reset Password"}
+          {resetPasswordMutation.isPending ? "Resetting..." : "Reset Password"}
         </button>
       </form>
 
-      {/* Go Back */}
+      {/* Back Link */}
       <p className="text-text-secondary">
         Go Back{" "}
         <span

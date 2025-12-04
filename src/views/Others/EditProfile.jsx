@@ -85,7 +85,7 @@ const EditProfile = () => {
           role === "admin"
             ? "AdminLayout/AdminProfile"
             : role === "student"
-            ? "StudentLayout/StudentProfile"
+            ? "StudentLayout/StuProfile"
             : "InstructorLayout/InstrProfile"
         }`
       );

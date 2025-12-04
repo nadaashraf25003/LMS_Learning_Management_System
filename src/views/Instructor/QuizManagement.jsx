@@ -11,7 +11,7 @@ const QUIZZES_PER_PAGE = 10;
 function QuizManagement() {
   const navigate = useNavigate();
   const { getQuizzesByInstructor, deleteQuizMutation } = useQuiz();
-  const { data: quizzesData, isLoading, isError } = getQuizzesByInstructor();
+  const { data: quizzesData, isLoading } = getQuizzesByInstructor();
 
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedQuiz, setSelectedQuiz] = useState(null);
@@ -62,12 +62,12 @@ function QuizManagement() {
       </div>
     );
 
-  if (isError)
-    return (
-      <div className="flex items-center justify-center h-48 text-red-500 font-semibold">
-        ❌ Failed to load quizzes.
-      </div>
-    );
+  // if (isError)
+  //   return (
+  //     <div className="flex items-center justify-center h-48 text-red-500 font-semibold">
+  //       ❌ Failed to load quizzes.
+  //     </div>
+  //   );
 
   return (
     <div className="p-6">

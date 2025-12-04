@@ -32,6 +32,7 @@ const useLesson = (id?: string) => {
   const queryClient = useQueryClient();
 
   // ✅ Get lesson by ID
+  // Get single lesson by ID (Instructor)
   const getLessonById = (id: string) =>
     useQuery({
       queryKey: ["lesson", id],
@@ -43,22 +44,12 @@ const useLesson = (id?: string) => {
     });
 
   // ✅ Get lessons by course
+  // Get all lessons by Course (Instructor)
   const getLessonsByCourse = (courseId: string) =>
     useQuery({
       queryKey: ["lessons", courseId],
       queryFn: async () => {
         const res = await api.get(Urls.GetLessonByCourse + courseId);
-        return res.data;
-      },
-      enabled: !!courseId,
-    });
-
-  // ✅ Get lesson progress for a course
-  const getLessonProgress = (courseId: string) =>
-    useQuery({
-      queryKey: ["lessonProgress", courseId],
-      queryFn: async () => {
-        const res = await api.get(Urls.LessonProgress + courseId);
         return res.data;
       },
       enabled: !!courseId,
@@ -100,40 +91,82 @@ const useLesson = (id?: string) => {
     },
   });
 
-  // ✅ Complete lesson
-  const completeLessonMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const res = await api.post(`/Lesson/complete/${id}`);
-      return res.data;
-    },
-
-    onSuccess: (_, id) => {
-      queryClient.invalidateQueries({ queryKey: ["lesson", id] });
-    },
-  });
-
-
   // 🔹 Get lessons for logged-in instructor automatically
-const getLessonsByInstructor = () =>
-  useQuery({
-    queryKey: ["lessons-instructor"],
-    queryFn: async () => {
-      const res = await api.get(Urls.GetLessonsByInstructor);
+  const getLessonsByInstructor = () =>
+    useQuery({
+      queryKey: ["lessons-instructor"],
+      queryFn: async () => {
+        const res = await api.get(Urls.GetLessonsByInstructor);
+        return res.data;
+      },
+    });
+
+  /* ============================
+   *      Student Queries
+   * ============================ */
+
+  // Get lessons by course (Student)
+  const getLessonsByCourseForStudent = (courseId: string) =>
+    useQuery({
+      queryKey: ["student-lessons", courseId],
+      queryFn: async () => {
+        const res = await api.get(
+          `/Lesson/by-courseid-for-student/${courseId}`
+        );
+        return res.data;
+      },
+      enabled: !!courseId,
+    });
+
+  // Get single lesson (Student)
+  const getLessonForStudent = (lessonId: string) =>
+    useQuery({
+      queryKey: ["student-lesson", lessonId],
+      queryFn: async () => {
+        const res = await api.get(
+          `/Lesson/by-lessonid-for-student/${lessonId}`
+        );
+        return res.data;
+      },
+      enabled: !!lessonId,
+    });
+
+  // Get Lesson Progress
+  const getStudentcourseProgress = (courseid: string) =>
+    useQuery({
+      queryKey: ["student-lesson-progress", courseid],
+      queryFn: async () => {
+        const res = await api.get(`/Lesson/course-progress/${courseid}`);
+        return res.data;
+      },
+      enabled: !!courseid,
+    });
+
+  // Mark Lesson Complete (Student)
+  const completeLessonForStudent = useMutation({
+    mutationFn: async (lessonId: string) => {
+      const res = await api.post(`/Lesson/complete/${lessonId}`);
       return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["student-lesson-progress"] });
+      // toast.success("Completed 🎉");
     },
   });
   return {
-    // Queries
+    // Instructor
     getLessonById,
     getLessonsByCourse,
-    getLessonProgress,
     getLessonsByInstructor,
-
-    // Mutations
     addLessonMutation,
     updateLessonMutation,
     deleteLessonMutation,
-    completeLessonMutation,
+
+    // Student
+    getLessonsByCourseForStudent,
+    getLessonForStudent,
+    getStudentcourseProgress,
+    completeLessonForStudent,
   };
 };
 

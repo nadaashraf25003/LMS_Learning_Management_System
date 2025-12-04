@@ -33,7 +33,7 @@ export function NavMain({
   }[];
 }) {
   return (
-    <SidebarGroup>
+    <SidebarGroup >
       {/* <SidebarGroupLabel className="text-red-400">Platform</SidebarGroupLabel> */}
       <hr className="my-2"/>
       <SidebarMenu> 

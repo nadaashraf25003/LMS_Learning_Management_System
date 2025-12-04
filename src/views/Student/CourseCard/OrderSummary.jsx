@@ -1,12 +1,10 @@
-// React
-import React from "react";
-
 const OrderSummary = ({
   originalPrice = 0,
   discount = 0,
   couponApplied = false,
   onApplyCoupon,
   onCheckout,
+  totalCourses = 0, // new prop
 }) => {
   const total = originalPrice - discount;
 
@@ -17,6 +15,12 @@ const OrderSummary = ({
         Total
         <span className="absolute -bottom-1 left-0 w-10 h-[2px] bg-secondary"></span>
       </h2>
+
+      {/* Total Courses */}
+      <div className="flex justify-between items-center py-2">
+        <span className="font-semibold text-text-primary">Total Courses</span>
+        <span className="text-text-secondary font-semibold">{totalCourses}</span>
+      </div>
 
       {/* Original Price */}
       <div className="flex justify-between items-center py-2">
@@ -41,7 +45,7 @@ const OrderSummary = ({
       {/* Total */}
       <div className="flex justify-between items-center py-3">
         <span className="font-semibold text-lg text-text-primary">Total</span>
-        <span className="font-bold text-xl text-text-secondary ">${total}</span>
+        <span className="font-bold text-xl text-text-secondary">${total}</span>
       </div>
 
       <hr className="mb-3" />

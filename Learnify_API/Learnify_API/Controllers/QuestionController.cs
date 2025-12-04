@@ -43,7 +43,7 @@ namespace Learnify_API.Controllers
         }
 
         // ==================== UPDATE ====================
-        [HttpPut("{id}")]
+        [HttpPut("update/{id}")]
         public async Task<ActionResult> Update(int id, [FromBody] QuestionVM vm)
         {
             var result = await _service.UpdateQuestionAsync(id, vm);
@@ -52,7 +52,7 @@ namespace Learnify_API.Controllers
         }
 
         // ==================== DELETE ====================
-        [HttpDelete("{id}")]
+        [HttpDelete("delete/{id}")]
         public async Task<ActionResult> Delete(int id)
         {
             var deleted = await _service.DeleteQuestionAsync(id);

@@ -1,15 +1,9 @@
-// React
-import { useEffect, useState } from "react";
-
-// Components
+import { useState } from "react";
+import { useNavigate, useParams } from "react-router";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router";
-import api from "@/API/Config";
+import useQuiz from "@/hooks/useQuiz"; // make sure the path is correct
 
-// API URLs
-// const URL = "http://localhost:3001";
-const UserResultsEndPoint = "studentResults"; // 👈 endpoint we’ll use
-
+// Count component
 function Count({ shape, num, text }) {
   const bgColor =
     text === "Right"
@@ -32,6 +26,7 @@ function Count({ shape, num, text }) {
   );
 }
 
+// Certificate download
 function CertificateSection({ studentName, courseName }) {
   const generateCertificate = () => {
     const canvas = document.createElement("canvas");
@@ -69,6 +64,7 @@ function CertificateSection({ studentName, courseName }) {
   );
 }
 
+// Certification heading
 function Certification({ name }) {
   return (
     <div className="text-2xl sm:text-3xl md:text-4xl font-bold mt-10 text-center dark:text-white">
@@ -77,36 +73,17 @@ function Certification({ name }) {
   );
 }
 
+// Main result page
 function StuQuizResult() {
   const navigate = useNavigate();
-  const [result, setResult] = useState(null);
-  const [userName, setUserId] = useState(null);
-  const [courseName, setcourseName] = useState(null);
+  const { quizId } = useParams(); // grab quizId from URL
+  const { getQuizResultById } = useQuiz(); // hook from useQuiz
+  const { data: result, isLoading } = getQuizResultById(quizId);
 
-  useEffect(() => {
-    const fetchUserResult = async () => {
-      try {
-        // ✅ Get all results
-        const res = await api.get(`${UserResultsEndPoint}`);
-        const allResults = res.data;
+  const [userName] = useState(result?.userName || "");
+  const [courseName] = useState(result?.courseName || "");
 
-        if (allResults.length > 0) {
-          // ✅ Take the last one as latest result
-          const latestResult = allResults[allResults.length - 1];
-          setResult(latestResult);
-          setUserId(latestResult.userName); // 👈 Automatically set userId
-          setcourseName(latestResult.courseName); // 👈 Automatically set userId
-          console.log("courseName",courseName)
-        }
-      } catch (error) {
-        console.error("Error fetching user results:", error);
-      }
-    };
-
-    fetchUserResult();
-  }, []);
-
-  if (!result || !userName) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen text-gray-500 dark:text-gray-300">
         Loading result...
@@ -114,8 +91,16 @@ function StuQuizResult() {
     );
   }
 
+  if (!result) {
+    return (
+      <div className="flex justify-center items-center h-screen text-gray-500 dark:text-gray-300">
+        No quiz result found.
+      </div>
+    );
+  }
+
   return (
-    <div className="w-full flex-grow bg-white dark:bg-gray-800  flex flex-col pt-16">
+    <div className="w-full flex-grow bg-white dark:bg-gray-800 flex flex-col pt-16">
       {/* Header */}
       <div className="w-full bg-white dark:bg-gray-900 shadow-sm px-24 max-lg:px-6 max-md:px-4">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center px-4 sm:px-6 py-2 gap-2 sm:gap-0">
@@ -127,17 +112,8 @@ function StuQuizResult() {
             >
               Home
             </a>{" "}
-            {/* /{" "} */}
-            {/* <a href="#" className="hover:underline">
-              Certification Center
-            </a>{" "} */}
             / Test
           </span>
-          {/* <span className="text-gray-600 dark:text-gray-300 text-sm sm:text-base mt-1 sm:mt-0">
-            <a href="#" className="hover:underline">
-              « Back to Certification Center
-            </a>
-          </span> */}
         </div>
 
         <h1 className="px-4 sm:px-6 py-3 text-xl sm:text-2xl md:text-3xl font-semibold dark:text-white">
@@ -149,15 +125,11 @@ function StuQuizResult() {
       <div className="mt-10 mx-auto flex flex-wrap justify-center items-center gap-4 sm:gap-6">
         <Count shape="✓" num={result.correctAnswers} text="Right" />
         <Count shape="✗" num={result.wrongAnswers} text="Wrong" />
-        <Count
-          shape={result.correctAnswers}
-          num={result.totalQuestions}
-          text="Out of"
-        />
+        <Count shape={result.correctAnswers} num={result.totalQuestions} text="Out of" />
       </div>
 
       {/* Certificate Section */}
-      <Certification name={`${userName}`} />
+      <Certification name={userName} />
 
       <h2 className="text-gray-600 my-6 text-center dark:text-gray-300 text-base sm:text-lg">
         {result.passed
@@ -166,10 +138,7 @@ function StuQuizResult() {
       </h2>
 
       {result.passed && (
-        <CertificateSection
-          studentName={`${userName}`}
-          courseName={`${courseName}`}
-        />
+        <CertificateSection studentName={userName} courseName={courseName} />
       )}
     </div>
   );

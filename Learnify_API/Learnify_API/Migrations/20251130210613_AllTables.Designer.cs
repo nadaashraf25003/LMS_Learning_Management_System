@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Learnify_API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251124113743_Initial")]
-    partial class Initial
+    [Migration("20251130210613_AllTables")]
+    partial class AllTables
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -117,6 +117,32 @@ namespace Learnify_API.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("Learnify_API.Data.Models.CartItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("AddedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
+
+                    b.HasIndex("StudentId");
+
+                    b.ToTable("CartItems");
+                });
+
             modelBuilder.Entity("Learnify_API.Data.Models.Certificate", b =>
                 {
                     b.Property<string>("CertificateId")
@@ -158,6 +184,64 @@ namespace Learnify_API.Migrations
                     b.HasIndex("StudentId1");
 
                     b.ToTable("Certificates");
+                });
+
+            modelBuilder.Entity("Learnify_API.Data.Models.Checkout", b =>
+                {
+                    b.Property<int>("CheckoutId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CheckoutId"));
+
+                    b.Property<DateTime>("CheckoutDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PaymentMethod")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PaymentStatus")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("CheckoutId");
+
+                    b.HasIndex("StudentId");
+
+                    b.ToTable("Checkouts");
+                });
+
+            modelBuilder.Entity("Learnify_API.Data.Models.CheckoutItem", b =>
+                {
+                    b.Property<int>("CheckoutItemId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CheckoutItemId"));
+
+                    b.Property<int>("CheckoutId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("CheckoutItemId");
+
+                    b.HasIndex("CheckoutId");
+
+                    b.HasIndex("CourseId");
+
+                    b.ToTable("CheckoutItem");
                 });
 
             modelBuilder.Entity("Learnify_API.Data.Models.Course", b =>
@@ -270,11 +354,9 @@ namespace Learnify_API.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Massage")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("feedbackimage")
@@ -467,7 +549,6 @@ namespace Learnify_API.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Role")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("UserId")
@@ -653,6 +734,49 @@ namespace Learnify_API.Migrations
                     b.HasKey("StudentId");
 
                     b.ToTable("Students");
+                });
+
+            modelBuilder.Entity("Learnify_API.Data.Models.StudentAnswer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AnswersJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Duration")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("QuizId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Score")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuizId");
+
+                    b.HasIndex("StudentId");
+
+                    b.ToTable("StudentAnswers");
                 });
 
             modelBuilder.Entity("Learnify_API.Data.Models.User", b =>
@@ -935,6 +1059,25 @@ namespace Learnify_API.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Learnify_API.Data.Models.CartItem", b =>
+                {
+                    b.HasOne("Learnify_API.Data.Models.Course", "Course")
+                        .WithMany()
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Learnify_API.Data.Models.Student", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Course");
+
+                    b.Navigation("Student");
+                });
+
             modelBuilder.Entity("Learnify_API.Data.Models.Certificate", b =>
                 {
                     b.HasOne("Learnify_API.Data.Models.Course", "Course")
@@ -968,6 +1111,36 @@ namespace Learnify_API.Migrations
                     b.Navigation("Instructor");
 
                     b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("Learnify_API.Data.Models.Checkout", b =>
+                {
+                    b.HasOne("Learnify_API.Data.Models.Student", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("Learnify_API.Data.Models.CheckoutItem", b =>
+                {
+                    b.HasOne("Learnify_API.Data.Models.Checkout", "Checkout")
+                        .WithMany("CheckoutItems")
+                        .HasForeignKey("CheckoutId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Learnify_API.Data.Models.Course", "Course")
+                        .WithMany()
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Checkout");
+
+                    b.Navigation("Course");
                 });
 
             modelBuilder.Entity("Learnify_API.Data.Models.Course", b =>
@@ -1113,11 +1286,9 @@ namespace Learnify_API.Migrations
                                 .HasColumnType("nvarchar(max)");
 
                             b1.Property<string>("Name")
-                                .IsRequired()
                                 .HasColumnType("nvarchar(max)");
 
                             b1.Property<string>("RoleTitle")
-                                .IsRequired()
                                 .HasColumnType("nvarchar(max)");
 
                             b1.HasKey("ProfileId");
@@ -1189,6 +1360,25 @@ namespace Learnify_API.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Learnify_API.Data.Models.StudentAnswer", b =>
+                {
+                    b.HasOne("Learnify_API.Data.Models.Quiz", "Quiz")
+                        .WithMany()
+                        .HasForeignKey("QuizId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Learnify_API.Data.Models.Student", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Quiz");
+
+                    b.Navigation("Student");
+                });
+
             modelBuilder.Entity("Lesson", b =>
                 {
                     b.HasOne("Learnify_API.Data.Models.Course", "Course")
@@ -1249,6 +1439,11 @@ namespace Learnify_API.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Learnify_API.Data.Models.Checkout", b =>
+                {
+                    b.Navigation("CheckoutItems");
                 });
 
             modelBuilder.Entity("Learnify_API.Data.Models.Course", b =>

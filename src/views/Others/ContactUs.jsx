@@ -79,11 +79,11 @@ function ContactUs() {
   ];
 
   return (
-    <div className="min-h-screen bg-background py-8 mt-16">
+    <div className="min-h-screen bg-background py-8 mt-5">
       <div className="container mx-auto px-4">
         {/* Header */}
         <header className="mb-8">
-          <div className="flex items-center text-sm text-text-secondary mb-4">
+          {/* <div className="flex items-center text-sm text-text-secondary mb-4">
             <a
               href="#"
               className="hover:text-blue-600"
@@ -93,7 +93,7 @@ function ContactUs() {
             </a>
             <span className="mx-2">/</span>
             <span className="text-text-secondary">Contact Us</span>
-          </div>
+          </div> */}
           <LandingHeading header="Contact Us" />
         </header>
 

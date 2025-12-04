@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Learnify_API.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class AllTables : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -58,8 +58,8 @@ namespace Learnify_API.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Massage = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Massage = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     feedbackimage = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
@@ -314,10 +314,10 @@ namespace Learnify_API.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<int>(type: "int", nullable: false),
-                    Role = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    User_Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Role = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    User_Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     User_Avatar = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    User_RoleTitle = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    User_RoleTitle = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     SocialLinks_Facebook = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     SocialLinks_Twitter = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     SocialLinks_LinkedIn = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -423,6 +423,54 @@ namespace Learnify_API.Migrations
                         principalTable: "Instructors",
                         principalColumn: "InstructorId",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Checkouts",
+                columns: table => new
+                {
+                    CheckoutId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    StudentId = table.Column<int>(type: "int", nullable: false),
+                    CheckoutDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    TotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    PaymentMethod = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PaymentStatus = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Checkouts", x => x.CheckoutId);
+                    table.ForeignKey(
+                        name: "FK_Checkouts_Students_StudentId",
+                        column: x => x.StudentId,
+                        principalTable: "Students",
+                        principalColumn: "StudentId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CartItems",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    StudentId = table.Column<int>(type: "int", nullable: false),
+                    CourseId = table.Column<int>(type: "int", nullable: false),
+                    AddedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CartItems", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CartItems_Courses_CourseId",
+                        column: x => x.CourseId,
+                        principalTable: "Courses",
+                        principalColumn: "CourseId");
+                    table.ForeignKey(
+                        name: "FK_CartItems_Students_StudentId",
+                        column: x => x.StudentId,
+                        principalTable: "Students",
+                        principalColumn: "StudentId");
                 });
 
             migrationBuilder.CreateTable(
@@ -582,6 +630,33 @@ namespace Learnify_API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "CheckoutItem",
+                columns: table => new
+                {
+                    CheckoutItemId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CheckoutId = table.Column<int>(type: "int", nullable: false),
+                    CourseId = table.Column<int>(type: "int", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CheckoutItem", x => x.CheckoutItemId);
+                    table.ForeignKey(
+                        name: "FK_CheckoutItem_Checkouts_CheckoutId",
+                        column: x => x.CheckoutId,
+                        principalTable: "Checkouts",
+                        principalColumn: "CheckoutId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CheckoutItem_Courses_CourseId",
+                        column: x => x.CourseId,
+                        principalTable: "Courses",
+                        principalColumn: "CourseId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "LessonProgresses",
                 columns: table => new
                 {
@@ -628,6 +703,38 @@ namespace Learnify_API.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "StudentAnswers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    StudentId = table.Column<int>(type: "int", nullable: false),
+                    QuizId = table.Column<int>(type: "int", nullable: false),
+                    AnswersJson = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    StartTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Duration = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SubmittedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Score = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StudentAnswers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_StudentAnswers_Quizzes_QuizId",
+                        column: x => x.QuizId,
+                        principalTable: "Quizzes",
+                        principalColumn: "QuizId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_StudentAnswers_Students_StudentId",
+                        column: x => x.StudentId,
+                        principalTable: "Students",
+                        principalColumn: "StudentId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -668,6 +775,16 @@ namespace Learnify_API.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_CartItems_CourseId",
+                table: "CartItems",
+                column: "CourseId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CartItems_StudentId",
+                table: "CartItems",
+                column: "StudentId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Certificates_CourseId",
                 table: "Certificates",
                 column: "CourseId");
@@ -691,6 +808,21 @@ namespace Learnify_API.Migrations
                 name: "IX_Certificates_StudentId1",
                 table: "Certificates",
                 column: "StudentId1");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CheckoutItem_CheckoutId",
+                table: "CheckoutItem",
+                column: "CheckoutId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CheckoutItem_CourseId",
+                table: "CheckoutItem",
+                column: "CourseId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Checkouts_StudentId",
+                table: "Checkouts",
+                column: "StudentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Courses_InstructorId",
@@ -768,6 +900,16 @@ namespace Learnify_API.Migrations
                 column: "StudentId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_StudentAnswers_QuizId",
+                table: "StudentAnswers",
+                column: "QuizId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StudentAnswers_StudentId",
+                table: "StudentAnswers",
+                column: "StudentId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Users_Email",
                 table: "Users",
                 column: "Email",
@@ -796,7 +938,13 @@ namespace Learnify_API.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "CartItems");
+
+            migrationBuilder.DropTable(
                 name: "Certificates");
+
+            migrationBuilder.DropTable(
+                name: "CheckoutItem");
 
             migrationBuilder.DropTable(
                 name: "Enrollments");
@@ -826,10 +974,16 @@ namespace Learnify_API.Migrations
                 name: "SavedCourses");
 
             migrationBuilder.DropTable(
+                name: "StudentAnswers");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Checkouts");
 
             migrationBuilder.DropTable(
                 name: "Lessons");

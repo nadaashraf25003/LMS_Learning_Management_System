@@ -1,4 +1,3 @@
-// React
 import React, { useEffect, useState } from "react";
 import {
   FaFacebookF,
@@ -7,87 +6,92 @@ import {
   FaYoutube,
   FaInstagram,
   FaGithub,
+  FaEdit,
+  FaCog,
+  FaEnvelope,
 } from "react-icons/fa";
 import { useNavigate } from "react-router";
 import DefaultImage from "../../../public/images/default-avatar.png";
+import useProfile from "@/hooks/useProfile";
 
-// components
-import api from "@/API/Config";
-import useTokenStore from "@/store/user";
-import Urls from "@/API/URL";
-
-function Profile({ role = "student" }) {
+function Profile() {
   const navigate = useNavigate();
-  let ProfileEndpoint;
-  if (role === "student") {
-    ProfileEndpoint =Urls.studentprofile; // Replace with dynamic ID if needed
-  } else if (role === "instructor") {
-    ProfileEndpoint = Urls.instructorprofile; // Replace with dynamic ID if needed
-  } else if (role === "admin") {
-    ProfileEndpoint = Urls.adminprofile; // Replace with dynamic ID if needed
-  }
-  const [profile, setProfile] = useState(null);
+  const { profile, UserRole } = useProfile();
   const [activeTab, setActiveTab] = useState("");
-  const { user: User } = useTokenStore.getState();
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const userId = User?.userId ?? 1;
-        const res = await api.get(`${ProfileEndpoint}`);
-        const data = res.data;
-        //  Handle tabContent dynamically depending on role
-        const UserRole = User?.role ?? "admin"?.toLowerCase();
-        const tabContent = data[`${UserRole}TabContent`];
-        //  Fallbacks
-        if (!data.user.avatar) data.user.avatar = User?.image || DefaultImage;
+    if (profile.data) {
+      const tabContent = profile.data[`${UserRole}TabContent`];
+      setActiveTab(Object.keys(tabContent || {})[0] || "");
+    }
+  }, [profile.data, UserRole]);
 
-        setProfile({ ...data, tabContent });
-        setActiveTab(Object.keys(tabContent || {})[0] || "");
-      } catch (err) {
-        console.log("Error fetching profile:", err);
-      }
-    };
-    fetchProfile();
-  }, [role]);
-
-  if (!profile) {
+  if (profile.isLoading) {
     return (
-      <div className="flex justify-center items-center h-screen text-[var(--text-secondary)]">
-        Loading profile...
+      <div className="flex justify-center items-center h-screen text-text-secondary">
+        <div className="animate-pulse flex flex-col items-center space-y-4">
+          <div className="w-24 h-24 bg-gray-300 rounded-full"></div>
+          <div className="h-4 bg-gray-300 rounded w-48"></div>
+          <div className="h-3 bg-gray-300 rounded w-32"></div>
+        </div>
       </div>
     );
   }
 
-  const { user, stats, tabContent, socialLinks, actions } = profile;
-  const tabs = Object.keys(tabContent || {});
+  if (profile.isError || !profile.data) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="text-center">
+          <p className="text-destructive text-lg mb-4">Error loading profile</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="btn btn-primary"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const data = profile.data;
+  if (!data.user.avatar) data.user.avatar = DefaultImage;
+
+  const tabs = Object.keys(data[`${UserRole}TabContent`] || {});
+  const tabContent = data[`${UserRole}TabContent`];
 
   return (
-    <div className="min-h-screen bg-[var(--background)] p-8">
+    <div className="min-h-screen bg-background p-4 sm:p-6 lg:p-8">
       {/* Profile Header */}
-      <div className="card flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-8 p-6 md:p-10">
-        {/* Left: Avatar + Info */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-          <div className="w-24 h-24 mx-auto sm:mx-0 rounded-full overflow-hidden border border-[var(--border)]">
-            <img
-              src={user.avatar}
-              alt="Profile"
-              className="w-full h-full object-cover"
-            />
+      <div className="card card-hover flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8 p-6 lg:p-8">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-6">
+          <div className="relative mx-auto sm:mx-0">
+            <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-primary shadow-lg">
+              <img
+                src={data.user.avatar}
+                alt="Profile"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="absolute -bottom-2 -right-2 bg-primary text-primary-foreground rounded-full p-2 shadow-lg">
+              <FaEdit className="text-sm" />
+            </div>
           </div>
-          <div className="text-center sm:text-left">
-            <h2 className="text-3xl font-bold text-[var(--text-primary)]">
-              {user.name}
-            </h2>
-            <p className="text-[var(--text-secondary)]">{user.roleTitle}</p>
-            <p className="text-[var(--secondary)] capitalize font-bold">
-              {role}
-            </p>
+          
+          <div className="text-center sm:text-left space-y-3">
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-bold text-text-primary">
+                {data.user.name}
+              </h2>
+              <p className="text-text-secondary text-lg">{data.user.roleTitle}</p>
+              <span className="inline-block px-3 py-1 bg-secondary text-secondary-foreground rounded-full text-sm font-bold capitalize mt-2">
+                {UserRole}
+              </span>
+            </div>
 
-            {/* Social Links */}
-            {socialLinks && (
-              <div className="flex space-x-3 mt-2 text-sm justify-center sm:justify-start">
-                {Object.entries(socialLinks).map(([platform, link]) => {
+            {data.socialLinks && (
+              <div className="flex space-x-2 justify-center sm:justify-start">
+                {Object.entries(data.socialLinks).map(([platform, link]) => {
                   if (!link) return null;
 
                   const icons = {
@@ -105,7 +109,7 @@ function Profile({ role = "student" }) {
                     linkedin: "bg-blue-700 hover:bg-blue-800",
                     youtube: "bg-red-600 hover:bg-red-700",
                     instagram: "bg-pink-500 hover:bg-pink-600",
-                    github: "bg-gray-800 hover:bg-gray-900",
+                    github: "bg-gray-800 hover:bg-gray-900 dark:bg-gray-700 dark:hover:bg-gray-600",
                   };
 
                   return (
@@ -114,12 +118,12 @@ function Profile({ role = "student" }) {
                       href={link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`w-8 h-8 flex items-center justify-center rounded-full text-white transition ${
-                        colors[platform.toLowerCase()] ||
-                        "bg-gray-500 hover:bg-gray-600"
+                      className={`w-10 h-10 flex items-center justify-center rounded-full text-white transition-all duration-300 btn-hover ${
+                        colors[platform] || "bg-gray-500 hover:bg-gray-600"
                       }`}
+                      title={platform.charAt(0).toUpperCase() + platform.slice(1)}
                     >
-                      {icons[platform.toLowerCase()] || platform}
+                      {icons[platform] || platform}
                     </a>
                   );
                 })}
@@ -128,66 +132,74 @@ function Profile({ role = "student" }) {
           </div>
         </div>
 
-        {/* Right: Action Buttons */}
-        <div className="flex space-x-3 text-center justify-center md:justify-start">
-          {actions?.map((action) => (
+        <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-end">
+          {data.actions?.map((action) => (
             <button
               key={action.id}
-              className="btn btn-primary btn-hover"
+              className="btn btn-primary btn-hover flex items-center justify-center gap-2"
               onClick={() => navigate(action.url)}
             >
+              {action.label === "Edit Profile" && <FaEdit />}
+              {action.label === "Settings" && <FaCog />}
+              {action.label === "Contact" && <FaEnvelope />}
               {action.label}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Stats Section */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {stats.map((stat) => (
-          <div key={stat.label} className="card card-hover text-center">
-            <div className="text-3xl font-bold text-[var(--text-primary)]">
+      {/* Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+        {data.stats.map((stat, index) => (
+          <div 
+            key={stat.label} 
+            className="card card-hover text-center p-6 relative overflow-hidden group"
+          >
+            <div className="text-3xl font-bold text-primary mb-2 group-hover:scale-110 transition-transform duration-300">
               {stat.value}
             </div>
-            <div className="text-sm text-[var(--text-secondary)] font-bold">
+            <div className="text-sm font-semibold text-text-secondary uppercase tracking-wide">
               {stat.label}
             </div>
+            <div className="absolute top-0 right-0 w-16 h-16 bg-primary/10 rounded-full -translate-y-8 translate-x-8 group-hover:scale-150 transition-transform duration-300"></div>
           </div>
         ))}
       </div>
 
       {/* About Section */}
-      {profile.about && (
-        <div className="card mb-8 p-4 border-[var(--border-color)] shadow-sm">
-          <h3 className="text-xl font-bold text-[var(--text-primary)] mb-2">
-            About
+      {data.about && (
+        <div className="card card-hover mb-8 p-6 lg:p-8">
+          <h3 className="text-xl font-bold text-text-primary mb-4 flex items-center gap-2">
+            <div className="w-2 h-6 bg-secondary rounded-full"></div>
+            About Me
           </h3>
-          <p className="text-[var(--text-secondary)]">{profile.about}</p>
+          <p className="text-text-secondary leading-relaxed text-lg">
+            {data.about}
+          </p>
         </div>
       )}
 
-      {/* Tabs Navigation */}
+      {/* Tabs Section */}
       <div className="card mb-8">
-        <div className="flex border-b border-[var(--border)] pb-3 overflow-x-auto scrollbar-hide snap-x">
-          <div className="flex flex-col sm:flex-row border-b border-[var(--border)]">
+        <div className="border-b border-border">
+          <div className="flex overflow-x-auto scrollbar-hide">
             {tabs.map((item) => (
               <button
                 key={item}
                 onClick={() => setActiveTab(item)}
-                className={`px-4 py-2 text-left font-bold transition-colors border-l-4 sm:border-l-0 sm:border-b-2 ${
+                className={`flex-1 min-w-max px-6 py-4 font-semibold text-sm lg:text-base transition-all duration-300 border-b-2 ${
                   activeTab === item
-                    ? "text-[var(--secondary)] border-[var(--secondary)]"
-                    : "text-[var(--text-secondary)] hover:text-[var(--secondary)] border-transparent hover:border-[var(--secondary)]"
+                    ? "text-secondary border-secondary bg-secondary/5"
+                    : "text-text-secondary border-transparent hover:text-secondary hover:bg-surface"
                 }`}
               >
-                {item.toUpperCase()}
+                {item.split(/(?=[A-Z])/).join(' ').toUpperCase()}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Dynamic Tab Content */}
-        <div className="mt-4 sm:mt-6 lg:mt-8 w-full">
+        <div className="p-4 sm:p-6">
           <TabContent data={tabContent[activeTab]} />
         </div>
       </div>
@@ -197,58 +209,67 @@ function Profile({ role = "student" }) {
 
 export default Profile;
 
-// Smart Tab Content Renderer
 function TabContent({ data }) {
   if (!data)
     return (
-      <p className="text-[var(--text-secondary)] italic py-2">
-        No data available.
-      </p>
+      <div className="text-center py-8">
+        <p className="italic text-text-secondary text-lg">No data available.</p>
+      </div>
     );
 
-  if (typeof data === "string") {
-    return (
-      <p className="text-[var(--text-primary)] bg-[var(--card-bg)] p-4 border-[var(--border-color)] shadow-sm">
-        {data}
-      </p>
-    );
-  }
+  if (typeof data === "string") 
+    return <p className="text-text-secondary leading-relaxed text-lg p-4">{data}</p>;
 
   if (Array.isArray(data)) {
-    if (data.length === 0) {
+    if (!data.length) 
       return (
-        <p className="text-[var(--text-secondary)] italic py-2">
-          No data available.
-        </p>
+        <div className="text-center py-8">
+          <p className="text-text-secondary">No items found</p>
+        </div>
       );
-    }
-
-    return data.map((item, index) => (
-      <div
-        key={index}
-        className="bg-[var(--card-bg)] p-4 border-[var(--border-color)] shadow-md hover:shadow-lg transition rounded-md"
-      >
-        {Object.entries(item).map(([key, value]) => (
-          <p key={key} className="text-[var(--text-primary)] mb-1">
-            <span className="font-semibold capitalize text-[var(--primary)]">
-              {key}:{" "}
-            </span>
-            {value}
-          </p>
+    
+    return (
+      <div className="space-y-4">
+        {data.map((item, i) => (
+          <div 
+            key={i} 
+            className="card card-hover p-4 sm:p-6 border-l-4 border-primary"
+          >
+            {Object.entries(item).map(([key, value]) => (
+              <div key={key} className="mb-3 last:mb-0">
+                <span className="font-semibold text-text-primary capitalize block text-sm mb-1">
+                  {key.replace(/([A-Z])/g, ' $1').trim()}:
+                </span>
+                <span className="text-text-secondary block pl-4">
+                  {Array.isArray(value) ? value.join(', ') : value}
+                </span>
+              </div>
+            ))}
+          </div>
         ))}
       </div>
-    ));
+    );
   }
 
   return (
-    <div className="bg-[var(--card-bg)] p-4 border-[var(--border-color)] shadow-md rounded-md">
+    <div className="card card-hover p-6 border-l-4 border-secondary">
       {Object.entries(data).map(([key, value]) => (
-        <p key={key} className="text-[var(--text-primary)] mb-1">
-          <span className="font-semibold capitalize text-[var(--primary)]">
-            {key}:{" "}
+        <div key={key} className="mb-4 last:mb-0">
+          <span className="font-semibold text-text-primary capitalize block text-lg mb-2">
+            {key.replace(/([A-Z])/g, ' $1').trim()}
           </span>
-          {value}
-        </p>
+          <div className="text-text-secondary text-base pl-4">
+            {Array.isArray(value) ? (
+              <ul className="list-disc list-inside space-y-1">
+                {value.map((item, index) => (
+                  <li key={index}>{item}</li>
+                ))}
+              </ul>
+            ) : (
+              <p>{value}</p>
+            )}
+          </div>
+        </div>
       ))}
     </div>
   );

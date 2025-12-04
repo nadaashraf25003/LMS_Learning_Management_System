@@ -109,36 +109,36 @@ function InstructorRegister() {
 
   const prevStep = () => setStep((prev) => prev - 1);
   const onSubmit = (data) => {
-    const formattedData = {
-      fullName: data.fullName,
-      email: data.email,
-      password: data.password,
-      phone: data.phone,
-      address: data.address,
-      country: data.country.value,
-      gender: data.gender.value,
-      specialization: data.specialization,
-      years_Of_Experience: data.experienceYears,
-      bio: data.bio,
-      role: "Instructor",
-    };
-
-    api
-      .post(InstructorRegisterEndPoint, formattedData)
-      .then(() => {
-        toast.info(
-          "Registration submitted! Please wait for admin approval before you can log in."
-        );
-        navigate("/"); // go back to homepage immediately
-      })
-      .catch((error) => {
-        const errMsg =
-          error.response?.data?.message ||
-          error.response?.data?.errorMessage ||
-          "Something went wrong.";
-        toast.error(errMsg);
-      });
+  const formattedData = {
+    fullName: data.fullName,
+    email: data.email,
+    password: data.password,
+    phone: data.phone,
+    address: data.address,
+    country: data.country.value,
+    gender: data.gender.value,
+    specialization: data.specialization,
+    years_Of_Experience: data.experienceYears,
+    bio: data.bio,
+    role: "Instructor",
   };
+
+  api
+    .post(InstructorRegisterEndPoint, formattedData)
+    .then(() => {
+      toast.success(
+        "Registration successful! Please verify your email before logging in."
+      );
+      navigate("/User/verify-email", { state: { email: data.email } }); // Pass email to verify page
+    })
+    .catch((error) => {
+      const errMsg =
+        error.response?.data?.message ||
+        error.response?.data?.errorMessage ||
+        "Something went wrong.";
+      toast.error(errMsg);
+    });
+};
 
   return (
     <section className="my-5 mx-auto">

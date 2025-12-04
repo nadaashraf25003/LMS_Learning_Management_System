@@ -14,7 +14,7 @@ namespace Learnify_API.Data.Models
         [ForeignKey("UserId")]
         public User UserEntity { get; set; } = null!; // Navigation property
 
-        public string Role { get; set; }
+        public string? Role { get; set; }
         public UserInfo User { get; set; } = new UserInfo();
         public SocialLinks SocialLinks { get; set; } = new SocialLinks();
 
@@ -37,9 +37,9 @@ namespace Learnify_API.Data.Models
 
     public class UserInfo
     {
-        public string Name { get; set; } = "";
+        public string? Name { get; set; } = "";
         public string? Avatar { get; set; }
-        public string RoleTitle { get; set; } = "";
+        public string? RoleTitle { get; set; } = "";
     }
 
     public class SocialLinks
@@ -58,9 +58,9 @@ namespace Learnify_API.Data.Models
 
     public class ActionButton
     {
-        public int Id { get; set; }
-        public string Label { get; set; } = "";
-        public string Url { get; set; } = "";
+        public int? Id { get; set; }
+        public string? Label { get; set; } = "";
+        public string? Url { get; set; } = "";
     }
 
 
@@ -104,11 +104,11 @@ namespace Learnify_API.Data.Models
 
     public class StudentTabContent
     {
-        public string AboutMe { get; set; }
+        public string? AboutMe { get; set; }
         public List<CourseTab> Courses { get; set; } = new List<CourseTab>();
-        public List<EnrollmentTab> Enrollments { get; set; }
-        public List<ProgressTab> Progress { get; set; }
-        public List<AchievementTab> Achievements { get; set; }
+        public List<EnrollmentTab>? Enrollments { get; set; }
+        public List<ProgressTab>? Progress { get; set; }
+        public List<AchievementTab>? Achievements { get; set; }
         public string Certificates { get; set; } = "";
         public List<ProjectTab> Projects { get; set; } = new List<ProjectTab>();
 
@@ -118,7 +118,7 @@ namespace Learnify_API.Data.Models
     public class EnrollmentTab
     {
         public int CourseCount { get; set; }
-        public string LastCourseJoined { get; set; }
+        public string? LastCourseJoined { get; set; }
     }
 
     public class ProgressTab
@@ -129,8 +129,8 @@ namespace Learnify_API.Data.Models
 
     public class AchievementTab
     {
-        public string Title { get; set; }
-        public string Date { get; set; }
+        public string? Title { get; set; }
+        public string? Date { get; set; }
     }
 
     // Admin-specific tabs

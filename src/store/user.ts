@@ -6,6 +6,7 @@ export interface User {
   fullName: string;
   role: "student" | "instructor" | "admin" | undefined;
 }
+
 interface ITokenStore {
   token: string | null;
   user: User | undefined;
@@ -14,23 +15,29 @@ interface ITokenStore {
   clearToken: () => void;
 }
 
-const tokenFromStorage = localStorage.getItem("token");
-const userFromStorage = localStorage.getItem("user");
-const useTokenStore = create<ITokenStore>()((set) => ({
-  token: tokenFromStorage ? JSON.parse(tokenFromStorage) : null,
-  user:
-    userFromStorage && userFromStorage !== "undefined"
-      ? JSON.parse(userFromStorage)
-      : undefined,
+const tokenFromStorage = localStorage.getItem("token"); // JWT string
+const userFromStorage = localStorage.getItem("user");   // user JSON string
+
+const useTokenStore = create<ITokenStore>((set) => ({
+  token: tokenFromStorage || null,
+  user: userFromStorage && userFromStorage !== "undefined"
+    ? JSON.parse(userFromStorage)
+    : undefined,
   setToken: (token) => {
-    localStorage.setItem("token", JSON.stringify(token));
+    if (token) localStorage.setItem("token", token);
+    else localStorage.removeItem("token");
     set({ token });
   },
   setUser: (user) => {
-    localStorage.setItem("user", JSON.stringify(user));
+    if (user) localStorage.setItem("user", JSON.stringify(user));
+    else localStorage.removeItem("user");
     set({ user });
   },
-  clearToken: () => set({ token: null, user: undefined }),
+  clearToken: () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    set({ token: null, user: undefined });
+  },
 }));
 
 export default useTokenStore;

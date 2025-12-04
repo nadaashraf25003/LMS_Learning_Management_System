@@ -145,38 +145,6 @@ namespace Learnify_API.Data.Services
 
         }
 
-
-        // Mark Lesson as Completed
-        public async Task<bool> MarkLessonCompletedAsync(int lessonId, int studentId)
-        {
-            var lesson = await _context.Lessons.FindAsync(lessonId);
-            if (lesson == null) return false;
-
-            var progress = await _context.LessonProgresses
-                .FirstOrDefaultAsync(p => p.LessonId == lessonId && p.StudentId == studentId);
-
-            if (progress == null)
-            {
-                progress = new LessonProgress
-                {
-                    LessonId = lessonId,
-                    StudentId = studentId,
-                    IsCompleted = true,
-                    CompletedAt = DateTime.Now
-                };
-                _context.LessonProgresses.Add(progress);
-            }
-            else
-            {
-                progress.IsCompleted = true;
-                progress.CompletedAt = DateTime.Now;
-            }
-
-            await _context.SaveChangesAsync();
-            return true;
-        }
-
-
         // Get Progress By Course
         public async Task<IEnumerable<LessonProgressVM>> GetProgressByCourseAsync(int courseId, int studentId)
         {
@@ -225,7 +193,22 @@ namespace Learnify_API.Data.Services
                     AttachmentUrl = l.AttachmentUrl,
                     IsFreePreview = l.IsFreePreview,
                     Order = l.Order,
-                    CreatedAt = l.CreatedAt
+                    CreatedAt = l.CreatedAt,
+
+                    Quizzes = _context.Quizzes
+                        .Where(q => q.LessonId == l.LessonId)
+                        .Select(q => new QuizVM
+                        {
+                            Id = q.QuizId,
+                            LessonId = q.LessonId,
+                            Title = q.Title,
+                            Duration = q.Duration,
+                            PassingScore = q.PassingScore,
+                            TotalQuestions = q.TotalQuestions,
+                            QuestionsEndpoint = $"/api/quizzes/{q.QuizId}/questions",
+                        })
+                        .ToList()
+
                 })
                 .ToListAsync();
         }
@@ -237,5 +220,123 @@ namespace Learnify_API.Data.Services
             return instructor?.InstructorId;
         }
 
+
+
+        // Check Enrollment
+        private async Task<bool> IsStudentEnrolled(int studentId, int courseId)
+        {
+            return await _context.Enrollments
+                .AnyAsync(e => e.StudentId == studentId && e.CourseId == courseId);
+        }
+
+        // Get Lessons By Course - Student
+        public async Task<IEnumerable<LessonVM>?> GetLessonsForStudentAsync(int courseId, int studentId)
+        {
+            if (!await IsStudentEnrolled(studentId, courseId)) return null;
+
+            return await _context.Lessons
+                .Where(l => l.CourseId == courseId)
+                .OrderBy(l => l.Order)
+                .Select(l => new LessonVM
+                {
+                    LessonId = l.LessonId,
+                    CourseId = l.CourseId,
+                    Title = l.Title,
+                    VideoUrl = l.VideoUrl,
+                    Description = l.Description,
+                    Duration = l.Duration,
+                    ContentType = l.ContentType,
+                    AttachmentUrl = l.AttachmentUrl,
+                    IsFreePreview = l.IsFreePreview,
+                    Order = l.Order,
+                    CreatedAt = l.CreatedAt,
+                })
+                .ToListAsync();
+        }
+
+        // Get single lesson for student
+        public async Task<LessonVM?> GetLessonForStudentAsync(int lessonId, int studentId)
+        {
+            var lesson = await _context.Lessons.FindAsync(lessonId);
+            if (lesson == null) return null;
+
+            if (!await IsStudentEnrolled(studentId, lesson.CourseId)) return null;
+            var quizzes = await _context.Quizzes
+              .Where(q => q.LessonId == lessonId)
+              .Select(q => new QuizVM
+              {
+                  Id = q.QuizId,
+                  LessonId = q.LessonId,
+                  Title = q.Title,
+                  Duration = q.Duration,
+                  PassingScore = q.PassingScore,
+                  TotalQuestions = q.TotalQuestions,
+                  QuestionsEndpoint = $"/api/quizzes/{q.QuizId}/questions",
+
+              })
+      .ToListAsync();
+            return new LessonVM
+            {
+                LessonId = lesson.LessonId,
+                CourseId = lesson.CourseId,
+                Title = lesson.Title,
+                VideoUrl = lesson.VideoUrl,
+                Description = lesson.Description,
+                Duration = lesson.Duration,
+                ContentType = lesson.ContentType,
+                AttachmentUrl = lesson.AttachmentUrl,
+                IsFreePreview = lesson.IsFreePreview,
+                Order = lesson.Order,
+                CreatedAt = lesson.CreatedAt,
+                Quizzes = quizzes
+            };
+        }
+
+        // Mark lesson completed by student
+        public async Task<bool> MarkLessonCompletedAsync(int lessonId, int studentId)
+        {
+            var lesson = await _context.Lessons.FindAsync(lessonId);
+            if (lesson == null) return false;
+
+            if (!await IsStudentEnrolled(studentId, lesson.CourseId)) return false;
+
+            var progress = await _context.LessonProgresses
+                .FirstOrDefaultAsync(p => p.LessonId == lessonId && p.StudentId == studentId);
+
+            if (progress == null)
+            {
+                progress = new LessonProgress
+                {
+                    LessonId = lessonId,
+                    StudentId = studentId,
+                    IsCompleted = true,
+                    CompletedAt = DateTime.Now
+                };
+                _context.LessonProgresses.Add(progress);
+            }
+            else
+            {
+                progress.IsCompleted = true;
+                progress.CompletedAt = DateTime.Now;
+            }
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        // Course Progress
+        public async Task<double?> GetProgressAsync(int courseId, int studentId)
+        {
+            if (!await IsStudentEnrolled(studentId, courseId)) return null;
+
+            var totalLessons = await _context.Lessons
+                .Where(l => l.CourseId == courseId).CountAsync();
+
+            var completed = await _context.LessonProgresses
+                .Where(p => p.StudentId == studentId && p.IsCompleted && p.Lesson.CourseId == courseId)
+                .CountAsync();
+
+            return totalLessons == 0 ? 0 : (completed / (double)totalLessons) * 100;
+        }
     }
 }

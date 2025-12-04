@@ -29,6 +29,7 @@ function Notifications() {
   const { data, isLoading: loading } = getNotifications();
   const { notifications } = data || {};
   console.log(notifications);
+  const notificationsArray = notifications?.$values || [];
   const handleMarkAsRead = async (id) => {
 
     await markAsRead.mutateAsync(id, {
@@ -94,7 +95,7 @@ function Notifications() {
               <p className="text-text-secondary mt-1">
                 {loading
                   ? "Loading notifications..."
-                  : `You have ${notifications?.length} notifications`}
+                  : `You have ${notificationsArray?.length} notifications`}
               </p>
             }
           />
@@ -131,7 +132,7 @@ function Notifications() {
                 No notifications found.
               </p>
             ) : (
-              notifications?.map((notification) => (
+              notificationsArray?.map((notification) => (
                 <div
                   key={notification.notificationId}
                   className={`p-6 transition-colors hover:bg-muted/40 ${

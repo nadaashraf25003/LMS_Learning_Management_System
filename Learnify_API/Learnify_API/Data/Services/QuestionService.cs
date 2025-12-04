@@ -40,7 +40,7 @@ namespace Learnify_API.Data.Services
         // ========================================
         // 2) GET QUESTIONS BY QUIZ
         // ========================================
-        public async Task<List<QuestionVM>> GetQuestionsByQuizIdAsync(int quizId)
+        public async Task<List<QuestionVM>?> GetQuestionsByQuizIdAsync(int quizId)
         {
             var questions = await _context.Questions
                 .Where(q => q.QuizId == quizId)
@@ -50,15 +50,15 @@ namespace Learnify_API.Data.Services
             {
                 Id = q.QuestionId.ToString(),
                 Text = q.QuestionText,
-                Options = new List<QuestionOptionVM>()
-                {
-                    q.OptionA == null ? null : new QuestionOptionVM { Id = "a", Text = q.OptionA },
-                    q.OptionB == null ? null : new QuestionOptionVM { Id = "b", Text = q.OptionB },
-                    q.OptionC == null ? null : new QuestionOptionVM { Id = "c", Text = q.OptionC },
-                    q.OptionD == null ? null : new QuestionOptionVM { Id = "d", Text = q.OptionD }
-                }
-                .Where(o => o != null)
-                .ToList(),
+                Options = new List<QuestionOptionVM>
+                    {
+                        new QuestionOptionVM { Id = "a", Text = q.OptionA ?? ""},
+                        new QuestionOptionVM { Id = "b", Text = q.OptionB ?? "" },
+                        new QuestionOptionVM { Id = "c", Text = q.OptionC ?? ""},
+                        new QuestionOptionVM { Id = "d", Text = q.OptionD ?? ""}
+                    }
+                    .Where(o => !string.IsNullOrEmpty(o.Text))
+                    .ToList(),
 
                 Answer = q.CorrectOption.ToString().ToLower()
             }).ToList();
@@ -76,15 +76,15 @@ namespace Learnify_API.Data.Services
             {
                 Id = q.QuestionId.ToString(),
                 Text = q.QuestionText,
-                Options = new List<QuestionOptionVM>()
-                {
-                    q.OptionA == null ? null : new QuestionOptionVM { Id = "a", Text = q.OptionA },
-                    q.OptionB == null ? null : new QuestionOptionVM { Id = "b", Text = q.OptionB },
-                    q.OptionC == null ? null : new QuestionOptionVM { Id = "c", Text = q.OptionC },
-                    q.OptionD == null ? null : new QuestionOptionVM { Id = "d", Text = q.OptionD }
-                }
-                .Where(o => o != null)
-                .ToList(),
+                Options = new List<QuestionOptionVM>
+                    {
+                        new QuestionOptionVM { Id = "a", Text = q.OptionA ?? "" },
+                        new QuestionOptionVM { Id = "b", Text = q.OptionB ?? "" },
+                        new QuestionOptionVM { Id = "c", Text = q.OptionC ?? ""},
+                        new QuestionOptionVM { Id = "d", Text = q.OptionD?? "" }
+                    }
+                    .Where(o => !string.IsNullOrEmpty(o.Text))
+                    .ToList(),
 
                 Answer = q.CorrectOption.ToString().ToLower()
             };

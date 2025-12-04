@@ -14,5 +14,6 @@
         public int TotalQuestions { get; set; }
         public string QuestionsEndpoint { get; set; } = string.Empty;
         public string Posted { get; set; } = string.Empty; // e.g., "5 days ago"
+        public List<QuestionVM>? Questions { get; set; }  // ⭐ New
     }
 }

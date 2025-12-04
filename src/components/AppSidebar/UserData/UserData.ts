@@ -15,6 +15,7 @@ import {
 // const UserName = localStorage.getItem("username") || "shadcn";
 // const userEmail = localStorage.getItem("useremail") || "m@example.com";
 
+
 const { user } = useTokenStore.getState();
 const UserName = user?.fullName ?? "shadcn";
 const userEmail = user?.email ?? "m@example.com";
@@ -92,9 +93,9 @@ export const sidebarData = {
         url: "#",
         icon: PieChart,
         items: [
-          { title: "Settings", url: "/UserLayout/SettingPage" },
+          // { title: "Settings", url: "/UserLayout/SettingPage" },
           { title: "Notifications", url: "/UserLayout/Notifications" },
-          { title: "Terms of Use", url: "/UserLayout/TermsOfUse" },
+          { title: "Terms of Use", url: "/TermsOfUse" },
         ],
       },
       {
@@ -102,9 +103,9 @@ export const sidebarData = {
         url: "#",
         icon: Frame,
         items: [
-          { title: "Help", url: "/UserLayout/HelpPage" },
-          { title: "Contact Us", url: "/UserLayout/ContactUs" },
-          { title: "Send Feedback", url: "/UserLayout/SendFeedback" },
+          // { title: "Help", url: "/UserLayout/HelpPage" },
+          { title: "Contact Us", url: "/ContactUs" },
+          { title: "Send Feedback", url: "/SendFeedback" },
         ],
       },
     ],
@@ -186,9 +187,9 @@ export const sidebarData = {
         url: "#",
         icon: PieChart,
         items: [
-          { title: "Settings", url: "/UserLayout/SettingPage" },
+          // { title: "Settings", url: "/UserLayout/SettingPage" },
           { title: "Notifications", url: "/UserLayout/Notifications" },
-          { title: "Terms of Use", url: "/UserLayout/TermsOfUse" },
+          { title: "Terms of Use", url: "/TermsOfUse" },
         ],
       },
       {
@@ -196,9 +197,9 @@ export const sidebarData = {
         url: "#",
         icon: Frame,
         items: [
-          { title: "Help", url: "/UserLayout/HelpPage" },
-          { title: "Contact Us", url: "/UserLayout/ContactUs" },
-          { title: "Send Feedback", url: "/UserLayout/SendFeedback" },
+          // { title: "Help", url: "/HelpPage" },
+          { title: "Contact Us", url: "/ContactUs" },
+          { title: "Send Feedback", url: "/SendFeedback" },
         ],
       },
     ],
@@ -296,9 +297,9 @@ export const sidebarData = {
         url: "#",
         icon: PieChart,
         items: [
-          { title: "Settings", url: "/UserLayout/SettingPage" },
+          // { title: "Settings", url: "/UserLayout/SettingPage" },
           { title: "Notifications", url: "/UserLayout/Notifications" },
-          { title: "Terms of Use", url: "/UserLayout/TermsOfUse" },
+          { title: "Terms of Use", url: "/TermsOfUse" },
         ],
       },
       {
@@ -306,8 +307,8 @@ export const sidebarData = {
         url: "#",
         icon: Frame,
         items: [
-          { title: "Help", url: "/UserLayout/HelpPage" },
-          { title: "Contact Us", url: "/UserLayout/ContactUs" },
+          // { title: "Help", url: "/UserLayout/HelpPage" },
+          { title: "Contact Us", url: "/ContactUs" },
           // { title: "Feedback", url: "/UserLayout/AllFeedback" },
         ],
       },

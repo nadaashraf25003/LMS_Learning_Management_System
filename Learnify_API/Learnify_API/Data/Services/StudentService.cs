@@ -205,12 +205,13 @@ namespace Learnify_API.Data.Services
         // -------- Enroll student in a course --------
         public async Task<bool> EnrollCourseAsync(int studentId, int courseId)
         {
-            // Check if already enrolled
+            // التأكد من أن الطالب مش مسجل قبل كده
             var exists = await _context.Enrollments
                 .AnyAsync(e => e.StudentId == studentId && e.CourseId == courseId);
 
             if (exists) return false;
 
+            // إنشاء Enrollment
             var enrollment = new Enrollment
             {
                 StudentId = studentId,
@@ -220,8 +221,38 @@ namespace Learnify_API.Data.Services
 
             _context.Enrollments.Add(enrollment);
             await _context.SaveChangesAsync();
+
+            // معالجة فلوس المدرس
+            var course = await _context.Courses
+                .Include(c => c.Instructor)
+                .FirstOrDefaultAsync(c => c.CourseId == courseId);
+
+            if (course != null)
+            {
+                decimal price = course.Price;
+                decimal platformCut = price * 0.05m; // 5% للموقع
+                decimal instructorAmount = price - platformCut;
+
+                // إنشاء سجل Payout
+                var payout = new InstructorPayout
+                {
+                    InstructorId = course.InstructorId,
+                    Amount = instructorAmount,
+                    Status = "Pending",
+                    PaymentId = enrollment.EnrollmentId
+                };
+                var cours = await _context.Courses.FindAsync(courseId);
+                if (cours != null)
+                {
+                    cours.StudentsEnrolled += 1;
+                }
+                _context.InstructorPayouts.Add(payout);
+                await _context.SaveChangesAsync();
+            }
+
             return true;
         }
+
 
         // Optional: Remove enrollment
         public async Task<bool> RemoveEnrollmentAsync(int studentId, int courseId)
@@ -232,6 +263,58 @@ namespace Learnify_API.Data.Services
             if (enrollment == null) return false;
 
             _context.Enrollments.Remove(enrollment);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+
+        // Add to cart
+        public async Task<bool> AddToCartAsync(int studentId, int courseId)
+        {
+            var exists = await _context.CartItems.AnyAsync(c => c.StudentId == studentId && c.CourseId == courseId);
+            if (exists) return false;
+
+            var cartItem = new CartItem
+            {
+                StudentId = studentId,
+                CourseId = courseId,
+            };
+
+            _context.CartItems.Add(cartItem);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        // Get cart
+        public async Task<IEnumerable<CourseVM>> GetCartAsync(int studentId)
+        {
+            return await _context.CartItems
+                .Include(c => c.Course)
+                .Where(c => c.StudentId == studentId)
+                .Select(c => new CourseVM
+                {
+                    Id = c.Course.CourseId,
+                    Title = c.Course.Title,
+                    Category = c.Course.Category ?? "",
+                    Description = c.Course.Description ?? "",
+                    Price = c.Course.Price,
+                    Author = c.Course.Instructor.User.FullName,
+                    Image = c.Course.Image,
+                    Tag = c.Course.Tag,
+                    Rating = c.Course.Rating,
+                    Hours = c.Course.Hours,
+                }).ToListAsync();
+        }
+
+        // Remove from cart
+        public async Task<bool> RemoveFromCartAsync(int studentId, int courseId)
+        {
+            var item = await _context.CartItems
+                .FirstOrDefaultAsync(c => c.StudentId == studentId && c.CourseId == courseId);
+
+            if (item == null) return false;
+
+            _context.CartItems.Remove(item);
             await _context.SaveChangesAsync();
             return true;
         }

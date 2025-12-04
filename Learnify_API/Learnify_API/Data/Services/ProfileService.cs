@@ -24,7 +24,7 @@ namespace Learnify_API.Data.Services
 
             // --- Update User ---
             var user = student.User;
-            user.FullName = model.Name;
+            user.FullName = model.Name ?? "User";
 
             // --- Update Avatar (User Image) إذا رفع صورة جديدة ---
             // EditStudentProfileAsync
@@ -60,7 +60,7 @@ namespace Learnify_API.Data.Services
             var profile = await _context.profiles.FirstOrDefaultAsync(p => p.UserId == studentId);
             if (profile != null)
             {
-                profile.About = model.About;
+                profile.About = model.About ?? "About";
                 profile.User.Name = model.Name;
                 profile.User.RoleTitle = model.RoleTitle;
 
@@ -85,9 +85,9 @@ namespace Learnify_API.Data.Services
 
             // --- Update User info ---
             var user = instructor.User;
-            user.FullName = model.Name;
+            user.FullName = model.Name ?? "User";
 
-            // --- Update Avatar ---
+            // --- Update Avatar (User Image) إذا رفع صورة جديدة ---
             if (model.Avatar != null && model.Avatar.Length > 0)
             {
                 using (var ms = new MemoryStream())
@@ -97,7 +97,6 @@ namespace Learnify_API.Data.Services
                 }
             }
 
-            // --- Update Instructor fields ---
             instructor.Phone = model.Phone;
             instructor.Address = model.Address;
             instructor.Gender = model.Gender;
@@ -105,14 +104,10 @@ namespace Learnify_API.Data.Services
             instructor.Specialization = model.Specialization;
 
             // --- Update Profile ---
-            var profile = await _context.profiles
-                .Include(p => p.SocialLinks)
-                .Include(p => p.User)
-                .FirstOrDefaultAsync(p => p.UserId == user.UserId);
-
+            var profile = await _context.profiles.FirstOrDefaultAsync(p => p.UserId == instructorId);
             if (profile != null)
             {
-                profile.About = model.About;
+                profile.About = model.About ?? "About";
                 profile.User.Name = model.Name;
                 profile.User.RoleTitle = model.RoleTitle;
 
@@ -127,16 +122,17 @@ namespace Learnify_API.Data.Services
         }
 
 
-
         public async Task<ProfileVM?> GetInstructorProfileAsync(int instructorId)
         {
+            // Argument cannot be used for parameter due to differences in the nullability of reference types.
             var instructor = await _context.Instructors
                 .Include(i => i.User)
                 .Include(i => i.Courses)
-                    .ThenInclude(c => c.Enrollments)
-                        .ThenInclude(e => e.Student)
+                 .ThenInclude(c => c.Enrollments)
+                 .ThenInclude(e => e.Student)
                             .ThenInclude(s => s.User)
                 .FirstOrDefaultAsync(i => i.InstructorId == instructorId);
+            // Argument cannot be used for parameter due to differences in the nullability of reference types.
 
             if (instructor == null) return null;
 
@@ -203,8 +199,8 @@ namespace Learnify_API.Data.Services
                 Stats = stats,
                 About = profile.About,
                 InstructorTabContent = tabContent,
-                StudentTabContent = null,
-                AdminTabContent = null,
+                //StudentTabContent = null,
+                //AdminTabContent = null,
                 Actions = new List<ActionButton>
         {
             new ActionButton { Label = "Edit Profile", Url = "/UserLayout/EditProfile" },
@@ -216,13 +212,15 @@ namespace Learnify_API.Data.Services
 
         public async Task<ProfileVM?> GetStudentProfileAsync(int studentId)
         {
+            // Argument cannot be used for parameter due to differences in the nullability of reference types.
             var student = await _context.Students
                 .Include(s => s.User)
                 .Include(s => s.Enrollments)
-                    .ThenInclude(e => e.Course)
+                .ThenInclude(e => e.Course)
                 .Include(s => s.Certificates)
-                    .ThenInclude(c => c.Course)
+                .ThenInclude(c => c.Course)
                 .FirstOrDefaultAsync(s => s.StudentId == studentId);
+            // Argument cannot be used for parameter due to differences in the nullability of reference types.
 
             if (student == null) return null;
 
@@ -286,8 +284,8 @@ namespace Learnify_API.Data.Services
                 StudentTabContent = tabContent,
                 Actions = actions,
                 Department = student.Department,
-                InstructorTabContent = null,
-                AdminTabContent = null,
+                //InstructorTabContent = null,
+                //AdminTabContent = null,
             };
         }
 
@@ -297,13 +295,13 @@ namespace Learnify_API.Data.Services
             var admin = await _context.Admins
                 .Include(a => a.User)
                 .FirstOrDefaultAsync(a => a.AdminId == adminId);
-        
+
             if (admin == null) return false;
-        
+
             // --- Update User ---
             var user = admin.User;
             user.FullName = model.Name;
-        
+
             // --- Update Avatar (User Image) إذا رفع صورة جديدة ---
             if (model.Avatar != null && model.Avatar.Length > 0)
             {
@@ -314,11 +312,11 @@ namespace Learnify_API.Data.Services
                 }
             }
             // لو مفيش Avatar → سيب الصورة القديمة زي ما هي
-        
+
             // --- Update Admin fields ---
             admin.Department = model.Department;
             admin.RoleLevel = model.RoleLevel ?? admin.RoleLevel;
-        
+
             // --- Update Profile ---
             var profile = await _context.profiles.FirstOrDefaultAsync(p => p.UserId == adminId);
             if (profile != null)
@@ -326,13 +324,13 @@ namespace Learnify_API.Data.Services
                 profile.About = model.About;
                 profile.User.Name = model.Name;
                 profile.User.RoleTitle = model.RoleTitle;
-        
+
                 profile.SocialLinks.Facebook = model.Facebook ?? "";
                 profile.SocialLinks.Twitter = model.Twitter ?? "";
                 profile.SocialLinks.LinkedIn = model.LinkedIn ?? "";
-                profile.SocialLinks.Github = model.YouTube ?? ""; 
+                profile.SocialLinks.Github = model.YouTube ?? ""; // لو عايزة YouTube يتحط بدل Github
             }
-        
+
             await _context.SaveChangesAsync();
             return true;
         }
@@ -392,13 +390,13 @@ namespace Learnify_API.Data.Services
                 About = profile.About,
                 AdminTabContent = admintabContent,
                 Actions = new List<ActionButton>
-        {
-            new ActionButton { Label = "Edit Profile", Url = "/UserLayout/EditProfile" },
-            new ActionButton { Label = "Settings", Url = "/UserLayout/SettingPage" }
-        },
-                Department = null,
-                InstructorTabContent = null,
-                StudentTabContent = null
+                {
+                    new ActionButton { Label = "Edit Profile", Url = "/UserLayout/EditProfile" },
+                    new ActionButton { Label = "Settings", Url = "/UserLayout/SettingPage" }
+                },
+                //Department = null,
+                //InstructorTabContent = null,
+                //StudentTabContent = null
             };
         }
 

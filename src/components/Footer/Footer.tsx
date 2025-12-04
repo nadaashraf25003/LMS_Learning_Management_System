@@ -1,5 +1,6 @@
 import { Separator } from "@/components/ui/separator";
 import LogoNav from "../ui/Logo/LogoNav";
+import { Link } from "react-router";
 
 export default function LandingFooter() {
   return (
@@ -19,24 +20,32 @@ export default function LandingFooter() {
             <h3 className="text-white font-semibold mb-3">Platform</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <a href="#" className="hover:text-white">
-                  Courses
-                </a>
+                <Link to="/SearchResults">
+                  <a href="" className="hover:text-white">
+                    Courses
+                  </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-white">
-                  Instructors
-                </a>
+                <Link to="/">
+                  {" "}
+                  <a href="" className="hover:text-white">
+                    Home
+                  </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-white">
-                  Live Sessions
-                </a>
+                <Link to="/About">
+                  <a href="" className="hover:text-white">
+                    About
+                  </a>
+                </Link>
               </li>
               <li>
+                {/* <Link to="/SearchResults"></Link>
                 <a href="#" className="hover:text-white">
                   Certificates
-                </a>
+                </a> */}
               </li>
             </ul>
           </div>
@@ -46,24 +55,32 @@ export default function LandingFooter() {
             <h3 className="text-white font-semibold mb-3">Support</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <a href="#" className="hover:text-white">
+                <Link to="/ContactUs">
+                <a href="" className="hover:text-white">
                   About Us
                 </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-white">
+                <Link to="/SendFeedback">
+                <a href="" className="hover:text-white">
                   Help Center
                 </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-white">
-                  Contact
+                <Link to="/ContactUs">
+                <a href="" className="hover:text-white">
+                  Contact Us
                 </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-white">
-                  Privacy Policy
+                <Link to="/TermsOfUse">
+                <a href="" className="hover:text-white">
+                 Terms of Use
                 </a>
+                </Link>
               </li>
             </ul>
           </div>

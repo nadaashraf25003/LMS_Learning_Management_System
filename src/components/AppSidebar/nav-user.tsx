@@ -61,8 +61,16 @@ export function NavUser({
                 <AvatarFallback className="rounded-lg">LR</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.name}</span>
-                <span className="truncate text-xs">{user.email}</span>
+                <span className="truncate font-medium">
+                  {user.name.length > 10
+                    ? user.name.slice(0, 15  ) + "…"
+                    : user.name}
+                    </span>
+                <span className="text-xs">
+                  {user.email.length > 10
+                    ? user.email.slice(0, 15  ) + "…"
+                    : user.email}
+                </span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>

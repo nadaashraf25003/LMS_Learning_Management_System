@@ -6,7 +6,7 @@ namespace Learnify_API.Data.Models
     public class Certificate
     {
         [Key]
-        public string CertificateId { get; set; }
+        public string? CertificateId { get; set; }
 
         public int StudentId { get; set; }
         [ForeignKey("StudentId")]

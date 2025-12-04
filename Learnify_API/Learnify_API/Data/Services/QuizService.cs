@@ -1,6 +1,7 @@
 ﻿using Learnify_API.Data.Models;
 using Learnify_API.Data.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace Learnify_API.Data.Services
 {
@@ -11,6 +12,10 @@ namespace Learnify_API.Data.Services
         public QuizService(AppDbContext context)
         {
             _context = context;
+        }
+        public async Task<bool> IsStudentEnrolled(int studentId, int courseId)
+        {
+            return await _context.Enrollments.AnyAsync(e => e.StudentId == studentId && e.CourseId == courseId);
         }
 
         // ================== GET ALL ==================
@@ -34,7 +39,7 @@ namespace Learnify_API.Data.Services
             }).ToList();
         }
 
-        // ================== GET BY ID ==================
+        // ================== GET BY ID  ==================
         public async Task<QuizVM?> GetQuizByIdAsync(int id)
         {
             var quiz = await _context.Quizzes
@@ -54,7 +59,21 @@ namespace Learnify_API.Data.Services
                 TotalMarks = quiz.TotalMarks,
                 TotalQuestions = quiz.TotalQuestions,
                 QuestionsEndpoint = "questions",
-                Posted = $"{(DateTime.Now - quiz.CreatedAt).Days} days ago"
+                Posted = $"{(DateTime.Now - quiz.CreatedAt).Days} days ago",
+                Questions = quiz.Questions?.Select(q => new QuestionVM
+                {
+                    Id = q.QuestionId.ToString(),
+                    Text = q.QuestionText,
+                    Answer = q.CorrectOption.ToString().ToLower(),   // 'A' → "a"
+
+                    Options = new List<QuestionOptionVM>
+                    {
+                        new QuestionOptionVM { Id = "a", Text = q.OptionA ?? "" },
+                        new QuestionOptionVM { Id = "b", Text = q.OptionB ?? "" },
+                        new QuestionOptionVM { Id = "c", Text = q.OptionC ?? "" },
+                        new QuestionOptionVM { Id = "d", Text = q.OptionD ?? "" }
+                    }
+                }).ToList()
             };
         }
 
@@ -220,6 +239,71 @@ namespace Learnify_API.Data.Services
 
         }
 
+        public async Task<StudentAnswer> SubmitQuizAsync(int studentId, int quizId, Dictionary<string, string> answers, DateTime startTime, DateTime endTime)
+        {
+            // Load the quiz entity including its Course and Questions
+            var quizEntity = await _context.Quizzes
+                .Include(q => q.Course)
+                    .ThenInclude(c => c.Quizzes)
+                .Include(q => q.Questions)
+                .FirstOrDefaultAsync(q => q.QuizId == quizId);
+
+            if (quizEntity == null) throw new Exception("Quiz not found");
+
+            // Calculate score
+            int score = 0;
+            foreach (var q in quizEntity.Questions)
+            {
+                if (answers.TryGetValue(q.QuestionId.ToString(), out string ans))
+                {
+                    if (q.CorrectOption.ToString().ToLower() == ans.ToLower()) score++;
+                }
+            }
+
+            int totalQuestions = quizEntity.Questions.Count;
+            int percentage = (int)((score / (double)totalQuestions) * 100);
+
+            var duration = $"{(endTime - startTime).Minutes}m {(endTime - startTime).Seconds}s";
+
+            // Save StudentAnswer
+            var studentAnswer = new StudentAnswer
+            {
+                StudentId = studentId,
+                QuizId = quizId,
+                AnswersJson = JsonSerializer.Serialize(answers),
+                StartTime = startTime,
+                EndTime = endTime,
+                Duration = duration,
+                SubmittedAt = DateTime.Now,
+                Score = percentage
+            };
+
+            _context.StudentAnswers.Add(studentAnswer);
+            await _context.SaveChangesAsync();
+
+            // Update enrollment progress
+            var enrollment = await _context.Enrollments
+                .FirstOrDefaultAsync(e => e.StudentId == studentId && e.CourseId == quizEntity.CourseId);
+
+            if (enrollment != null)
+            {
+                var completedQuizzes = await _context.StudentAnswers
+                    .CountAsync(sa => sa.StudentId == studentId && sa.Quiz.CourseId == quizEntity.CourseId);
+
+                var totalQuizzes = quizEntity.Course.Quizzes.Count; //  Works now
+                enrollment.Progress = ((decimal)completedQuizzes / totalQuizzes) * 100;
+                enrollment.IsCompleted = enrollment.Progress >= 100;
+                await _context.SaveChangesAsync();
+            }
+
+            return studentAnswer;
+        }
+
+        public async Task<bool> HasStudentSubmittedQuizAsync(int studentId, int quizId)
+        {
+            return await _context.StudentAnswers
+                .AnyAsync(sa => sa.StudentId == studentId && sa.QuizId == quizId);
+        }
 
     }
 }

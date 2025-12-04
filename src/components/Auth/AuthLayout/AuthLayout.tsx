@@ -17,7 +17,7 @@ const AuthLayout = () => {
   const navigate = useNavigate();
   useEffect(() => {
     if (token) {
-      navigate("/UserLayout");
+      // navigate("/UserLayout");
     }
   }, [token]);
 

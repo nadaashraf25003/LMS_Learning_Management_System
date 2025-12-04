@@ -54,11 +54,16 @@ namespace Learnify_API.Data.DTO
 
     }
 
+
+    public class ResendVerificationRequest
+    {
+        public string? Email { get; set; }
+    }
     public class AdminRegisterRequest
     {
-        [Required] public string FullName { get; set; }
-        [Required, EmailAddress] public string Email { get; set; }
-        [Required] public string Password { get; set; }
+        [Required] public string? FullName { get; set; }
+        [Required, EmailAddress] public string? Email { get; set; }
+        [Required] public string? Password { get; set; }
 
         // Admin-specific
         public string? Department { get; set; }

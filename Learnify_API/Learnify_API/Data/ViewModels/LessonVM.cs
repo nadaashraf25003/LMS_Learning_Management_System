@@ -41,6 +41,7 @@
         public int Order { get; set; }
         public DateTime CreatedAt { get; set; }
         public List<QuizVM>? Quizzes { get; set; }
+        public int TotalQuizzes => Quizzes?.Count ?? 0;
     }
 
     // Progress tracking view model

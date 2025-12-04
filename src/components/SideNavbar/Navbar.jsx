@@ -18,8 +18,19 @@ import { Input } from "@/components/ui/input";
 import { MenubarDemo } from "../Menubar/MenubarDemo";
 import LogoNav from "../ui/Logo/LogoNav";
 import LogoModes from "../ui/LogoTheme/LogoModes";
+import { useNavigate } from "react-router";
+import { useState } from "react";
 
 export default function Page({ role }) {
+   const navigate = useNavigate();
+  const [searchValue, setSearchValue] = useState("");
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && searchValue.trim()) {
+      navigate(`/SearchResults?query=${encodeURIComponent(searchValue)}`);
+    }
+  };
+
   return (
     // <SidebarProvider>
     <div>
@@ -39,16 +50,19 @@ export default function Page({ role }) {
                     <div className="flex items-center justify-between bg-b gap-24">
                       <div className="mt-5 w-24"><LogoModes/></div>
                       <Input
-                        type="email"
+                        type="text"
                         placeholder="search for your course..."
                         className="w-96 bg-input"
+                        value={searchValue}
+                        onChange={(e) => setSearchValue(e.target.value)}
+                        onKeyDown={handleKeyDown}
                       />
                     </div>
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 {/* <BreadcrumbSeparator className="hidden md:block" /> */}
                 {/* <BreadcrumbItem>
-                    <BreadcrumbPage>Data Fetching</BreadcrumbPage>
+                    <BreadcrumbPage>Data Fetching</BreadcrumbPage>  
                   </BreadcrumbItem> */}
               </BreadcrumbList>
             </Breadcrumb>

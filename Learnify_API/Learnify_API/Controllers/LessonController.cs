@@ -18,6 +18,11 @@ namespace Learnify_API.Controllers
             _lessonService = lessonService;
         }
 
+        private int GetStudentId()
+        {
+            var claim = User.FindFirst("userId");
+            return int.Parse(claim.Value);
+        }
         // Add Lesson
         [Authorize(Roles = "instructor")]
 
@@ -52,10 +57,10 @@ namespace Learnify_API.Controllers
         }
 
         //  Get Lesson by Id
-        //[Authorize(Roles = "instructor")]
+        [Authorize(Roles = "instructor")]
 
         [HttpGet("{lessonId}")]
-        public async Task<IActionResult> GetLessonById(int lessonId)
+        public async Task<IActionResult> GetLessonforinstructorById(int lessonId)
         {
             var lesson = await _lessonService.GetLessonByIdAsync(lessonId);
             if (lesson == null) return NotFound(new { message = "Lesson not found" });
@@ -67,49 +72,13 @@ namespace Learnify_API.Controllers
         [Authorize(Roles = "instructor")]
 
         [HttpGet("by-course/{courseId}")]
-        public async Task<IActionResult> GetLessonsByCourse(int courseId)
+        public async Task<IActionResult> GetLessonsforinstructorByCourse(int courseId)
         {
             var lessons = await _lessonService.GetLessonsByCourseAsync(courseId);
             return Ok(lessons);
         }
 
-        //  Mark Lesson Completed
-        [Authorize(Roles = "instructor")]
 
-        [HttpPost("complete/{lessonId}")]
-        public async Task<IActionResult> MarkLessonCompleted(int lessonId)
-        {
-            //  Get userId from token
-            var userIdClaim = User.FindFirst("userId");
-            if (userIdClaim == null) return Unauthorized("Invalid token");
-
-            int studentId = int.Parse(userIdClaim.Value);
-
-            var success = await _lessonService.MarkLessonCompletedAsync(lessonId, studentId);
-
-            if (!success)
-                return NotFound(new { message = "Lesson not found" });
-
-            return Ok(new { message = "Lesson marked as completed!" });
-        }
-
-
-        //  Get student progress in course
-        [Authorize(Roles = "instructor")]
-
-        [HttpGet("progress/{courseId}")]
-        public async Task<IActionResult> GetProgressByCourse(int courseId)
-        {
-            //  Get userId from token
-            var userIdClaim = User.FindFirst("userId");
-            if (userIdClaim == null) return Unauthorized("Invalid token");
-
-            int studentId = int.Parse(userIdClaim.Value);
-
-            var progress = await _lessonService.GetProgressByCourseAsync(courseId, studentId);
-
-            return Ok(progress);
-        }
 
         [Authorize(Roles = "instructor")]
         [HttpGet("all-by-instructor")]
@@ -141,6 +110,56 @@ namespace Learnify_API.Controllers
             return Ok(lessons);
         }
 
+        // For Student
 
+        [Authorize(Roles = "student")]
+        [HttpGet("by-courseid-for-student/{courseId}")]
+        public async Task<IActionResult> GetLessonsforstudnetByCourse(int courseId)
+        {
+            var studentId = GetStudentId();
+            var lessons = await _lessonService.GetLessonsForStudentAsync(courseId, studentId);
+
+            if (lessons == null) return Unauthorized(new { message = "Not enrolled in course" });
+
+            return Ok(lessons);
+        }
+
+        [Authorize(Roles = "student")]
+        [HttpGet("by-lessonid-for-student/{lessonId}")]
+        public async Task<IActionResult> GetLessonforstudnet(int lessonId)
+        {
+            var studentId = GetStudentId();
+            var lesson = await _lessonService.GetLessonForStudentAsync(lessonId, studentId);
+
+            if (lesson == null) return Unauthorized(new { message = "Access denied" });
+
+            return Ok(lesson);
+        }
+
+        [Authorize(Roles = "student")]
+        [HttpPost("complete/{lessonId}")]
+        public async Task<IActionResult> CompleteLesson(int lessonId)
+        {
+            var studentId = GetStudentId();
+            var success = await _lessonService.MarkLessonCompletedAsync(lessonId, studentId);
+
+            if (!success) return Unauthorized("Not enrolled");
+
+            return Ok(new { message = "Lesson completed successfully!" });
+        }
+
+        [Authorize(Roles = "student")]
+        [HttpGet("course-progress/{courseId}")]
+        public async Task<IActionResult> GetProgress(int courseId)
+        {
+            var studentId = GetStudentId();
+            var progress = await _lessonService.GetProgressAsync(courseId, studentId);
+
+            if (progress == null) return Unauthorized("Not enrolled");
+
+            return Ok(new { progressPercent = progress });
+        }
     }
 }
+
+

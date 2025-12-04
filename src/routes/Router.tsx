@@ -1,13 +1,10 @@
 import { lazy } from "react";
 import { createBrowserRouter } from "react-router";
 import App from "../App.jsx";
-
-
 // Lazy-loaded dashboards
 const InstrDashboard = lazy(
   () => import("@/views/Instructor/InstrDashboard.jsx")
 );
-
 // Admin Views
 const UserManagement = lazy(() => import("@/views/Admin/UserManagement.jsx"));
 const AdminDashboard = lazy(() => import("@/views/Admin/AdminDashboard.jsx"));
@@ -19,7 +16,7 @@ const AdminLayout = lazy(
 );
 const AdminProfile = lazy(() => import("@/views/Admin/AdminProfile.jsx"));
 const AdminPayments = lazy(() => import("@/views/Admin/AdminPayments.jsx"));
-
+const AdminLogs = lazy(() => import("@/views/Admin/AdminLogs.jsx"));
 // Instructor Views
 const InstructorLayout = lazy(
   () => import("@/components/InstructorLayout/InstructorLayout.jsx")
@@ -36,6 +33,7 @@ const InstrProfile = lazy(() => import("@/views/Instructor/InstrProfile.jsx"));
 const CreateCourse = lazy(() => import("@/views/Instructor/CreateCourse.jsx"));
 const CreateLesson = lazy(() => import("@/views/Instructor/CreateLesson"));
 const CreateQuiz = lazy(() => import("@/views/Instructor/CreateQuiz.jsx"));
+const CreateQuestions = lazy(() => import("@/views/Instructor/CreateQuestions.jsx"));
 const InstructorCourseDetails = lazy(
   () => import("@/views/Instructor/InstructorCourseDetails.jsx")
 );
@@ -43,11 +41,13 @@ const InstructorLessonDetails = lazy(
   () => import("@/views/Instructor/InstructorLessonDetails.jsx")
 );
 const EditLesson = lazy(() => import("@/views/Instructor/EditLesson.jsx"));
-
 const InstructorQuizDetails = lazy(
   () => import("@/views/Instructor/InstructorQuizDetails.jsx")
 );
 const EditQuiz = lazy(() => import("@/views/Instructor/EditQuiz.jsx"));
+const InstFinalProjects = lazy(() => import("@/views/Instructor/InstFinalProjects.jsx"));
+const InstructorPayment = lazy(() => import("@/views/Instructor/InstructorPayment.jsx"));
+const InstLiveSessions = lazy(() => import("@/views/Instructor/InstLiveSessions.jsx"));
 // Student Views
 const StuDashboard = lazy(() => import("@/views/Student/StuDashboard.jsx"));
 const StuStudentLayout = lazy(
@@ -74,7 +74,8 @@ const MyCourses = lazy(() => import("@/views/Student/MyCourses.jsx"));
 const StudentLessonPage = lazy(
   () => import("@/views/Student/StudentLessonPage.jsx")
 );
-
+const LiveSessions = lazy(() => import("@/views/Student/LiveSessions.jsx"));
+const StuFinalProjects = lazy(() => import("@/views/Student/StuFinalProjects.jsx"));
 // Others
 const UserLayout = lazy(() => import("@/components/UserLayout/UserLayout.jsx"));
 const ContactUs = lazy(() => import("@/views/Others/ContactUs.jsx"));
@@ -93,7 +94,6 @@ const FeedbackManagement = lazy(
 const CourseDetails = lazy(
   () => import("@/views/Others/SearchResults/CourseDetails.jsx")
 );
-
 // Landing Views
 const LandingLayout = lazy(
   () => import("@/components/Landing/LandingLayout/LandingLayout.js")
@@ -112,10 +112,10 @@ const ResetPassword = lazy(() => import("../views/Auth/ResetPassword.jsx"));
 const InstructorRegister = lazy(
   () => import("../views/Auth/InstructorRegister.jsx")
 );
-
+const VerifyEmail = lazy(() => import("../views/Auth/VerifyEmail.jsx"));
+const ResendVerification = lazy(() => import("../views/Auth/ResendVerification.jsx"));
 // Error Views
 const Error404 = lazy(() => import("../views/Error404.jsx"));
-
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -129,6 +129,9 @@ export const router = createBrowserRouter([
           { path: "About", element: <About /> },
           { path: "SearchResults", element: <SearchResults /> },
           { path: "CourseDetails/:id", element: <CourseDetails /> },
+          { path: "ContactUs", element: <ContactUs /> },
+          { path: "SendFeedback", element: <SendFeedback /> },
+          { path: "TermsofUse", element: <TermsofUse /> },
         ],
       },
       {
@@ -139,6 +142,8 @@ export const router = createBrowserRouter([
           { path: "Register", element: <Register /> },
           { path: "InstructorRegister", element: <InstructorRegister /> },
           { path: "ForgetPassword", element: <ForgetPassword /> },
+          { path: "verify-email", element: <VerifyEmail /> },
+          { path: "resend-verification", element: <ResendVerification /> },
           { path: "ResetPassword", element: <ResetPassword /> },
         ],
       },
@@ -146,13 +151,10 @@ export const router = createBrowserRouter([
         path: "UserLayout",
         element: <UserLayout />,
         children: [
-          { path: "ContactUs", element: <ContactUs /> },
           { path: "HelpPage", element: <HelpPage /> },
           { path: "AllFeedback", element: <FeedbackManagement /> },
           { path: "Notifications", element: <Notifications /> },
-          { path: "SendFeedback", element: <SendFeedback /> },
           { path: "SettingPage", element: <SettingPage /> },
-          { path: "TermsofUse", element: <TermsofUse /> },
           { path: "EditProfile", element: <EditProfile /> },
         ],
       },
@@ -165,13 +167,15 @@ export const router = createBrowserRouter([
           { path: "StuDashboard", element: <StuDashboard /> },
           { path: "StuInvoice", element: <StuInvoice /> },
           { path: "StuMyCertificates", element: <StuMyCertificates /> },
-          { path: "StuQuizPage", element: <StuQuizPage /> },
-          { path: "StuQuizResult", element: <StuQuizResult /> },
+          { path: "StuQuizPage/:courseid/:quizid", element: <StuQuizPage /> },
+          { path: "StuQuizResult/:quizId", element: <StuQuizResult /> },
           { path: "StuCourseDetails/:id", element: <StuCourseDetails /> },
           { path: "StuSavedCourses", element: <StuSavedCourses /> },
           { path: "StuShoppingCart", element: <StuShoppingCart /> },
           { path: "MyCourses", element: <MyCourses /> },
-          { path: "StudentLessonPage/:id", element: <StudentLessonPage /> },
+          { path: "StudentLessonPage/:courseid/:lessonId", element: <StudentLessonPage /> },
+          { path: "LiveSessions", element: <LiveSessions /> },
+          { path: "StuFinalProjects", element: <StuFinalProjects /> },
         ],
       },
       {
@@ -184,6 +188,7 @@ export const router = createBrowserRouter([
           { path: "CreateLesson/:courseid", element: <CreateLesson /> },
           { path: "EditLesson/:lessonid", element: <EditLesson /> },
           { path: "CreateQuiz/:courseid/:lessonId", element: <CreateQuiz /> },
+          { path: "CreateQuestions/:courseid/:lessonId/:quizid", element: <CreateQuestions /> },
           { path: "EditQuiz/:quizid/:courseId/:lessonId", element: <EditQuiz /> },
           { path: "CreateCourse/:courseid", element: <CreateCourse /> },
           {
@@ -202,6 +207,9 @@ export const router = createBrowserRouter([
           { path: "QuizManagement", element: <QuizManagement /> },
           { path: "LessonManagement", element: <LessonManagement /> },
           { path: "InstrProfile", element: <InstrProfile /> },
+          { path: "InstFinalProjects", element: <InstFinalProjects /> },
+          { path: "InstructorPayment", element: <InstructorPayment /> },
+          { path: "InstLiveSessions", element: <InstLiveSessions /> },
         ],
       },
       {
@@ -213,6 +221,7 @@ export const router = createBrowserRouter([
           { path: "UserManagement", element: <UserManagement /> },
           { path: "CourseManagement", element: <CourseManagement /> },
           { path: "AdminPayments", element: <AdminPayments /> },
+          { path: "AdminLogs", element: <AdminLogs /> },
         ],
       },
       { path: "*", element: <Error404 /> },

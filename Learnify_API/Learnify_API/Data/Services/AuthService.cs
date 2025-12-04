@@ -16,6 +16,7 @@ namespace Learnify_API.Data.Services
         private readonly IConfiguration _config;
         private readonly EmailService _emailService;
         private readonly UserManager<AppUser> _userManager;
+        //private readonly IEmailSender _emailService;
 
         public AuthService(AppDbContext context, IConfiguration config, EmailService emailService, UserManager<AppUser> userManager)
         {
@@ -25,26 +26,48 @@ namespace Learnify_API.Data.Services
             _userManager = userManager;
         }
 
-        // 1️ Instructor Register
+
+        // 1️⃣ Instructor Register
         public async Task<ServiceResponse<string>> InstructorRegisterAsync(InstructorRegisterRequest req)
         {
             var response = new ServiceResponse<string>();
 
             try
             {
-                //  Check if email exists
-                if (await _context.Users.AnyAsync(u => u.Email == req.Email))
+                var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == req.Email);
+
+                if (existingUser != null)
                 {
-                    response.Success = false;
-                    response.ErrorMessage = "Email already registered.";
-                    return response;
+                    if (existingUser.IsEmailVerified)
+                    {
+                        response.Success = false;
+                        response.ErrorMessage = "Email already registered and verified.";
+                        return response;
+                    }
+                    else
+                    {
+                        // User exists but not verified → update verification code
+                        existingUser.VerificationCode = new Random().Next(100000, 999999).ToString();
+                        existingUser.VerificationExpiresAt = DateTime.UtcNow.AddMinutes(10);
+                        await _context.SaveChangesAsync();
+
+                        // Resend verification email
+                        await _emailService.SendEmailAsync(
+                            req.Email,
+                            "Learnify Verification Code",
+                            $"<h3>Hello {existingUser.FullName},</h3><p>Your verification code is:</p><h2>{existingUser.VerificationCode}</h2><p>This code will expire in 10 minutes.</p>"
+                        );
+
+                        response.Success = true;
+                        response.Data = "User already registered but not verified. Verification email resent.";
+                        return response;
+                    }
                 }
 
-                // Generate verification code
+                // New user → create record
                 var verificationCode = new Random().Next(100000, 999999).ToString();
 
-                // Create user
-                var instructor_user = new User
+                var instructorUser = new User
                 {
                     FullName = req.FullName,
                     Email = req.Email,
@@ -52,17 +75,18 @@ namespace Learnify_API.Data.Services
                     Role = "instructor",
                     ProfileImage = req.ProfileImage,
                     VerificationCode = verificationCode,
-                    VerificationExpiresAt = DateTime.Now.AddMinutes(10),
-                    IsApproved = false // ⛔ must wait for admin approval
+                    VerificationExpiresAt = DateTime.UtcNow.AddMinutes(10),
+                    IsApproved = false,
+                    IsEmailVerified = false
                 };
 
-                _context.Users.Add(instructor_user);
+                _context.Users.Add(instructorUser);
                 await _context.SaveChangesAsync();
 
-                // 🧩 Create Instructor record
+                // Create Instructor details
                 _context.Instructors.Add(new Instructor
                 {
-                    InstructorId = instructor_user.UserId,
+                    InstructorId = instructorUser.UserId,
                     Specialization = req.Specialization,
                     Phone = req.Phone,
                     Address = req.Address,
@@ -72,85 +96,95 @@ namespace Learnify_API.Data.Services
                     Bio = req.BIO
                 });
 
-                //  Create Instructor Tab Content
+                // Create Instructor Tab Content
                 var instructorTabContent = new InstructorTabContent
                 {
                     AboutMe = req.BIO ?? "Passionate about sharing knowledge and empowering learners.",
-                    Courses = new List<CourseTab>
-                        {
-                            new CourseTab { CourseName = "None yet", Progress = "0%" }
-                        },
-                    Earnings = new List<EarningTab>
-                        {
-                            new EarningTab { monthly = 0, total = 0 }
-                        },
-                    Students = new List<StudentTab>
-                        {
-                            new StudentTab { name = "None yet", progress = 0 }
-                        },
+                    Courses = new List<CourseTab> { new CourseTab { CourseName = "None yet", Progress = "0%" } },
+                    Earnings = new List<EarningTab> { new EarningTab { monthly = 0, total = 0 } },
+                    Students = new List<StudentTab> { new StudentTab { name = "None yet", progress = 0 } },
                     Certificates = ""
                 };
 
-                //  Create Profile
+                // Create Profile
                 var profile = new Profile
                 {
-                    UserId = instructor_user.UserId,
+                    UserId = instructorUser.UserId,
                     Role = "instructor",
                     User = new UserInfo
                     {
-                        Name = instructor_user.FullName,
+                        Name = instructorUser.FullName,
                         RoleTitle = "Instructor",
-                        Avatar = req.ProfileImage ?? null
+                        Avatar = req.ProfileImage
                     },
-                    SocialLinks = new SocialLinks
-                    {
-                        Facebook = "",
-                        Twitter = "",
-                        LinkedIn = "",
-                        Github = ""
-                    },
+                    SocialLinks = new SocialLinks(),
                     About = req.BIO ?? "Welcome to Learnify! Start teaching and inspiring students.",
-                    InstructorTabContent = instructorTabContent // attach instructor tabs
+                    InstructorTabContent = instructorTabContent
                 };
 
                 _context.profiles.Add(profile);
                 await _context.SaveChangesAsync();
 
-                // ✅ You can later send an email with the verification code
-                // await _emailService.SendEmailAsync(req.Email, "Learnify Verification Code", $"<h3>Your code is:</h3><h2>{verificationCode}</h2>");
+                // Send verification email
+                await _emailService.SendEmailAsync(
+                    req.Email,
+                    "Learnify Verification Code",
+                    $"<h3>Hello {req.FullName},</h3><p>Your verification code is:</p><h2>{verificationCode}</h2><p>This code will expire in 10 minutes.</p>"
+                );
 
-                response.Data = "Instructor registered successfully. Please wait for admin approval before logging in.";
+                response.Success = true;
+                response.Data = "Instructor registered successfully. Please check your email for the verification code and wait for admin approval.";
                 return response;
             }
             catch (Exception ex)
             {
                 response.Success = false;
-                response.ErrorMessage = ex.Message;
+                response.ErrorMessage = $"Registration failed: {ex.Message}";
                 return response;
             }
         }
 
-
-        // 2 Student Register
+        // 2️⃣ Student Register
         public async Task<ServiceResponse<string>> StudentRegisterAsync(StudentRegisterRequest req)
         {
             var response = new ServiceResponse<string>();
 
             try
             {
-                //  Check if email exists
-                if (await _context.Users.AnyAsync(u => u.Email == req.Email))
+                var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == req.Email);
+
+                if (existingUser != null)
                 {
-                    response.Success = false;
-                    response.ErrorMessage = "Email already registered.";
-                    return response;
+                    if (existingUser.IsEmailVerified)
+                    {
+                        response.Success = false;
+                        response.ErrorMessage = "Email already registered and verified.";
+                        return response;
+                    }
+                    else
+                    {
+                        // User exists but not verified → update verification code
+                        existingUser.VerificationCode = new Random().Next(100000, 999999).ToString();
+                        existingUser.VerificationExpiresAt = DateTime.UtcNow.AddMinutes(10);
+                        await _context.SaveChangesAsync();
+
+                        // Resend verification email
+                        await _emailService.SendEmailAsync(
+                            req.Email,
+                            "Learnify Verification Code",
+                            $"<h3>Hello {existingUser.FullName},</h3><p>Your verification code is:</p><h2>{existingUser.VerificationCode}</h2><p>This code will expire in 10 minutes.</p>"
+                        );
+
+                        response.Success = true;
+                        response.Data = "User already registered but not verified. Verification email resent.";
+                        return response;
+                    }
                 }
 
-                //  Generate verification code
+                // New user → create record
                 var verificationCode = new Random().Next(100000, 999999).ToString();
 
-                //  Create user
-                var student_user = new User
+                var studentUser = new User
                 {
                     FullName = req.FullName,
                     Email = req.Email,
@@ -158,17 +192,18 @@ namespace Learnify_API.Data.Services
                     Role = "student",
                     ProfileImage = req.ProfileImage,
                     VerificationCode = verificationCode,
-                    VerificationExpiresAt = DateTime.Now.AddMinutes(10),
-                    IsApproved = true //  students are auto-approved
+                    VerificationExpiresAt = DateTime.UtcNow.AddMinutes(10),
+                    IsApproved = true, // students auto-approved
+                    IsEmailVerified = false
                 };
 
-                _context.Users.Add(student_user);
+                _context.Users.Add(studentUser);
                 await _context.SaveChangesAsync();
 
-                //  Create Student record
+                // Create Student record
                 _context.Students.Add(new Student
                 {
-                    StudentId = student_user.UserId,
+                    StudentId = studentUser.UserId,
                     EnrollmentNo = "ENR" + new Random().Next(1000, 9999),
                     Phone = req.Phone,
                     Address = req.Address,
@@ -179,7 +214,7 @@ namespace Learnify_API.Data.Services
                     EducationLevel = req.EducationLevel
                 });
 
-                //  Create Student Tab Content
+                // Create Student Tab Content
                 var studentTabContent = new StudentTabContent
                 {
                     AboutMe = req.About ?? "Passionate student eager to learn and explore new technologies.",
@@ -193,44 +228,44 @@ namespace Learnify_API.Data.Services
             },
                     Achievements = new List<AchievementTab>
             {
-                new AchievementTab { Title = "Account Created", Date = DateTime.Now.ToString("yyyy-MM-dd") }
+                new AchievementTab { Title = "Account Created", Date = DateTime.UtcNow.ToString("yyyy-MM-dd") }
             }
                 };
 
-                //  Create Profile
+                // Create Profile
                 var profile = new Profile
                 {
-                    UserId = student_user.UserId,
+                    UserId = studentUser.UserId,
                     Role = "student",
                     User = new UserInfo
                     {
-                        Name = student_user.FullName,
+                        Name = studentUser.FullName,
                         RoleTitle = "Student",
                         Avatar = req.ProfileImage ?? null
                     },
-                    SocialLinks = new SocialLinks
-                    {
-                        Facebook = "",
-                        Twitter = "",
-                        LinkedIn = "",
-                        Github = ""
-                    },
+                    SocialLinks = new SocialLinks(),
                     About = req.About ?? "Welcome to Learnify! Start exploring new courses today.",
-                    StudentTabContent = studentTabContent //  link student tab content
+                    StudentTabContent = studentTabContent
                 };
 
                 _context.profiles.Add(profile);
                 await _context.SaveChangesAsync();
 
-                //  Optional: send verification code via email here
+                // Send verification email
+                await _emailService.SendEmailAsync(
+                    req.Email,
+                    "Learnify Verification Code",
+                    $"<h3>Hello {req.FullName},</h3><p>Your verification code is:</p><h2>{verificationCode}</h2><p>This code will expire in 10 minutes.</p>"
+                );
 
+                response.Success = true;
                 response.Data = "Student registered successfully. Verification code sent to email.";
                 return response;
             }
             catch (Exception ex)
             {
                 response.Success = false;
-                response.ErrorMessage = ex.Message;
+                response.ErrorMessage = ex.InnerException?.Message ?? ex.Message;
                 return response;
             }
         }
@@ -252,8 +287,8 @@ namespace Learnify_API.Data.Services
                 // 2️⃣ Create User
                 var user = new User
                 {
-                    FullName = req.FullName,
-                    Email = req.Email,
+                    FullName = req.FullName ?? "",
+                    Email = req.Email ?? "",
                     Role = "admin", // keep lowercase for consistency
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword(req.Password),
                     CreatedAt = DateTime.Now,
@@ -346,16 +381,26 @@ namespace Learnify_API.Data.Services
                     return response;
                 }
 
-                if (user.VerificationCode != req.Code || user.VerificationExpiresAt < DateTime.Now)
+                // ✅ Only allow instructors and students to verify email
+                if (user.Role != "instructor" && user.Role != "student")
                 {
                     response.Success = false;
-                    response.ErrorMessage = "Invalid or expired code.";
+                    response.ErrorMessage = "Email verification not required for this user role.";
                     return response;
                 }
 
+                if (user.VerificationCode != req.Code || user.VerificationExpiresAt < DateTime.UtcNow)
+                {
+                    response.Success = false;
+                    response.ErrorMessage = "Invalid or expired verification code.";
+                    return response;
+                }
+
+                // ✅ Mark email as verified in the database
                 user.IsEmailVerified = true;
                 user.VerificationCode = null;
                 user.VerificationExpiresAt = null;
+
                 await _context.SaveChangesAsync();
 
                 response.Data = "Email verified successfully!";
@@ -369,20 +414,60 @@ namespace Learnify_API.Data.Services
             }
         }
 
-
         // 3️⃣ LOGIN
         public async Task<ServiceResponse<AuthResponse>> LoginAsync(LoginRequest req)
         {
             var response = new ServiceResponse<AuthResponse>();
             try
             {
+                // 1️⃣ Find user by email
                 var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == req.Email);
+                if (user == null)
+                {
+                    response.Success = false;
+                    response.ErrorMessage = "Email does not found";
+                    return response;
+                }
+
+                // 2️⃣ Check password
                 if (user == null || !BCrypt.Net.BCrypt.Verify(req.Password, user.PasswordHash))
                 {
                     response.Success = false;
                     response.ErrorMessage = "Invalid email or password.";
                     return response;
                 }
+
+                // ✅ 3️⃣ Prevent login if email not verified (for student & instructor)
+                if ((user.Role == "student" || user.Role == "instructor") && !user.IsEmailVerified)
+                {
+                    // Generate a new verification code if expired or null
+                    if (string.IsNullOrEmpty(user.VerificationCode) || user.VerificationExpiresAt < DateTime.UtcNow)
+                    {
+                        user.VerificationCode = new Random().Next(100000, 999999).ToString();
+                        user.VerificationExpiresAt = DateTime.UtcNow.AddMinutes(10);
+                        await _context.SaveChangesAsync();
+
+                        // Send verification email
+                        try
+                        {
+                            await _emailService.SendEmailAsync(
+                                user.Email,
+                                "Learnify Verification Code",
+                                $"<h3>Hello {user.FullName},</h3><p>Your new verification code is:</p><h2>{user.VerificationCode}</h2><p>This code will expire in 10 minutes.</p>"
+                            );
+                        }
+                        catch (Exception emailEx)
+                        {
+                            Console.WriteLine($"Failed to resend verification code: {emailEx.Message}");
+                        }
+                    }
+
+                    response.Success = false;
+                    response.ErrorMessage = "Your email is not verified. A verification code has been sent to your email.";
+                    return response;
+                }
+
+                // 4️⃣ Check if account is approved
                 if (!user.IsApproved)
                 {
                     response.Success = false;
@@ -390,16 +475,16 @@ namespace Learnify_API.Data.Services
                     return response;
                 }
 
+                // 5️⃣ Generate JWT and refresh token
                 var token = GenerateJwtToken(user);
                 var refreshToken = GenerateRefreshToken();
                 user.RefreshToken = refreshToken;
-                user.RefreshTokenExpiresAt = DateTime.UtcNow.AddMinutes(double.Parse(_config["Jwt:RefreshTokenValidityMins"]));
+                var refreshValidity = double.TryParse(_config["Jwt:RefreshTokenValidityMins"], out var v) ? v : 60;
+                user.RefreshTokenExpiresAt = DateTime.UtcNow.AddMinutes(refreshValidity);
                 await _context.SaveChangesAsync();
 
-                //var unreadNotificationCount = await _context.Notifications
-                //    .CountAsync(n => n.ReceiverEmail == user.Email && !n.IsRead);
-
-                var expiresInMinutes = double.Parse(_config["Jwt:TokenValidityMins"]);
+                double.TryParse(_config["Jwt:TokenValidityMins"], out var tokenValidity);
+                var expiresInMinutes = tokenValidity > 0 ? tokenValidity : 15; // default 15 mins
 
                 response.Data = new AuthResponse
                 {
@@ -412,7 +497,6 @@ namespace Learnify_API.Data.Services
                         user.FullName,
                         user.Email,
                         user.Role,
-                       // NotificationCount = unreadNotificationCount
                     }
                 };
 
@@ -426,7 +510,40 @@ namespace Learnify_API.Data.Services
             }
         }
 
+        public async Task<ServiceResponse<string>> ResendVerificationCodeAsync(string email)
+        {
+            var response = new ServiceResponse<string>();
 
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+
+            if (user == null)
+            {
+                response.Success = false;
+                response.ErrorMessage = "No account found with this email.";
+                return response;
+            }
+
+            if (user.IsEmailVerified)
+            {
+                response.Success = false;
+                response.ErrorMessage = "Email already verified.";
+                return response;
+            }
+
+            user.VerificationCode = new Random().Next(100000, 999999).ToString();
+            user.VerificationExpiresAt = DateTime.UtcNow.AddMinutes(10);
+            await _context.SaveChangesAsync();
+
+            await _emailService.SendEmailAsync(
+                user.Email,
+                "Learnify Verification Code",
+                $"<h3>Hello {user.FullName},</h3><p>Your new verification code is:</p><h2>{user.VerificationCode}</h2><p>This code expires in 10 minutes.</p>"
+            );
+
+            response.Success = true;
+            response.Data = "Verification code resent successfully.";
+            return response;
+        }
 
 
 
@@ -470,7 +587,14 @@ namespace Learnify_API.Data.Services
         private string GenerateJwtToken(User user)
         {
             // 1️⃣ Create the secret key
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:SecretKey"]));
+            var secretKey = _config["Jwt:SecretKey"];
+
+            if (string.IsNullOrWhiteSpace(secretKey))
+            {
+                throw new Exception("JWT Secret Key is missing in configuration.");
+            }
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
 
             // 2️⃣ Define the signing algorithm
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -484,12 +608,24 @@ namespace Learnify_API.Data.Services
                 new Claim(ClaimTypes.Role, user.Role)
             };
 
-            // 4️⃣ Create the token
+            // 1️⃣ اقرأ القيمة من الـ config
+            var tokenValidityString = _config["Jwt:TokenValidityMins"];
+
+            // 2️⃣ تحقق من القيمة
+            if (string.IsNullOrWhiteSpace(tokenValidityString))
+            {
+                throw new Exception("Jwt:TokenValidityMins is missing in configuration.");
+            }
+
+            // 3️⃣ حوّل إلى double
+            var tokenValidityMinutes = double.Parse(tokenValidityString);
+
+            // 4️⃣ أنشئ التوكن
             var token = new JwtSecurityToken(
                 issuer: _config["Jwt:Issuer"],
                 audience: _config["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(double.Parse(_config["Jwt:TokenValidityMins"])), // ✅ use UTC
+                expires: DateTime.UtcNow.AddMinutes(tokenValidityMinutes), // ✅ use UTC
                 signingCredentials: creds
             );
 
@@ -528,7 +664,12 @@ namespace Learnify_API.Data.Services
             //    );
             await _context.SaveChangesAsync();
 
-            var expiresInMinutes = double.Parse(_config["Jwt:TokenValidityMins"]);
+            var tokenValidityString = _config["Jwt:TokenValidityMins"];
+            if (!double.TryParse(tokenValidityString, out var expiresInMinutes))
+            {
+                expiresInMinutes = 60; // قيمة افتراضية إذا لم تكن موجودة أو صالحة
+            }
+
 
             return new AuthResponse
             {

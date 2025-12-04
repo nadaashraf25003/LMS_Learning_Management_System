@@ -62,7 +62,7 @@ function Register() {
   const [step, setStep] = useState(1);
   const { allCountries } = useCountries();
   const { setToast } = useAppStore();
-  const [formData, setFormData] = useLocalStorage("studentSignup", {
+  const [formData, setFormData] = useState({
     FullName: "",
     Email: "",
     Password: "",
@@ -111,7 +111,6 @@ function Register() {
   };
 
   const prevStep = () => setStep((prev) => prev - 1);
-
   const onSubmit = (data) => {
     const formattedData = {
       fullName: data.fullName,
@@ -130,13 +129,19 @@ function Register() {
     api
       .post(StudentRegisterEndPoint, formattedData)
       .then((response) => {
-        // localStorage.setItem("Role", "student");
-        setToast(response.message || "Registration successful", "success");
-        navigate("/User/Login");
+        // ✅ Redirect to Verify Email page
+        setToast(
+          response.message ||
+            "Registration successful! Please verify your email before login.",
+          "success"
+        );
+        navigate("/User/verify-email", { state: { email: data.email } }); // Pass email to verification page
       })
       .catch((error) => {
-        const errMsg = error.response?.data?.message || "Something went wrong";
-
+        const errMsg =
+          error.response?.data?.message ||
+          error.response?.data?.errorMessage ||
+          "Something went wrong";
         setToast(errMsg, "error");
       });
   };

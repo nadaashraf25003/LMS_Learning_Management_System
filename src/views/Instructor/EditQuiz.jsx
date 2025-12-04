@@ -51,16 +51,28 @@ export default function EditQuiz() {
           : value,
     }));
   };
-
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      const { ...payload } = form; // exclude totalQuestions
-      await updateQuizMutation.mutateAsync({ id: quizId, ...payload ,lessonId: Number(lessonId) , courseId :Number(courseId)  });
+      const payload = {
+        // Id: Number(quizId), // match QuizVM.Id
+        Title: form.title,
+        Duration: Number(form.duration),
+        PassingScore: Number(form.passingScore),
+        TotalMarks: Number(form.totalMarks),
+        TotalQuestions: Number(form.totalQuestions),
+        LessonId: Number(lessonId),
+        CourseId: Number(courseId),
+      };
+
+      await updateQuizMutation.mutateAsync(payload);
       toast.success("Quiz updated successfully!");
-      navigate(`/InstructorLayout/InstQuizDetails/${quizId}/${courseId}/${lessonId}`);
+      console.log("Payload for update:", payload);
+      navigate(
+        `/InstructorLayout/InstQuizDetails/${quizId}/${courseId}/${lessonId}`
+      );
     } catch (err) {
-      console.error(err);
+      console.log("Update failed:", err.response || err);
       toast.error("Failed to update quiz.");
     }
   };

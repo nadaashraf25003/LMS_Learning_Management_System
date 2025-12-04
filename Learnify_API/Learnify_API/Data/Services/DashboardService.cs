@@ -1,4 +1,5 @@
 ﻿using Learnify_API.Data;
+using Learnify_API.Data.Models;
 using Learnify_API.Data.Services;
 using Learnify_API.Data.ViewModels;
 using Microsoft.EntityFrameworkCore;
@@ -7,7 +8,7 @@ public class DashboardService
 {
     private readonly AppDbContext _context;
 
-public DashboardService(AppDbContext context)
+    public DashboardService(AppDbContext context)
     {
         _context = context;
     }
@@ -15,38 +16,76 @@ public DashboardService(AppDbContext context)
     // -------------------------
     // STUDENT DASHBOARD
     // -------------------------
-    public async Task<StudentDashboardVM> GetStudentDashboard(int studentId)
+    public async Task<StudentDashboardVM?> GetStudentDashboard(int studentId)
     {
-        // جلب User مع الـ Student المرتبط
+        // Get the user with the related student entity
         var student = await _context.Users
-            .Include(u => u.Student) // Include لتجنب null
-            .FirstOrDefaultAsync(x => x.UserId == studentId);
+            .Include(u => u.Student)
+            .FirstOrDefaultAsync(u => u.UserId == studentId);
 
         if (student == null) return null;
 
+        // Total Courses & Completed Courses
+        var enrollments = await _context.Enrollments
+            .Include(e => e.Course)
+            .Where(e => e.StudentId == studentId)
+            .ToListAsync();
+
+        var totalCourses = enrollments.Count;
+        var completedCourses = enrollments.Count(e => e.IsCompleted);
+
+        // Certificates earned
+        var certificatesEarned = await _context.Certificates
+            .Where(c => c.StudentId == studentId)
+            .CountAsync();
+
+        // Quizzes passed & total
+        var quizzesTotal = await _context.Quizzes
+            .Include(q => q.Course)
+            .Where(q => q.Course.Enrollments.Any(e => e.StudentId == studentId))
+            .CountAsync();
+
+        var quizzesPassed = await _context.Quizzes
+            .Include(q => q.Course)
+            .Where(q => q.Course.Enrollments.Any(e => e.StudentId == studentId) && q.TotalMarks >= q.PassingScore)
+            .CountAsync();
+
+        // Notifications
+        var notifications = await _context.Notifications
+            .Where(n => n.ReceiverEmail == student.Email)
+            .ToListAsync();
+
+        //// LiveSessions (if you have LiveSessions entity)
+        //var liveSessions = await _context.LiveSessions
+        //    .Where(ls => ls.StudentId == studentId)
+        //    .ToListAsync();
+
+        //// FinalProjects
+        //var finalProjects = await _context.FinalProjects
+        //    .Where(fp => fp.StudentId == studentId)
+        //    .ToListAsync();
+
+        // Construct view model
         var vm = new StudentDashboardVM
         {
             FullName = student.FullName,
             Email = student.Email,
-            Department = student.Student?.Department, // تحقق من null
+            Department = student.Student?.Department,
             Avatar = string.IsNullOrEmpty(student.ProfileImage) ? null : student.ProfileImage,
 
-            //TotalCourses = await _context.Courses.Where(x => x.Enrollments ).CountAsync(),
-            //CompletedCourses = await _context.Courses.Where(x => x.StudentId == studentId && x.IsCompleted).CountAsync(),
-            //CertificatesEarned = await _context.Certificates.Where(x => x.StudentId == studentId).CountAsync(),
+            TotalCourses = totalCourses,
+            CompletedCourses = completedCourses,
+            CertificatesEarned = certificatesEarned,
 
-            // مثال للـ quizzes
-            //QuizzesPassed = await _context.Quizzes.Where(x => x.StudentId == studentId && x.).CountAsync(),
-            //QuizzesTotal = await _context.Quizzes.Where(x => x. == studentId).CountAsync(),
+            QuizzesPassed = quizzesPassed,
+            QuizzesTotal = quizzesTotal,
+            SuccessRate = quizzesTotal == 0 ? 0 : (quizzesPassed * 100 / quizzesTotal),
 
-            //// روابط من جداول موجودة بالفعل
-            //LiveSessions = await _context.LiveSessions.ToListAsync(),
-            //FinalProjects = await _context.FinalProjects.Where(x => x.StudentId == studentId).ToListAsync(),
-            //Notifications = await _context.Notifications.Where(x => x.UserId == studentId).ToListAsync()
+            // Uncomment these if you want to send them to frontend
+            // LiveSessions = liveSessions,
+            // FinalProjects = finalProjects,
+            Notifications = notifications
         };
-
-        // لو مفيش quizzes avoid division by zero
-        vm.SuccessRate = vm.QuizzesTotal == 0 ? 0 : (vm.QuizzesPassed * 100 / vm.QuizzesTotal);
 
         return vm;
     }
@@ -54,74 +93,87 @@ public DashboardService(AppDbContext context)
     // -------------------------
     // INSTRUCTOR DASHBOARD
     // -------------------------
-    public async Task<InstructorDashboardVM> GetInstructorDashboard(int instructorId, StudentService stu)
+    public async Task<InstructorDashboardVM?> GetInstructorDashboard(int instructorId, StudentService stu)
     {
         var instructor = await _context.Users
-            .Include(u => u.Instructor) // Include لتجنب null
-            .FirstOrDefaultAsync(x => x.UserId == instructorId);
+            .Include(u => u.Instructor)
+            .FirstOrDefaultAsync(u => u.UserId == instructorId);
 
         if (instructor == null) return null;
 
-        // -------------------------
-        // CoursesCreated
-        // -------------------------
-        int coursesCreated = 0;
-        try
-        {
-            // حاول استخدم العمود الموجود في DB (مثال: UserId أو InstructorId)
-            coursesCreated = await _context.Courses
-                .Where(x => EF.Property<int>(x, "InstructorId") == instructorId)
-                .CountAsync();
-        }
-        catch
-        {
-            // لو العمود مش موجود، نخلي القيمة صفر بدون Exception
-            coursesCreated = 0;
-        }
+        // Courses created by instructor
+        var coursesCreatedList = await _context.Courses
+            .Where(c => c.InstructorId == instructorId)
+            .ToListAsync();
+        var coursesCreated = coursesCreatedList.Count;
 
-        // -------------------------
-        // CertificatesIssued
-        // -------------------------
-        int certificatesIssued = 0;
-        try
-        {
-            certificatesIssued = await _context.Certificates
-                .Where(x => EF.Property<int>(x, "InstructorId") == instructorId)
-                .CountAsync();
-        }
-        catch
-        {
-            certificatesIssued = 0;
-        }
+        // Total students (students enrolled in instructor's courses)
+        var totalStudents = coursesCreatedList
+            .SelectMany(c => c.Enrollments ?? new List<Enrollment>())
+            .Select(e => e.StudentId)
+            .Distinct()
+            .Count();
+
+        // Certificates issued for instructor's courses
+        var certificatesIssued = await _context.Certificates
+            .Where(c => coursesCreatedList.Select(course => course.CourseId).Contains(c.CourseId))
+            .CountAsync();
+
+        //// Projects supervised (if you have a FinalProjects table)
+        //var projectsSupervised = await _context.FinalProjects
+        //    .Where(fp => fp.InstructorId == instructorId)
+        //    .CountAsync();
+
+        //// LiveSessions for instructor
+        //var liveSessions = await _context.LiveSessions
+        //    .Where(ls => ls.InstructorId == instructorId)
+        //    .ToListAsync();
+
+        // Notifications for instructor
+        var notifications = await _context.Notifications
+            .Where(n => n.ReceiverEmail == instructor.Email)
+            .ToListAsync();
 
         return new InstructorDashboardVM
         {
             FullName = instructor.FullName,
             Email = instructor.Email,
-            Department = instructor.Instructor?.Specialization, // تحقق من null
+            Department = instructor.Instructor?.Specialization ?? "",
             Role = "instructor",
             Avatar = string.IsNullOrEmpty(instructor.ProfileImage) ? null : instructor.ProfileImage,
 
-            TotalStudents = (await stu.GetStudentsByInstructorAsync(instructorId)).Count(),
+            TotalStudents = totalStudents,
             CoursesCreated = coursesCreated,
-            // ProjectsSupervised = await _context..Where(x => x.InstructorId == instructorId).CountAsync(),
+            //ProjectsSupervised = projectsSupervised,
             CertificatesIssued = certificatesIssued,
 
-            //LiveSessions = await _context.LiveSessions.Where(x => x.InstructorId == instructorId).ToListAsync(),
-            //Notifications = await _context.Notifications.Where(x => x.UserId == instructorId).ToListAsync()
+            // Uncomment if your view model supports them
+            // LiveSessions = liveSessions,
+            Notifications = notifications
         };
     }
 
     // -------------------------
     // ADMIN DASHBOARD
     // -------------------------
-    public async Task<AdminDashboardVM> GetAdminDashboard(int adminId)
+    public async Task<AdminDashboardVM?> GetAdminDashboard(int adminId)
     {
         var admin = await _context.Users
-            .Include(u => u.Admin) // Include لتجنب null لو عندك Admin entity
-            .FirstOrDefaultAsync(x => x.UserId == adminId);
+            .Include(u => u.Admin)
+            .FirstOrDefaultAsync(u => u.UserId == adminId);
 
         if (admin == null) return null;
+
+        // Total counts
+        var totalStudents = await _context.Students.CountAsync();
+        var totalInstructors = await _context.Instructors.CountAsync();
+        var totalCourses = await _context.Courses.CountAsync();
+        var certificatesIssued = await _context.Certificates.CountAsync();
+
+        // Notifications for admin
+        var notifications = await _context.Notifications
+            .Where(n => n.ReceiverEmail == admin.Email)
+            .ToListAsync();
 
         return new AdminDashboardVM
         {
@@ -129,12 +181,13 @@ public DashboardService(AppDbContext context)
             Email = admin.Email,
             Avatar = string.IsNullOrEmpty(admin.ProfileImage) ? null : admin.ProfileImage,
 
-            TotalStudents = await _context.Students.CountAsync(),
-            TotalInstructors = await _context.Instructors.CountAsync(),
-            TotalCourses = await _context.Courses.CountAsync(),
-            CertificatesIssued = await _context.Certificates.CountAsync(),
+            TotalStudents = totalStudents,
+            TotalInstructors = totalInstructors,
+            TotalCourses = totalCourses,
+            CertificatesIssued = certificatesIssued,
 
-            //Notifications = await _context.Notifications.Where(x => x.UserId == adminId).ToListAsync()
+            // Uncomment if needed
+            Notifications = notifications
         };
     }
 

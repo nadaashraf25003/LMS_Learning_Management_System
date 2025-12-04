@@ -12,7 +12,7 @@ const LESSONS_PER_PAGE = 10;
 function LessonManagement() {
   const navigate = useNavigate();
   const { getLessonsByInstructor, deleteLessonMutation } = useLesson();
-  const { data: lessonsData, isLoading, isError } = getLessonsByInstructor();
+  const { data: lessonsData, isLoading} = getLessonsByInstructor();
 
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedLesson, setSelectedLesson] = useState(null);
@@ -38,7 +38,7 @@ function LessonManagement() {
     // exampleLesson,
     ...(lessonsData?.map((lesson) => ({ ...lesson })) ?? []),
   ];
-
+   console.log(lessons)
   const totalPages = Math.max(1, Math.ceil(lessons.length / LESSONS_PER_PAGE));
   const pageStartIndex = (currentPage - 1) * LESSONS_PER_PAGE;
   const pageLessons = lessons.slice(
@@ -79,12 +79,12 @@ function LessonManagement() {
       </div>
     );
 
-  if (isError)
-    return (
-      <div className="flex items-center justify-center h-48 text-red-500 font-semibold">
-        ❌ Failed to load lessons.
-      </div>
-    );
+  // if (isError)
+  //   return (
+  //     <div className="flex items-center justify-center h-48 text-red-500 font-semibold">
+  //       ❌ Failed to load lessons.
+  //     </div>
+  //   );
 
   return (
     <div className="p-6">
@@ -127,7 +127,7 @@ function LessonManagement() {
                       <span className="text-red-500 font-bold">✖ NO</span>
                     )}
                   </td>
-                  <td className="px-4 py-3">{lesson.quizzes?.length ?? 0}</td>
+                  <td className="px-4 py-3">{lesson.TotalQuizzes?? 0}</td>
                   <td className="px-4 py-3">
                     {new Date(lesson.createdAt).toLocaleDateString()}
                   </td>

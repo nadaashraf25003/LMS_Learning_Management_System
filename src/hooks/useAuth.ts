@@ -164,6 +164,23 @@ const useAuth = () => {
     onSettled: () => appStore.setIsLoading(false),
   });
 
+  // ✅ Resend verification code
+  const resendVerificationMutation = useMutation({
+    mutationFn: async (email: string) => {
+      appStore.setIsLoading(true);
+      const response = await api.post(Urls.resendVerification, { email });
+      return response.data;
+    },
+    onSuccess: () => {
+      appStore.setToast("Verification code sent successfully!", "success");
+    },
+    onError: (err: any) => {
+      appStore.setError(err.message || "Failed to resend verification code");
+    },
+    onSettled: () => appStore.setIsLoading(false),
+  });
+
+
   return {
     loginMutation,
     logout,
@@ -173,6 +190,7 @@ const useAuth = () => {
     forgotPasswordMutation,
     resetPasswordMutation,
     refreshTokenMutation,
+    resendVerificationMutation,
   };
 };
 

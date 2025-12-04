@@ -48,7 +48,7 @@ namespace Learnify_API.Controllers
             return Ok(new { Message = "User deleted successfully" });
         }
 
-        [Authorize(Roles = "admin")]
+        //[Authorize(Roles = "admin")]
         [HttpPut("approve-user-by/{id}")]
         public async Task<IActionResult> ApproveUserById(int id)
         {
@@ -58,5 +58,39 @@ namespace Learnify_API.Controllers
 
             return Ok(new { message = "User approved successfully" });
         }
+        [Authorize(Roles = "admin")]
+        [HttpPost("pay-instructor/{payoutId}")]
+        public async Task<IActionResult> PayInstructor(int payoutId)
+        {
+            var payout = await _adminService.GetInstructorPayoutByIdAsync(payoutId);
+
+
+            if (payout == null)
+                return NotFound(new { message = "Payout not found." });
+
+            if (payout.Status == "Paid")
+                return BadRequest(new { message = "This payout is already paid." });
+
+            payout.Status = "Paid";
+            payout.PaidAt = DateTime.Now;
+
+            await _adminService.SaveChangesAsync();
+
+
+            return Ok(new { message = "Instructor has been paid successfully." });
+        }
+        // GET: admin/instructors-report
+        [Authorize(Roles = "admin")]
+        [HttpGet("instructors-report")]
+        public async Task<IActionResult> GetInstructorsReport()
+        {
+            var report = await _adminService.GetInstructorsSalesAsync();
+            if (!report.Any())
+                return NotFound(new { message = "No instructors found." });
+
+            return Ok(report);
+        }
+
+
     }
 }

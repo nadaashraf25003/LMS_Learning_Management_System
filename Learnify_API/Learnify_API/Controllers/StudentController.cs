@@ -9,23 +9,15 @@ namespace Learnify_API.Controllers
     public class StudentController : ControllerBase
     {
         private readonly StudentService _studentService;
+        private readonly CheckoutService _checkoutService;
 
-        public StudentController(StudentService studentService)
+
+        public StudentController(StudentService studentService, CheckoutService checkoutService)
         {
             _studentService = studentService;
+            _checkoutService = checkoutService;
         }
 
-        //// -------- Add Student --------
-        //[Authorize(Roles = "admin")]
-        //[HttpPost("add-student")]
-        //public async Task<IActionResult> AddStudent([FromBody] StudentVM studentVM, [FromQuery] List<int>? courseIds)
-        //{
-        //    if (!ModelState.IsValid)
-        //        return BadRequest(ModelState);
-
-        //    var createdStudent = await _studentService.AddStudentAsync(studentVM, courseIds);
-        //    return CreatedAtAction(nameof(GetAllStudents), new { id = createdStudent.Id }, createdStudent);
-        //}
 
         // -------- Get all students (admin + instructor) --------
         [Authorize(Roles = "admin, instructor")]
@@ -111,7 +103,7 @@ namespace Learnify_API.Controllers
         }
 
         // Optional: Remove enrollment
-        [Authorize(Roles = "student")]
+        //[Authorize(Roles = "student")]
         [HttpDelete("remove-enrollment")]
         public async Task<IActionResult> RemoveEnrollment([FromQuery] int courseId)
         {
@@ -123,6 +115,96 @@ namespace Learnify_API.Controllers
             return Ok("Enrollment removed successfully");
         }
 
+
+        [Authorize(Roles = "student")]
+        [HttpPost("add-to-cart")]
+        public async Task<IActionResult> AddToCart([FromQuery] int courseId)
+        {
+            var studentId = int.Parse(User.Claims.First(c => c.Type == "userId").Value);
+            var success = await _studentService.AddToCartAsync(studentId, courseId);
+
+            return success ? Ok("Course added to cart") : BadRequest("Course already in cart");
+        }
+
+        [Authorize(Roles = "student")]
+        [HttpGet("cart")]
+        public async Task<IActionResult> GetCart()
+        {
+            var studentId = int.Parse(User.Claims.First(c => c.Type == "userId").Value);
+            var cart = await _studentService.GetCartAsync(studentId);
+            return Ok(cart);
+        }
+
+        //[Authorize(Roles = "student")]
+        [HttpDelete("remove-cart-item")]
+        public async Task<IActionResult> RemoveCartItem([FromQuery] int courseId)
+        {
+            var studentId = int.Parse(User.Claims.First(c => c.Type == "userId").Value);
+            var success = await _studentService.RemoveFromCartAsync(studentId, courseId);
+
+            return success ? Ok("Removed from cart") : NotFound("Not found in cart");
+        }
+
+        [HttpPost("checkout")]
+        public async Task<IActionResult> Checkout([FromQuery] string paymentMethod = "card")
+        {
+            var studentId = int.Parse(User.Claims.First(c => c.Type == "userId").Value);
+            var checkout = await _checkoutService.AddCheckoutAsync(studentId, paymentMethod);
+
+            if (checkout == null)
+                return BadRequest("Cart is empty");
+
+            return Ok(new
+            {
+                Message = "Checkout successful",
+                CheckoutId = checkout.CheckoutId,
+                TotalPrice = checkout.TotalPrice,
+                Courses = checkout.CheckoutItems.Select(ci => ci.Course.Title).ToList()
+            });
+        }
+
+        [Authorize(Roles = "student")]
+        [HttpGet("my-checkouts")]
+        public async Task<IActionResult> GetMyCheckouts()
+        {
+            var studentId = int.Parse(User.Claims.First(c => c.Type == "userId").Value);
+            var checkouts = await _checkoutService.GetStudentCheckoutsAsync(studentId);
+            return Ok(checkouts.Select(c => new
+            {
+                c.CheckoutId,
+                c.CheckoutDate,
+                c.TotalPrice,
+                c.PaymentMethod,
+                c.PaymentStatus,
+                Courses = c.CheckoutItems.Select(ci => ci.Course.Title)
+            }));
+        }
+
+        [Authorize(Roles = "student")]
+        [HttpGet("checkout/{checkoutId}")]
+        public async Task<IActionResult> GetCheckoutById([FromRoute] int checkoutId)
+        {
+            var studentId = int.Parse(User.Claims.First(c => c.Type == "userId").Value);
+            var checkout = await _checkoutService.GetCheckoutByIdAsync(checkoutId);
+
+            if (checkout == null || checkout.StudentId != studentId)
+                return NotFound("Checkout not found");
+
+            return Ok(new
+            {
+                checkout.CheckoutId,
+                checkout.CheckoutDate,
+                checkout.TotalPrice,
+                checkout.PaymentMethod,
+                checkout.PaymentStatus,
+                Courses = checkout.CheckoutItems.Select(ci => new
+                {
+                    ci.CourseId,
+                    ci.Course.Title,
+                    ci.Price
+                })
+            });
+        }
 
 
     }

@@ -8,6 +8,7 @@ const Urls = {
   forgotPassword: "Auth/forgot-password",
   resetPassword: "Auth/reset-password",
   refreshToken: "Auth/refresh-token",
+  resendVerification: "Auth/resend-verification",
   // COURSE
   addCourse: "Course/add",
   getPendingCourses: "Course/pending-courses",
@@ -51,20 +52,37 @@ const Urls = {
   CompleteLesson: "Lesson/complete/",
   LessonProgress: "Lesson/progress/",
   GetLessonsByInstructor: "/Lesson/all-by-instructor",
-  // Student 
+  // Student
   saveCourse: "/Student/save-course",
   savedCourses: "/Student/saved-courses",
   removeSavedCourse: "/Student/remove-saved-course",
   myEnrollments: "/Student/my-enrollments",
   enroll: "/Student/enroll",
   removeEnrollment: "/Student/remove-enrollment",
+  addToCart: "/Student/add-to-cart",
+  getCart: "/Student/cart",
+  removeCartItem: "/Student/remove-cart-item",
+  // Checkout for Student
+  getCheckoutDetails: "/Student/checkout/{checkoutId}",
+  myCheckouts :"/Student/my-checkouts",
+  createCheckout :"/Student/checkout",
   // Quiz
   GetQuizById: "Quiz/get-by-id/",
   GetAllQuizzes: "Quiz/get-all",
   AddQuiz: "Quiz/add",
   UpdateQuiz: "Quiz/update/",
   DeleteQuiz: "Quiz/delete/",
-  GetQuizzesByInstructor: "/Quiz/by-instructor"  
+  GetQuizzesByInstructor: "/Quiz/by-instructor",
+  GetQuizByIdForStudent: "/Quiz/by-quizid-for-student/",
+  SubmitQuiz: "/Quiz/submit/",
+  StudentQuizResult: "/Quiz/reult-by-quizId",
+  // Question
+  GetQuestionsByQuiz: "/Question/quiz/{quizId}",
+  GetQuestionById: "/Question/",
+  AddQuestions: "/Question/add",
+  UpdateQuestion: "/Question/update/",
+  DeleteQuestion: "/Question/delete/",
+
 };
 
 export default Urls;

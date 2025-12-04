@@ -1,6 +1,6 @@
 import { Separator } from "@/components/ui/separator";
 import LogoNav from "../../ui/Logo/LogoNav";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 export default function LandingFooter() {
   const navigate = useNavigate();
@@ -19,32 +19,34 @@ export default function LandingFooter() {
           {/* Platform */}
           <div>
             <h3 className="text-white font-semibold mb-3">Platform</h3>
-            <ul className="space-y-2 text-sm">
+           <ul className="space-y-2 text-sm">
               <li>
-                <button onClick={() => navigate("/StudentLayout")}>
-                  <a href="#" className="hover:text-white">
+                <Link to="/SearchResults">
+                  <a href="" className="hover:text-white">
                     Courses
                   </a>
-                </button>
+                </Link>
               </li>
               <li>
-                <button  onClick={() => navigate("/InstructorLayout")}>
-                  <a href="#" className="hover:text-white">
-                    Instructors
+                <Link to="/">
+                  {" "}
+                  <a href="" className="hover:text-white">
+                    Home
                   </a>
-                </button>
+                </Link>
               </li>
               <li>
-                <button  onClick={() => navigate("/AdminLayout")}>
-                  <a href="#" className="hover:text-white">
-                    Live Sessions
+                <Link to="/About">
+                  <a href="" className="hover:text-white">
+                    About
                   </a>
-                </button>
+                </Link>
               </li>
               <li>
+                {/* <Link to="/SearchResults"></Link>
                 <a href="#" className="hover:text-white">
                   Certificates
-                </a>
+                </a> */}
               </li>
             </ul>
           </div>
@@ -52,26 +54,34 @@ export default function LandingFooter() {
           {/* Support */}
           <div>
             <h3 className="text-white font-semibold mb-3">Support</h3>
-            <ul className="space-y-2 text-sm">
+          <ul className="space-y-2 text-sm">
               <li>
-                <a href="#" className="hover:text-white">
+                <Link to="/ContactUs">
+                <a href="" className="hover:text-white">
                   About Us
                 </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-white">
+                <Link to="/SendFeedback">
+                <a href="" className="hover:text-white">
                   Help Center
                 </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-white">
-                  Contact
+                <Link to="/ContactUs">
+                <a href="" className="hover:text-white">
+                  Contact Us
                 </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-white">
-                  Privacy Policy
+                <Link to="/TermsOfUse">
+                <a href="" className="hover:text-white">
+                 Terms of Use
                 </a>
+                </Link>
               </li>
             </ul>
           </div>
