@@ -18,7 +18,7 @@ namespace Learnify_API.Controllers
         }
 
         //Instructor adds course
-        //[Authorize(Roles = "instructor")]
+        [Authorize(Roles = "instructor")]
         [HttpPost("add")]
         public async Task<IActionResult> AddCourse([FromBody] CourseVM model)
         {
@@ -121,7 +121,7 @@ namespace Learnify_API.Controllers
         }
 
         //  Admin approves a course
-        [Authorize(Roles = "admin")]
+        //[Authorize(Roles = "admin")]
         [HttpPut("approve/{id}")]
         public async Task<IActionResult> ApproveCourse(int id)
         {
@@ -132,7 +132,7 @@ namespace Learnify_API.Controllers
         }
 
         // UPDATE course (Instructor or Admin)
-        [Authorize(Roles = "admin,instructor")]
+        //[Authorize(Roles = "admin,instructor")]
         [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdateCourse(int id, [FromBody] CourseVM model)
         {

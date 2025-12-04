@@ -290,7 +290,7 @@ namespace Learnify_API.Data.Services
                 var completedQuizzes = await _context.StudentAnswers
                     .CountAsync(sa => sa.StudentId == studentId && sa.Quiz.CourseId == quizEntity.CourseId);
 
-                var totalQuizzes = quizEntity.Course.Quizzes.Count; //  Works now
+                var totalQuizzes = quizEntity.Course.Quizzes?.Count ?? 0;
                 enrollment.Progress = ((decimal)completedQuizzes / totalQuizzes) * 100;
                 enrollment.IsCompleted = enrollment.Progress >= 100;
                 await _context.SaveChangesAsync();

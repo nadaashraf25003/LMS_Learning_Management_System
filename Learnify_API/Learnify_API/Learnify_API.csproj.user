@@ -7,7 +7,7 @@
     <_SelectedScaffolderID>IdentityScaffolder</_SelectedScaffolderID>
     <_SelectedScaffolderCategoryPath>root/Identity</_SelectedScaffolderCategoryPath>
     <WebStackScaffolding_ViewDialogWidth>800</WebStackScaffolding_ViewDialogWidth>
-    <NameOfLastUsedPublishProfile>D:\Desktop\FFF\LMS_Learning_Management_System\Learnify_API\Learnify_API\Properties\PublishProfiles\site45335-WebDeploy2.pubxml</NameOfLastUsedPublishProfile>
+    <NameOfLastUsedPublishProfile>D:\Desktop\FINALL\LMS_Learning_Management_System\Learnify_API\Learnify_API\Properties\PublishProfiles\site45335-WebDeploy4.pubxml</NameOfLastUsedPublishProfile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebuggerFlavor>ProjectDebugger</DebuggerFlavor>

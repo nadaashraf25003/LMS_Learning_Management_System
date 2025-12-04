@@ -14,7 +14,7 @@ namespace Learnify_API.Data.ViewModels
         public int TotalCourses { get; set; }
         public int CertificatesIssued { get; set; }
 
-        public List<Notification> Notifications { get; set; }
+        public List<Notification>? Notifications { get; set; }
     }
 
 }

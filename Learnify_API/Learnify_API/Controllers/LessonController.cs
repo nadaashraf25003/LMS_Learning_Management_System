@@ -21,6 +21,9 @@ namespace Learnify_API.Controllers
         private int GetStudentId()
         {
             var claim = User.FindFirst("userId");
+            if (claim == null || string.IsNullOrWhiteSpace(claim.Value))
+                throw new UnauthorizedAccessException("User ID claim is missing.");
+
             return int.Parse(claim.Value);
         }
         // Add Lesson
@@ -69,7 +72,7 @@ namespace Learnify_API.Controllers
 
         //  Get Lessons by Course
 
-        [Authorize(Roles = "instructor")]
+        //[Authorize(Roles = "instructor")]
 
         [HttpGet("by-course/{courseId}")]
         public async Task<IActionResult> GetLessonsforinstructorByCourse(int courseId)

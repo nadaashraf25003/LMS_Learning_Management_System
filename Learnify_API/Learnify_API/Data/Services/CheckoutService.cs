@@ -13,7 +13,7 @@ namespace Learnify_API.Data.Services
         }
 
         // Add a new checkout for a student
-        public async Task<Checkout> AddCheckoutAsync(int studentId, string paymentMethod)
+        public async Task<Checkout?> AddCheckoutAsync(int studentId, string paymentMethod)
         {
             // Get the student's cart
             var cartItems = await _context.CartItems

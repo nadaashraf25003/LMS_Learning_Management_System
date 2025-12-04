@@ -103,7 +103,7 @@ namespace Learnify_API.Controllers
         }
 
         // Optional: Remove enrollment
-        //[Authorize(Roles = "student")]
+        [Authorize(Roles = "student")]
         [HttpDelete("remove-enrollment")]
         public async Task<IActionResult> RemoveEnrollment([FromQuery] int courseId)
         {
@@ -126,7 +126,7 @@ namespace Learnify_API.Controllers
             return success ? Ok("Course added to cart") : BadRequest("Course already in cart");
         }
 
-        [Authorize(Roles = "student")]
+        //[Authorize(Roles = "student")]
         [HttpGet("cart")]
         public async Task<IActionResult> GetCart()
         {
@@ -135,7 +135,7 @@ namespace Learnify_API.Controllers
             return Ok(cart);
         }
 
-        //[Authorize(Roles = "student")]
+        [Authorize(Roles = "student")]
         [HttpDelete("remove-cart-item")]
         public async Task<IActionResult> RemoveCartItem([FromQuery] int courseId)
         {
@@ -159,7 +159,8 @@ namespace Learnify_API.Controllers
                 Message = "Checkout successful",
                 CheckoutId = checkout.CheckoutId,
                 TotalPrice = checkout.TotalPrice,
-                Courses = checkout.CheckoutItems.Select(ci => ci.Course.Title).ToList()
+                Courses = checkout.CheckoutItems?.Select(ci => ci.Course?.Title ?? "Unknown").ToList()
+                 ?? new List<string>()
             });
         }
 
@@ -169,15 +170,19 @@ namespace Learnify_API.Controllers
         {
             var studentId = int.Parse(User.Claims.First(c => c.Type == "userId").Value);
             var checkouts = await _checkoutService.GetStudentCheckoutsAsync(studentId);
-            return Ok(checkouts.Select(c => new
+
+            var result = checkouts.Select(c => new
             {
                 c.CheckoutId,
                 c.CheckoutDate,
                 c.TotalPrice,
                 c.PaymentMethod,
                 c.PaymentStatus,
-                Courses = c.CheckoutItems.Select(ci => ci.Course.Title)
-            }));
+                Courses = c.CheckoutItems?.Select(ci => ci.Course?.Title ?? "Unknown").ToList()
+                          ?? new List<string>()
+            });
+
+            return Ok(result);
         }
 
         [Authorize(Roles = "student")]
@@ -197,10 +202,10 @@ namespace Learnify_API.Controllers
                 checkout.TotalPrice,
                 checkout.PaymentMethod,
                 checkout.PaymentStatus,
-                Courses = checkout.CheckoutItems.Select(ci => new
+                Courses = checkout?.CheckoutItems?.Select(ci => new
                 {
                     ci.CourseId,
-                    ci.Course.Title,
+                    ci.Course?.Title,
                     ci.Price
                 })
             });

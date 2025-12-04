@@ -78,6 +78,24 @@ namespace Learnify_API
                 };
             });
 
+<<<<<<< HEAD
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = ""; // remove default redirect
+                options.AccessDeniedPath = ""; // remove access denied redirect
+                options.Events.OnRedirectToLogin = context =>
+                {
+                    context.Response.StatusCode = 401;
+                    return Task.CompletedTask;
+                };
+                options.Events.OnRedirectToAccessDenied = context =>
+                {
+                    context.Response.StatusCode = 403;
+                    return Task.CompletedTask;
+                };
+            });
+=======
+>>>>>>> f07e4b7660dca0a3342d6afad82f583d4ffa0dc2
             // JWT
             builder.Services.AddAuthentication(options =>
             {
@@ -119,19 +137,19 @@ namespace Learnify_API
                 });
 
                 options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
-    {
-        {
-            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-            {
-                Reference = new Microsoft.OpenApi.Models.OpenApiReference
                 {
-                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            new string[]{}
-        }
-    });
+                    {
+                        new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                        {
+                            Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                            {
+                                Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        new string[]{}
+                    }
+                });
             });
 
             // CORS
@@ -155,6 +173,14 @@ namespace Learnify_API
             // Middleware
             //if (app.Environment.IsDevelopment())
             //{
+<<<<<<< HEAD
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+              {
+                  c.SwaggerEndpoint("/swagger/v1/swagger.json", "Learnify API V1");
+              });
+            //}
+=======
             //    app.UseSwagger();
             //    app.UseSwaggerUI(c =>
             //    {
@@ -166,6 +192,7 @@ namespace Learnify_API
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+>>>>>>> f07e4b7660dca0a3342d6afad82f583d4ffa0dc2
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy(new CookiePolicyOptions
