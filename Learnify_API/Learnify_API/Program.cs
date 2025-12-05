@@ -2,6 +2,7 @@
 using Learnify_API.Data.Models;
 using Learnify_API.Data.Services;
 using Learnify_API.Services;
+using Learnify_API.Services.Interfaces;
 
 //using Learnify_API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -50,6 +51,7 @@ namespace Learnify_API
             builder.Services.AddScoped<EmailService>();
             builder.Services.AddSingleton<IEmailSender, EmailSender>();
             builder.Services.AddScoped<INotificationService, NotificationService>();
+            builder.Services.AddScoped<ICertificateService, CertificateService>();
 
             // Identity
             builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
