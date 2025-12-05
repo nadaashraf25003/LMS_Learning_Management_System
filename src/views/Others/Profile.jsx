@@ -17,6 +17,7 @@ import useProfile from "@/hooks/useProfile";
 function Profile() {
   const navigate = useNavigate();
   const { profile, UserRole } = useProfile();
+  console.log(profile.data);
   const [activeTab, setActiveTab] = useState("");
 
   useEffect(() => {
@@ -43,7 +44,7 @@ function Profile() {
       <div className="flex justify-center items-center h-screen">
         <div className="text-center">
           <p className="text-destructive text-lg mb-4">Error loading profile</p>
-          <button 
+          <button
             onClick={() => window.location.reload()}
             className="btn btn-primary"
           >
@@ -56,7 +57,9 @@ function Profile() {
 
   const data = profile.data;
   if (!data.user.avatar) data.user.avatar = DefaultImage;
-
+  const avatarUrl = data.user.avatar
+    ? `${import.meta.env.VITE_API_URL}${data.user.avatar}` // Vite
+    : DefaultImage;
   const tabs = Object.keys(data[`${UserRole}TabContent`] || {});
   const tabContent = data[`${UserRole}TabContent`];
 
@@ -68,22 +71,27 @@ function Profile() {
           <div className="relative mx-auto sm:mx-0">
             <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-primary shadow-lg">
               <img
-                src={data.user.avatar}
+                src={avatarUrl}
                 alt="Profile"
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.target.src = DefaultImage;
+                }}
               />
             </div>
             <div className="absolute -bottom-2 -right-2 bg-primary text-primary-foreground rounded-full p-2 shadow-lg">
               <FaEdit className="text-sm" />
             </div>
           </div>
-          
+
           <div className="text-center sm:text-left space-y-3">
             <div>
               <h2 className="text-2xl sm:text-3xl font-bold text-text-primary">
                 {data.user.name}
               </h2>
-              <p className="text-text-secondary text-lg">{data.user.roleTitle}</p>
+              <p className="text-text-secondary text-lg">
+                {data.user.roleTitle}
+              </p>
               <span className="inline-block px-3 py-1 bg-secondary text-secondary-foreground rounded-full text-sm font-bold capitalize mt-2">
                 {UserRole}
               </span>
@@ -109,7 +117,8 @@ function Profile() {
                     linkedin: "bg-blue-700 hover:bg-blue-800",
                     youtube: "bg-red-600 hover:bg-red-700",
                     instagram: "bg-pink-500 hover:bg-pink-600",
-                    github: "bg-gray-800 hover:bg-gray-900 dark:bg-gray-700 dark:hover:bg-gray-600",
+                    github:
+                      "bg-gray-800 hover:bg-gray-900 dark:bg-gray-700 dark:hover:bg-gray-600",
                   };
 
                   return (
@@ -121,7 +130,9 @@ function Profile() {
                       className={`w-10 h-10 flex items-center justify-center rounded-full text-white transition-all duration-300 btn-hover ${
                         colors[platform] || "bg-gray-500 hover:bg-gray-600"
                       }`}
-                      title={platform.charAt(0).toUpperCase() + platform.slice(1)}
+                      title={
+                        platform.charAt(0).toUpperCase() + platform.slice(1)
+                      }
                     >
                       {icons[platform] || platform}
                     </a>
@@ -151,8 +162,8 @@ function Profile() {
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
         {data.stats.map((stat, index) => (
-          <div 
-            key={stat.label} 
+          <div
+            key={stat.label}
             className="card card-hover text-center p-6 relative overflow-hidden group"
           >
             <div className="text-3xl font-bold text-primary mb-2 group-hover:scale-110 transition-transform duration-300">
@@ -193,7 +204,10 @@ function Profile() {
                     : "text-text-secondary border-transparent hover:text-secondary hover:bg-surface"
                 }`}
               >
-                {item.split(/(?=[A-Z])/).join(' ').toUpperCase()}
+                {item
+                  .split(/(?=[A-Z])/)
+                  .join(" ")
+                  .toUpperCase()}
               </button>
             ))}
           </div>
@@ -217,31 +231,33 @@ function TabContent({ data }) {
       </div>
     );
 
-  if (typeof data === "string") 
-    return <p className="text-text-secondary leading-relaxed text-lg p-4">{data}</p>;
+  if (typeof data === "string")
+    return (
+      <p className="text-text-secondary leading-relaxed text-lg p-4">{data}</p>
+    );
 
   if (Array.isArray(data)) {
-    if (!data.length) 
+    if (!data.length)
       return (
         <div className="text-center py-8">
           <p className="text-text-secondary">No items found</p>
         </div>
       );
-    
+
     return (
       <div className="space-y-4">
         {data.map((item, i) => (
-          <div 
-            key={i} 
+          <div
+            key={i}
             className="card card-hover p-4 sm:p-6 border-l-4 border-primary"
           >
             {Object.entries(item).map(([key, value]) => (
               <div key={key} className="mb-3 last:mb-0">
                 <span className="font-semibold text-text-primary capitalize block text-sm mb-1">
-                  {key.replace(/([A-Z])/g, ' $1').trim()}:
+                  {key.replace(/([A-Z])/g, " $1").trim()}:
                 </span>
                 <span className="text-text-secondary block pl-4">
-                  {Array.isArray(value) ? value.join(', ') : value}
+                  {Array.isArray(value) ? value.join(", ") : value}
                 </span>
               </div>
             ))}
@@ -256,7 +272,7 @@ function TabContent({ data }) {
       {Object.entries(data).map(([key, value]) => (
         <div key={key} className="mb-4 last:mb-0">
           <span className="font-semibold text-text-primary capitalize block text-lg mb-2">
-            {key.replace(/([A-Z])/g, ' $1').trim()}
+            {key.replace(/([A-Z])/g, " $1").trim()}
           </span>
           <div className="text-text-secondary text-base pl-4">
             {Array.isArray(value) ? (

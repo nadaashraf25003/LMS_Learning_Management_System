@@ -9,8 +9,10 @@ export default function InstructorLessonDetails() {
   const navigate = useNavigate();
   const [currentTab, setCurrentTab] = useState("content");
 
-  const { getLessonById, deleteLessonMutation, markRequiredMutation } = useLesson(id);
+  const { getLessonById, deleteLessonMutation, markRequiredMutation } =
+    useLesson(id);
   const { data: lesson, isLoading } = getLessonById(id);
+  console.log(lesson);
 
   if (isLoading) {
     return (
@@ -40,27 +42,26 @@ export default function InstructorLessonDetails() {
   //   }
   // };
   const handleDelete = () => {
-  toast.custom((t) => (
-    <ConfirmToast
-      message={`Are you sure you want to delete the lesson "${lesson.title}"?`}
-      onConfirm={async () => {
-        try {
-          await deleteLessonMutation.mutateAsync(lesson.lessonId);
-          toast.success("Lesson deleted successfully!");
-          navigate("/InstructorLayout/MyCourses");
-        } catch (err) {
-          console.error(err);
-          toast.error("Failed to delete lesson.");
-        }
-        toast.dismiss(t.id); // dismiss the toast after action
-      }}
-      onCancel={() => {
-        toast.dismiss(t.id); // dismiss the toast on cancel
-      }}
-    />
-  ));
-};
-
+    toast.custom((t) => (
+      <ConfirmToast
+        message={`Are you sure you want to delete the lesson "${lesson.title}"?`}
+        onConfirm={async () => {
+          try {
+            await deleteLessonMutation.mutateAsync(lesson.lessonId);
+            toast.success("Lesson deleted successfully!");
+            navigate("/InstructorLayout/MyCourses");
+          } catch (err) {
+            console.error(err);
+            toast.error("Failed to delete lesson.");
+          }
+          toast.dismiss(t.id); // dismiss the toast after action
+        }}
+        onCancel={() => {
+          toast.dismiss(t.id); // dismiss the toast on cancel
+        }}
+      />
+    ));
+  };
 
   // const handleMarkRequired = async () => {
   //   try {
@@ -78,7 +79,9 @@ export default function InstructorLessonDetails() {
       <div className="custom-container py-8 space-y-6">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-          <h1 className="text-3xl font-bold text-text-primary">{lesson.title}</h1>
+          <h1 className="text-3xl font-bold text-text-primary">
+            {lesson.title}
+          </h1>
           <div className="flex flex-wrap gap-3">
             <button
               className="btn btn-primary btn-hover"
@@ -103,7 +106,9 @@ export default function InstructorLessonDetails() {
             <button
               className="btn btn-hover border border-input bg-transparent text-text-primary"
               onClick={() =>
-                navigate(`/InstructorLayout/CreateQuiz/${lesson.courseId}/${lesson.lessonId}`)
+                navigate(
+                  `/InstructorLayout/CreateQuiz/${lesson.courseId}/${lesson.lessonId}`
+                )
               }
             >
               + Add Quiz
@@ -113,11 +118,29 @@ export default function InstructorLessonDetails() {
 
         {/* Video */}
         {lesson.videoUrl && (
-          <video
-            src={lesson.videoUrl}
-            controls
-            className="w-full h-72 md:h-96 object-cover rounded-lg border border-border shadow-md"
-          />
+          <>
+            {/* If YouTube URL */}
+            {lesson.videoUrl.includes("youtu.be") ||
+            lesson.videoUrl.includes("youtube.com") ? (
+              <iframe
+                src={`https://www.youtube.com/embed/${
+                  lesson.videoUrl.includes("youtu.be")
+                    ? lesson.videoUrl.split("youtu.be/")[1].split("?")[0]
+                    : new URL(lesson.videoUrl).searchParams.get("v")
+                }`}
+                className="w-full h-72 md:h-96 rounded-lg border border-border shadow-md"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              ></iframe>
+            ) : (
+              /* If MP4 URL */
+              <video
+                src={lesson.videoUrl}
+                controls
+                className="w-full h-72 md:h-96 object-cover rounded-lg border border-border shadow-md"
+              />
+            )}
+          </>
         )}
 
         {/* Tabs */}
@@ -147,13 +170,21 @@ export default function InstructorLessonDetails() {
 
           {currentTab === "content" && (
             <div className="prose mt-4 text-text-secondary">
-              <p><strong className="text-text-primary">Description:</strong></p>
+              <p>
+                <strong className="text-text-primary">Description:</strong>
+              </p>
               <p className="whitespace-pre-wrap bg-muted p-4 rounded-lg border border-border">
                 {lesson.description || "N/A"}
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                <p><strong className="text-text-primary">Duration:</strong> {lesson.duration} mins</p>
-                <p><strong className="text-text-primary">Content Type:</strong> {lesson.contentType}</p>
+                <p>
+                  <strong className="text-text-primary">Duration:</strong>{" "}
+                  {lesson.duration} mins
+                </p>
+                <p>
+                  <strong className="text-text-primary">Content Type:</strong>{" "}
+                  {lesson.contentType}
+                </p>
                 <p>
                   <strong className="text-text-primary">Attachment:</strong>{" "}
                   {lesson.attachmentUrl ? (
@@ -169,7 +200,10 @@ export default function InstructorLessonDetails() {
                     "N/A"
                   )}
                 </p>
-                <p><strong className="text-text-primary">Free Preview:</strong> {lesson.isFreePreview ? "Yes" : "No"}</p>
+                <p>
+                  <strong className="text-text-primary">Free Preview:</strong>{" "}
+                  {lesson.isFreePreview ? "Yes" : "No"}
+                </p>
               </div>
             </div>
           )}
@@ -182,24 +216,40 @@ export default function InstructorLessonDetails() {
                     <li
                       key={index}
                       className="card p-4 cursor-pointer hover:bg-muted card-hover border border-border"
-                      onClick={() => navigate(`/InstructorLayout/InstQuizDetails/${quiz.id}/${quiz.courseId}/${quiz.lessonId  }`)}
+                      onClick={() =>
+                        navigate(
+                          `/InstructorLayout/InstQuizDetails/${quiz.id}/${quiz.courseId}/${quiz.lessonId}`
+                        )
+                      }
                     >
                       <div className="flex justify-between items-center">
                         <div>
-                          <h3 className="font-semibold text-text-primary">Quiz {index + 1}</h3>
-                          <p className="text-text-secondary text-sm">{quiz.title}</p>
+                          <h3 className="font-semibold text-text-primary">
+                            Quiz {index + 1}
+                          </h3>
+                          <p className="text-text-secondary text-sm">
+                            {quiz.title}
+                          </p>
                         </div>
-                        <span className="text-text-secondary text-sm">{quiz.questions?.length || 0} questions</span>
+                        <span className="text-text-secondary text-sm">
+                          {quiz.questions?.length || 0} questions
+                        </span>
                       </div>
                     </li>
                   ))}
                 </ul>
               ) : (
                 <div className="text-center py-8">
-                  <p className="text-text-secondary mb-4">No quizzes available for this lesson.</p>
+                  <p className="text-text-secondary mb-4">
+                    No quizzes available for this lesson.
+                  </p>
                   <button
                     className="btn btn-primary btn-hover"
-                    onClick={() => navigate(`/InstructorLayout/CreateQuiz/${lesson.courseId}/${lesson.lessonId}`)}
+                    onClick={() =>
+                      navigate(
+                        `/InstructorLayout/CreateQuiz/${lesson.courseId}/${lesson.lessonId}`
+                      )
+                    }
                   >
                     Create First Quiz
                   </button>
@@ -212,15 +262,21 @@ export default function InstructorLessonDetails() {
         {/* Sidebar Information */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="card p-6 space-y-4 border border-border lg:col-span-2">
-            <h2 className="text-xl font-semibold text-text-primary mb-4">Lesson Details</h2>
+            <h2 className="text-xl font-semibold text-text-primary mb-4">
+              Lesson Details
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <p className="text-sm text-text-secondary">Lesson ID</p>
-                <p className="font-medium text-text-primary">{lesson.lessonId}</p>
+                <p className="font-medium text-text-primary">
+                  {lesson.lessonId}
+                </p>
               </div>
               <div>
                 <p className="text-sm text-text-secondary">Course ID</p>
-                <p className="font-medium text-text-primary">{lesson.courseId}</p>
+                <p className="font-medium text-text-primary">
+                  {lesson.courseId}
+                </p>
               </div>
               <div>
                 <p className="text-sm text-text-secondary">Order in Course</p>
@@ -228,7 +284,9 @@ export default function InstructorLessonDetails() {
               </div>
               <div>
                 <p className="text-sm text-text-secondary">Duration</p>
-                <p className="font-medium text-text-primary">{lesson.duration} minutes</p>
+                <p className="font-medium text-text-primary">
+                  {lesson.duration} minutes
+                </p>
               </div>
               <div>
                 <p className="text-sm text-text-secondary">Free Preview</p>
@@ -241,7 +299,9 @@ export default function InstructorLessonDetails() {
                 </p>
               </div>
               <div>
-                <p className="text-sm text-text-secondary">Certification Required</p>
+                <p className="text-sm text-text-secondary">
+                  Certification Required
+                </p>
                 <p className="font-medium text-text-primary">
                   {lesson.isRequiredForCertification ? (
                     <span className="text-secondary">Required</span>
@@ -255,17 +315,25 @@ export default function InstructorLessonDetails() {
 
           {/* Quick Actions */}
           <div className="card p-6 space-y-4 border border-border">
-            <h2 className="text-xl font-semibold text-text-primary mb-4">Quick Actions</h2>
+            <h2 className="text-xl font-semibold text-text-primary mb-4">
+              Quick Actions
+            </h2>
             <div className="space-y-3">
               <button
                 className="w-full btn btn-primary btn-hover"
-                onClick={() => navigate(`/InstructorLayout/EditLesson/${lesson.lessonId}`)}
+                onClick={() =>
+                  navigate(`/InstructorLayout/EditLesson/${lesson.lessonId}`)
+                }
               >
                 Edit Lesson Content
               </button>
               <button
                 className="w-full btn btn-secondary btn-hover"
-                onClick={() => navigate(`/InstructorLayout/CreateQuiz/${lesson.courseId}/${lesson.lessonId}`)}
+                onClick={() =>
+                  navigate(
+                    `/InstructorLayout/CreateQuiz/${lesson.courseId}/${lesson.lessonId}`
+                  )
+                }
               >
                 Add New Quiz
               </button>

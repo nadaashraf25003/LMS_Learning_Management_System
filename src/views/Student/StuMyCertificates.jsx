@@ -1,46 +1,53 @@
-// React
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 // Components
-import api from "@/API/Config"; // <-- This should be your axios instance
 import Pagination from "../Others/Pagination";
 import LandingHeading from "@/components/Landing/LandingHeading/LandingHeading";
+import useStudent from "@/hooks/useStudent";
 
-// Endpoints and constants
+// Constants
 const COURSES_PER_PAGE = 4;
 const CERTIFICATION_PER_PAGE = 4;
-const certificatesEndpoint = "studentcertificates"; // GET /profiles
-const incompleteCoursesEndpoint = "incompleteCourses"; // GET /profiles
 
 function StuMyCertificates() {
-  const [certificates, setCertificates] = useState([]);
-  const [incompleteCourses, setincompleteCoursess] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  // Pagination for incomplete courses
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = Math.max(
-    1,
-    Math.ceil(incompleteCourses.length / COURSES_PER_PAGE)
-  );
-  const pageStartIndex = (currentPage - 1) * COURSES_PER_PAGE;
-  const pagecourse = incompleteCourses.slice(
-    pageStartIndex,
-    pageStartIndex + COURSES_PER_PAGE
-  );
+  const [currentPage2, setCurrentPage2] = useState(1);
+
+  const { getCertificates } = useStudent(); // <-- fetch certificates via hook
+
+  // Fetch student certificates using React Query
+  const {
+    data: certificates = [],
+    isLoading: loadingCertificates,
+  } = getCertificates;
+  console.log(certificates)
+
+  // For incomplete courses, assume you have a similar useQuery in your hook
+  const {
+    data: incompleteCourses = [],
+    isLoading: loadingCourses,
+  } = useQuery({
+    queryKey: ["incompleteCourses"],
+    queryFn: async () => {
+      const res = await fetch("/incompleteCourses"); // Replace with real endpoint
+      const data = await res.json();
+      return data || [];
+    },
+    staleTime: 1000 * 60,
+  });
 
   // Pagination for incomplete courses
-  const [currentPage2, setCurrentPage2] = useState(1);
-  const totalPages2 = Math.max(
-    1,
-    Math.ceil(certificates.length / CERTIFICATION_PER_PAGE)
-  );
-  const pageStartIndex2 = (currentPage2 - 1) * CERTIFICATION_PER_PAGE;
-  const pagecertification = certificates.slice(
-    pageStartIndex2,
-    pageStartIndex2 + CERTIFICATION_PER_PAGE
-  );
+  const totalPages = Math.max(1, Math.ceil(incompleteCourses.length / COURSES_PER_PAGE));
+  const pageStartIndex = (currentPage - 1) * COURSES_PER_PAGE;
+  const pagecourse = incompleteCourses.slice(pageStartIndex, pageStartIndex + COURSES_PER_PAGE);
 
+  // Pagination for certificates
+  const totalPages2 = Math.max(1, Math.ceil(certificates.length / CERTIFICATION_PER_PAGE));
+  const pageStartIndex2 = (currentPage2 - 1) * CERTIFICATION_PER_PAGE;
+  const pagecertification = certificates.slice(pageStartIndex2, pageStartIndex2 + CERTIFICATION_PER_PAGE);
+
+  // Download certificate as image
   const downloadCertificate = (item) => {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
@@ -67,23 +74,8 @@ function StuMyCertificates() {
       link.click();
     };
   };
-  // Fetch certificates from API
-  useEffect(() => {
-    const fetchCertificates = async () => {
-      try {
-        const response = await api.get(certificatesEndpoint); // Example endpoint
-        const response2 = await api.get(incompleteCoursesEndpoint); // Example endpoint
-        setCertificates(response.data);
-        setincompleteCoursess(response2.data);
-      } catch (error) {
-        console.error("Error fetching certificates:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    fetchCertificates();
-  }, []);
+  const loading = loadingCertificates || loadingCourses;
 
   return (
     <div className="bg-background min-h-screen">
@@ -91,19 +83,17 @@ function StuMyCertificates() {
         {/* Header */}
         <header className="mb-8 text-left">
           <LandingHeading
-            header=" My Certificates"
-            subHeader=" Manage and view your certificate achievements"
+            header="My Certificates"
+            subHeader="Manage and view your certificate achievements"
           />
         </header>
 
-        {/* Jump Into New Certificate Section */}
         {/* Incomplete Courses Section */}
         <section className="bg-card rounded-lg shadow-sm p-6 mb-8">
           <h2 className="text-xl font-semibold text-text-primary mb-4">
             Continue Your Courses to Unlock New Certificates
           </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 ">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {pagecourse.map((course) => (
               <div
                 key={course.id}
@@ -139,6 +129,7 @@ function StuMyCertificates() {
               </div>
             ))}
           </div>
+
           <div className="mt-4 flex items-center justify-end">
             <Pagination
               currentPage={currentPage}
@@ -160,26 +151,19 @@ function StuMyCertificates() {
                   <th className="px-6 py-3">Out Of</th>
                   <th className="px-6 py-3">Upload Date</th>
                   <th className="px-6 py-3">Certificate</th>
-                  {/* <th className="px-6 py-3">Controls</th> */}
                 </tr>
               </thead>
 
               <tbody className="bg-card divide-y divide-gray-200">
                 {loading ? (
                   <tr>
-                    <td
-                      colSpan="7"
-                      className="text-center py-4 text-text-secondary"
-                    >
+                    <td colSpan="7" className="text-center py-4 text-text-secondary">
                       Loading...
                     </td>
                   </tr>
                 ) : pagecertification.length === 0 ? (
                   <tr className="text-center">
-                    <td
-                      colSpan="7"
-                      className="text-center py-4 text-text-secondary"
-                    >
+                    <td colSpan="7" className="text-center py-4 text-text-secondary">
                       No certificates found.
                     </td>
                   </tr>
@@ -187,44 +171,18 @@ function StuMyCertificates() {
                   pagecertification.map((item, index) => (
                     <tr key={item.id || index} className="text-center">
                       <td className="px-6 py-4">{index + 1}</td>
-                      <td className="px-6 py-4 font-medium text-text-primary">
-                        {item.title}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center">
-                          <span className="mr-2">{item.marks}</span>
-                          <div className="w-20 bg-gray-200 h-2 rounded-full mt-2">
-                            <div
-                              className={`h-2 rounded-full ${
-                                item.progressPercent < 50
-                                  ? "bg-red-500"
-                                  : item.progressPercent < 80
-                                  ? "bg-yellow-500"
-                                  : "bg-green-500"
-                              }`}
-                              style={{ width: `${item.progressPercent || 0}%` }}
-                            ></div>
-                          </div>
-                        </div>
-                      </td>
+                      <td className="px-6 py-4 font-medium text-text-primary">{item.title}</td>
+                      <td className="px-6 py-4">{item.marks}</td>
                       <td className="px-6 py-4">{item.outOf}</td>
                       <td className="px-6 py-4">{item.date}</td>
                       <td className="px-6 py-4">
-                        <a
-                          href={item.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <button
+                          onClick={() => downloadCertificate(item)}
                           className="text-blue-600 hover:text-blue-800 font-medium"
                         >
-                          View
-                        </a>
+                          Download
+                        </button>
                       </td>
-                      {/* <td className="px-6 py-4">
-                        <input
-                          type="checkbox"
-                          className="h-4 w-4 text-blue-600 rounded"
-                        />
-                      </td> */}
                     </tr>
                   ))
                 )}
@@ -232,6 +190,7 @@ function StuMyCertificates() {
             </table>
           </div>
         </section>
+
         <div className="mt-4 flex items-center justify-center">
           <Pagination
             currentPage={currentPage2}

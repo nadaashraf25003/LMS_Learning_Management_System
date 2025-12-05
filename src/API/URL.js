@@ -62,6 +62,7 @@ const Urls = {
   addToCart: "/Student/add-to-cart",
   getCart: "/Student/cart",
   removeCartItem: "/Student/remove-cart-item",
+  studentCertificates: "/StudentCertificates",
   // Checkout for Student
   getCheckoutDetails: "/Student/checkout/{checkoutId}",
   myCheckouts :"/Student/my-checkouts",
@@ -82,6 +83,7 @@ const Urls = {
   AddQuestions: "/Question/add",
   UpdateQuestion: "/Question/update/",
   DeleteQuestion: "/Question/delete/",
+  
 
 };
 

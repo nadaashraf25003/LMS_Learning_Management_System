@@ -61,25 +61,25 @@ export default function CourseCard({ course, onClick }) {
         {/* Stats Row */}
         <div className="flex items-center justify-between gap-2">
           {/* Rating */}
-          <div className="flex items-center gap-2 bg-[var(--color-surface)] px-3 py-1.5 rounded-full border border-[var(--color-border)] flex-1 min-w-0">
+          {/* <div className="flex items-center gap-2 bg-[var(--color-surface)] px-3 py-1.5 rounded-full border border-[var(--color-border)] flex-1 min-w-0">
             <div className="flex items-center gap-1 text-yellow-500 font-bold">
               <span className="text-sm">⭐</span>
               <span className="text-xs">{course.rating?.toFixed(1) ?? "-"}</span>
             </div>
             <span className="text-[var(--text-secondary)] text-xs truncate">rating</span>
-          </div>
+          </div> */}
 
           {/* Students */}
-          <div className="flex items-center gap-2 bg-[var(--color-surface)] px-3 py-1.5 rounded-full border border-[var(--color-border)] flex-1 min-w-0 justify-center">
+          {/* <div className="flex items-center gap-2 bg-[var(--color-surface)] px-3 py-1.5 rounded-full border border-[var(--color-border)] flex-1 min-w-0 justify-center">
             <span className="text-sm">👥</span>
             <span className="text-[var(--text-primary)] font-semibold text-xs">{course.studentsEnrolled || 0}</span>
-          </div>
+          </div> */}
 
           {/* Views */}
-          <div className="flex items-center gap-2 bg-[var(--color-surface)] px-3 py-1.5 rounded-full border border-[var(--color-border)] flex-1 min-w-0 justify-center">
+          {/* <div className="flex items-center gap-2 bg-[var(--color-surface)] px-3 py-1.5 rounded-full border border-[var(--color-border)] flex-1 min-w-0 justify-center">
             <span className="text-sm">👀</span>
             <span className="text-[var(--text-primary)] font-semibold text-xs">{course.views}</span>
-          </div>
+          </div> */}
         </div>
 
         {/* Footer Section */}

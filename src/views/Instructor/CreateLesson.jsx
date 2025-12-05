@@ -16,7 +16,7 @@ export default function CreateLesson() {
     description: "",  
     videoUrl: "",
     duration: "",
-    contentType: "video",
+    contentType: "",
     isFreePreview: false,
     thumbnail: "",
     attachmentUrl: "",

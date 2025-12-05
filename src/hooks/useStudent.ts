@@ -19,6 +19,14 @@ export interface CheckoutVM {
   items: CourseVM[];
 }
 
+export interface CertificateVM {
+  certificateId?: string;
+  courseName?: string;
+  studentName?: string;
+  certificateUrl?: string;
+  issuedAt?: string;
+  [key: string]: any;
+}
 const useStudent = () => {
   const queryClient = useQueryClient();
 
@@ -144,18 +152,18 @@ const useStudent = () => {
   });
 
   // In your useStudent hook
-const getCheckouts = useQuery({
-  queryKey: ["myCheckouts"],
-  queryFn: async () => {
-    const res = await api.get<{ success: boolean; data: CheckoutVM[] }>(
-      Urls.myCheckouts
-    );
-    // make sure to return an array even if API returns undefined
-    return res.data?.data || [];
-  },
-  staleTime: 1000 * 60, // 1 minute caching
-  retry: 1,
-});
+  const getCheckouts = useQuery({
+    queryKey: ["myCheckouts"],
+    queryFn: async () => {
+      const res = await api.get<{ success: boolean; data: CheckoutVM[] }>(
+        Urls.myCheckouts
+      );
+      // make sure to return an array even if API returns undefined
+      return res.data || [];
+    },
+    staleTime: 1000 * 60, // 1 minute caching
+    retry: 1,
+  });
 
   // -------- Checkout: Get single checkout details --------
   const getCheckoutDetails = (checkoutId: number) =>
@@ -165,11 +173,21 @@ const getCheckouts = useQuery({
         const res = await api.get<{ success: boolean; data: CheckoutVM }>(
           Urls.getCheckoutDetails.replace("{checkoutId}", checkoutId.toString())
         );
-        return res.data.data;
+        return res.data;
       },
       enabled: !!checkoutId,
     });
 
+  // -------- Get student certificates --------
+const getCertificates = useQuery<CertificateVM[]>({
+  queryKey: ["studentCertificates"],
+  queryFn: async () => {
+    const res = await api.get<CertificateVM[]>(Urls.studentCertificates);
+    return res.data || []; // res.data is the array directly
+  },
+  staleTime: 1000 * 60,
+  retry: 1,
+});
   return {
     // Saves
     saveCourse,
@@ -190,6 +208,8 @@ const getCheckouts = useQuery({
     createCheckout,
     getCheckouts,
     getCheckoutDetails,
+    // Certificates
+    getCertificates,
   };
 };
 

@@ -116,7 +116,7 @@ export default function StuCourseDetails() {
     checkQuizStatusMutation.mutate(quizId, {
       onSuccess: (data) => {
         if (data?.status === "submitted") {
-          console.log(data?.status)
+          console.log(data?.status);
           // toast.error("You have already submitted this quiz.");
           navigate(`/StudentLayout/StuQuizResult/${quizId}`);
         } else {
@@ -256,130 +256,109 @@ export default function StuCourseDetails() {
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      <div className="flex flex-col sm:flex-row gap-3">
-                        {isInCart ? (
-                          <button className="btn flex-1 py-4 bg-yellow-500 text-white font-semibold rounded-lg flex items-center justify-center gap-2 cursor-not-allowed">
-                            <svg
-                              className="w-5 h-5"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M5 13l4 4L19 7"
-                              />
-                            </svg>
-                            Already in Cart
-                          </button>
-                        ) : isSaved ? (
+                      <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                        {/* If course is saved → show remove + buy buttons */}
+                        {isSaved && !isEnrolled && (
                           <>
+                            {/* Remove from Saved */}
                             <button
-                              onClick={handleRemoveSaved}
-                              className="btn flex-1 py-4 bg-red-500 text-white font-semibold rounded-lg flex items-center justify-center gap-2 btn-hover"
+                              onClick={() => {
+                                removeSavedCourse.mutate(course.id, {
+                                  onSuccess: () => {
+                                    toast.success("Course removed from saved!");
+                                    navigate("/StudentLayout/StuSavedCourses");
+                                  },
+                                  onError: () =>
+                                    toast.error("Failed to remove from saved"),
+                                });
+                              }}
+                              className="btn flex-1 py-3 font-semibold bg-gray-700 text-white btn-hover"
                             >
-                              <svg
-                                className="w-5 h-5"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M19 9l-7 7-7-7"
-                                />
-                              </svg>
-                              Remove Saved
+                              Remove from Saved
                             </button>
+
+                            {/* Buy Now (remove from saved + add to cart + go to cart page) */}
                             <button
-                              onClick={handleAddToCart}
-                              className="btn flex-1 py-4 bg-primary text-white font-semibold rounded-lg flex items-center justify-center gap-2 btn-hover"
+                              onClick={() => {
+                                // 1. Remove from saved
+                                removeSavedCourse.mutate(course.id, {
+                                  onSuccess: () => {
+                                    // 2. Add to cart
+                                    addToCart.mutate(course.id, {
+                                      onSuccess: () => {
+                                        toast.success(
+                                          "Moved from saved → cart!"
+                                        );
+                                        navigate(
+                                          "/StudentLayout/StuShoppingCart"
+                                        );
+                                      },
+                                      onError: () =>
+                                        toast.error("Failed to add to cart"),
+                                    });
+                                  },
+                                });
+                              }}
+                              className="btn flex-1 py-3 font-semibold bg-primary text-white btn-hover"
                             >
-                              <svg
-                                className="w-5 h-5"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                                />
-                              </svg>
-                              Add to Cart
+                              Buy Now
                             </button>
                           </>
-                        ) : (
+                        )}
+
+                        {/* Normal Save Course + Buy Now (when NOT saved) */}
+                        {!isSaved && (
                           <>
+                            {/* Save Course Button */}
                             <button
-                              onClick={handleSaveCourse}
-                              className="btn flex-1 py-4 bg-secondary text-white font-semibold rounded-lg flex items-center justify-center gap-2 btn-hover"
+                              onClick={() => {
+                                if (!isSaved) {
+                                  saveCourse.mutate(course.id, {
+                                    onSuccess: () =>
+                                      toast.success(
+                                        "Course saved successfully!"
+                                      ),
+                                    onError: () =>
+                                      toast.error("Failed to save course"),
+                                  });
+                                }
+                              }}
+                              disabled={isEnrolled}
+                              className={`btn flex-1 py-3 font-semibold ${
+                                isEnrolled
+                                  ? "bg-gray-400 text-white cursor-not-allowed"
+                                  : "btn-primary btn-hover"
+                              }`}
                             >
-                              <svg
-                                className="w-5 h-5"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
-                                />
-                              </svg>
-                              Save Course
+                              {isEnrolled ? "Enrolled" : "Save Course"}
                             </button>
+
+                            {/* Buy Now */}
                             <button
-                              onClick={handleAddToCart}
-                              className="btn flex-1 py-4 bg-primary text-white font-semibold rounded-lg flex items-center justify-center gap-2 btn-hover"
+                              onClick={() => {
+                                addToCart.mutate(course.id, {
+                                  onSuccess: () =>
+                                    toast.success("Added to cart!"),
+                                  onError: () =>
+                                    toast.error("Failed to add to cart"),
+                                });
+                              }}
+                              disabled={isEnrolled || isInCart}
+                              className={`btn flex-1 py-3 font-semibold ${
+                                isEnrolled || isInCart
+                                  ? "bg-gray-400 cursor-not-allowed"
+                                  : "btn-primary btn-hover"
+                              }`}
                             >
-                              <svg
-                                className="w-5 h-5"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                                />
-                              </svg>
-                              Add to Cart
+                              {isInCart
+                                ? "In Cart"
+                                : isEnrolled
+                                ? "Enrolled"
+                                : "Buy Now"}
                             </button>
                           </>
                         )}
                       </div>
-
-                      {!isEnrolled && (
-                        <button
-                          onClick={handleEnroll}
-                          className="w-full py-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-lg flex items-center justify-center gap-2 btn-hover shadow-lg"
-                        >
-                          <svg
-                            className="w-5 h-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M13 10V3L4 14h7v7l9-11h-7z"
-                            />
-                          </svg>
-                          Enroll Now - ${course.price || "Free"}
-                        </button>
-                      )}
                     </div>
                   )}
                 </div>
@@ -520,7 +499,11 @@ export default function StuCourseDetails() {
                 )}
 
                 {currentTab === "content" && (
-                  <div className="space-y-8">
+                  <div
+                    className={
+                      !isEnrolled ? "opacity-50 pointer-events-none" : ""
+                    }
+                  >
                     {/* Lessons Section */}
                     <div>
                       <div className="flex items-center justify-between mb-6">
@@ -774,7 +757,7 @@ export default function StuCourseDetails() {
                       {course.hours || "N/A"} Hours
                     </span>
                   </div>
-                  <div className="flex justify-between items-center">
+                  {/* <div className="flex justify-between items-center">
                     <span className="text-text-secondary flex items-center gap-2">
                       <svg
                         className="w-4 h-4"
@@ -794,7 +777,7 @@ export default function StuCourseDetails() {
                     <span className="font-semibold text-text-primary">
                       {course.views || 0}
                     </span>
-                  </div>
+                  </div> */}
                   <div className="flex justify-between items-center">
                     <span className="text-text-secondary flex items-center gap-2">
                       <svg

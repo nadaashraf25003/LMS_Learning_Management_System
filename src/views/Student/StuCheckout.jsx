@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 import { lazy, Suspense } from "react";
 import OrderSummary from "../Student/CourseCard/OrderSummary";
 import useStudent from "@/hooks/useStudent";
+import { toast, Toaster } from "react-hot-toast";
 
 const Footer = lazy(() => import("../../components/Footer/Footer"));
 
@@ -12,26 +13,27 @@ function StuCheckout() {
   const [showForm, setShowForm] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("card");
   const [isProcessing, setIsProcessing] = useState(false);
-  const { cart } = useStudent();
-  
+  const { cart , createCheckout , enrollCourse } = useStudent();
+
   const totalCourses = cart.data?.length || 0;
-  const originalPrice = cart.data?.reduce((sum, c) => sum + (c.price || 0), 0) || 0;
+  const originalPrice =
+    cart.data?.reduce((sum, c) => sum + (c.price || 0), 0) || 0;
   const discount = 0;
   const tax = originalPrice * 0.1; // 10% tax
   const total = originalPrice - discount + tax;
 
   // 🧾 Billing Address State
   const [address, setAddress] = useState({
-    firstName: "Joginder",
-    lastName: "Singh",
-    academyName: "Gambolthemes",
-    country: "India",
-    address1: "#1234 Street No. 45, Ward No. 60, Phase 3",
-    address2: "Shahid Karnail Singh Nagar, Near Pakhowal Road",
-    city: "Ludhiana",
-    state: "Punjab",
-    postal: "141013",
-    phone: "+91123456789",
+    firstName: "",
+    lastName: "",
+    academyName: "",
+    country: "",
+    address1: "",
+    address2: "",
+    city: "",
+    state: "",
+    postal: "",
+    phone: "",
   });
 
   // 💳 Card Details
@@ -64,68 +66,99 @@ function StuCheckout() {
     localStorage.setItem("studentAddress", JSON.stringify(address));
     setShowForm(false);
   };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setIsProcessing(true);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsProcessing(true);
-
-    try {
-      if (paymentMethod === "card") {
-        const { holderName, cardNumber, expiryMonth, expiryYear, cvc } = cardDetails;
-
-        if (!holderName || !cardNumber || !expiryMonth || !expiryYear || !cvc) {
-          alert("⚠️ Please fill in all card details.");
-          return;
-        }
-
-        if (!/^\d{16}$/.test(cardNumber)) {
-          alert("⚠️ Card number must be 16 digits.");
-          return;
-        }
-
-        if (!/^\d{3,4}$/.test(cvc)) {
-          alert("⚠️ CVC must be 3 or 4 digits.");
-          return;
-        }
-
-        console.log("💳 Card Details:", cardDetails);
-      }
-
-      if (paymentMethod === "bank") {
-        const { bankName, accountNumber, iban } = bankDetails;
-
-        if (!bankName || !accountNumber || !iban) {
-          alert("⚠️ Please fill in all bank details.");
-          return;
-        }
-
-        console.log("🏦 Bank Details:", bankDetails);
-      }
-
-      // Simulate payment processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Success - navigate to success page
-      navigate("/StudentLayout/StuCheckoutSuccess");
-      
-    } catch (error) {
-      console.error("Payment failed:", error);
-    } finally {
+  try {
+    // 🧾 Validate Billing
+    if (!validateBilling()) {
+      toast.error("⚠️ Please complete all billing details.");
       setIsProcessing(false);
+      return;
     }
-  };
+
+    // 💳 Validate card or bank
+    if (paymentMethod === "card") {
+      const { holderName, cardNumber, expiryMonth, expiryYear, cvc } = cardDetails;
+
+      if (!holderName || !cardNumber || !expiryMonth || !expiryYear || !cvc) {
+        toast.error("⚠️ Please fill in all card details.");
+        setIsProcessing(false);
+        return;
+      }
+
+      if (!/^\d{16}$/.test(cardNumber)) {
+        toast.error("⚠️ Card number must be 16 digits.");
+        setIsProcessing(false);
+        return;
+      }
+
+      if (!/^\d{3,4}$/.test(cvc)) {
+        toast.error("⚠️ CVC must be 3 or 4 digits.");
+        setIsProcessing(false);
+        return;
+      }
+    }
+
+    if (paymentMethod === "bank") {
+      const { bankName, accountNumber, iban } = bankDetails;
+      if (!bankName || !accountNumber || !iban) {
+        toast.error("⚠️ Please fill in all bank details.");
+        setIsProcessing(false);
+        return;
+      }
+    }
+
+    // Simulate payment processing
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    // ✅ CALL BACKEND CHECKOUT
+    const response = await createCheckout.mutateAsync(paymentMethod);
+
+    if (response) {
+      // Enroll all courses in cart
+      for (const course of cart.data) {
+        await enrollCourse.mutateAsync(course.id);
+      }
+
+      toast.success("🎉 Checkout successful! Courses added to My Courses");
+      navigate("/StudentLayout/MyCourses");
+    }
+
+  } catch (error) {
+    console.error(error);
+    toast.error("❌ Payment failed. Please try again.");
+  } finally {
+    setIsProcessing(false);
+  }
+};
+
+
 
   const formatCardNumber = (value) => {
-    return value.replace(/\s/g, '').replace(/(\d{4})/g, '$1 ').trim();
+    return value
+      .replace(/\s/g, "")
+      .replace(/(\d{4})/g, "$1 ")
+      .trim();
   };
 
+  const validateBilling = () => {
+  const values = Object.values(address);
+  return values.every(v => v.trim() !== "");
+};
   return (
     <div className="min-h-screen bg-background text-text-primary animate-fade-in-up mt-16">
+       <Toaster
+            toastOptions={{
+              duration: 5000, // 5000 ms = 5 seconds
+            }}
+          />
       {/* Header */}
       <div className="bg-surface border-b border-border shadow-sm">
         <div className="custom-container">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-4 gap-2">
-            <button 
+            <button
               onClick={() => navigate("/StudentLayout/StuShoppingCart")}
               className="flex items-center gap-2 text-text-secondary hover:text-primary transition-colors btn-hover p-2 rounded-lg"
             >
@@ -136,7 +169,7 @@ function StuCheckout() {
               Secure Checkout
             </div>
           </div>
-          
+
           <div className="flex items-center gap-3 py-4 border-t border-border">
             <div className="flex items-center gap-2 text-primary">
               <div className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-semibold">
@@ -192,24 +225,38 @@ function StuCheckout() {
                 <div className="text-text-secondary space-y-3">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <span className="text-sm text-muted-foreground">Name</span>
+                      <span className="text-sm text-muted-foreground">
+                        Name
+                      </span>
                       <p className="font-medium text-text-primary">
                         {address.firstName} {address.lastName}
                       </p>
                     </div>
                     <div>
-                      <span className="text-sm text-muted-foreground">Phone</span>
-                      <p className="font-medium text-text-primary">{address.phone}</p>
+                      <span className="text-sm text-muted-foreground">
+                        Phone
+                      </span>
+                      <p className="font-medium text-text-primary">
+                        {address.phone}
+                      </p>
                     </div>
                   </div>
                   <div>
-                    <span className="text-sm text-muted-foreground">Address</span>
-                    <p className="font-medium text-text-primary">{address.address1}</p>
-                    <p className="font-medium text-text-primary">{address.address2}</p>
+                    <span className="text-sm text-muted-foreground">
+                      Address
+                    </span>
+                    <p className="font-medium text-text-primary">
+                      {address.address1}
+                    </p>
+                    <p className="font-medium text-text-primary">
+                      {address.address2}
+                    </p>
                     <p className="font-medium text-text-primary">
                       {address.city}, {address.state}, {address.postal}
                     </p>
-                    <p className="font-medium text-text-primary">{address.country}</p>
+                    <p className="font-medium text-text-primary">
+                      {address.country}
+                    </p>
                   </div>
                 </div>
               ) : (
@@ -334,7 +381,7 @@ function StuCheckout() {
                         onChange={(e) =>
                           setCardDetails({
                             ...cardDetails,
-                            cardNumber: e.target.value.replace(/\s/g, ''),
+                            cardNumber: e.target.value.replace(/\s/g, ""),
                           })
                         }
                         placeholder="1234 5678 9012 3456"
@@ -359,8 +406,11 @@ function StuCheckout() {
                         >
                           <option value="">Month</option>
                           {Array.from({ length: 12 }, (_, i) => (
-                            <option key={i + 1} value={String(i + 1).padStart(2, '0')}>
-                              {String(i + 1).padStart(2, '0')}
+                            <option
+                              key={i + 1}
+                              value={String(i + 1).padStart(2, "0")}
+                            >
+                              {String(i + 1).padStart(2, "0")}
                             </option>
                           ))}
                         </select>
@@ -391,7 +441,10 @@ function StuCheckout() {
                           type="text"
                           value={cardDetails.cvc}
                           onChange={(e) =>
-                            setCardDetails({ ...cardDetails, cvc: e.target.value })
+                            setCardDetails({
+                              ...cardDetails,
+                              cvc: e.target.value,
+                            })
                           }
                           placeholder="123"
                           maxLength={4}
@@ -448,7 +501,10 @@ function StuCheckout() {
                           type="text"
                           value={bankDetails.iban}
                           onChange={(e) =>
-                            setBankDetails({ ...bankDetails, iban: e.target.value })
+                            setBankDetails({
+                              ...bankDetails,
+                              iban: e.target.value,
+                            })
                           }
                           placeholder="Enter IBAN"
                           className="w-full border border-input rounded-lg px-4 py-3 bg-background text-text-primary focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
@@ -463,7 +519,8 @@ function StuCheckout() {
                   <div className="mb-6 p-6 bg-surface border border-border rounded-lg">
                     <div className="text-center mb-4">
                       <p className="text-text-secondary mb-4">
-                        You will be redirected to PayPal's secure checkout to complete your payment.
+                        You will be redirected to PayPal's secure checkout to
+                        complete your payment.
                       </p>
                       <div className="flex justify-center gap-4 mb-4">
                         <img
@@ -519,17 +576,19 @@ function StuCheckout() {
           {/* Right Column - Order Summary */}
           <div className="lg:col-span-4">
             <div className="sticky top-24">
-              <Suspense fallback={
-                <div className="card border border-border rounded-xl p-6 bg-surface shadow-sm animate-pulse">
-                  <div className="space-y-4">
-                    <div className="h-6 bg-muted rounded w-1/2"></div>
-                    {[1, 2, 3].map(i => (
-                      <div key={i} className="h-4 bg-muted rounded"></div>
-                    ))}
-                    <div className="h-10 bg-muted rounded"></div>
+              <Suspense
+                fallback={
+                  <div className="card border border-border rounded-xl p-6 bg-surface shadow-sm animate-pulse">
+                    <div className="space-y-4">
+                      <div className="h-6 bg-muted rounded w-1/2"></div>
+                      {[1, 2, 3].map((i) => (
+                        <div key={i} className="h-4 bg-muted rounded"></div>
+                      ))}
+                      <div className="h-10 bg-muted rounded"></div>
+                    </div>
                   </div>
-                </div>
-              }>
+                }
+              >
                 <OrderSummary
                   totalCourses={totalCourses}
                   originalPrice={originalPrice}
@@ -537,6 +596,7 @@ function StuCheckout() {
                   couponApplied={false}
                   onApplyCoupon={() => {}}
                   onCheckout={() => {}}
+                   showActions={false}
                 />
               </Suspense>
             </div>

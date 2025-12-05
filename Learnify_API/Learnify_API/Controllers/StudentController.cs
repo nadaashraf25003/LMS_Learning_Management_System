@@ -126,7 +126,7 @@ namespace Learnify_API.Controllers
             return success ? Ok("Course added to cart") : BadRequest("Course already in cart");
         }
 
-        //[Authorize(Roles = "student")]
+        [Authorize(Roles = "student")]
         [HttpGet("cart")]
         public async Task<IActionResult> GetCart()
         {

@@ -35,9 +35,11 @@ namespace Learnify_API.Data.Services
                 imagePath = $"/images/course/{fileName}";
             }
 
+            // Check instructor
             var instructor = await _context.Instructors.FindAsync(model.InstructorId);
             if (instructor == null) return false;
 
+            // Create course
             var course = new Course
             {
                 Title = model.Title,
@@ -63,6 +65,7 @@ namespace Learnify_API.Data.Services
         }
 
         // Get All Pending Courses (for Admin)
+
         public async Task<IEnumerable<CourseVM>> GetAllPendingCoursesAsync()
         {
             return await _context.Courses

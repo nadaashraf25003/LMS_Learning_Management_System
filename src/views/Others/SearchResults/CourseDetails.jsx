@@ -11,9 +11,13 @@ export default function CourseDetails() {
   const { CourseById } = useCourse(id);
   const { data: course, isLoading } = CourseById;
 
-  const { saveCourse, savedCourses, myEnrollments } = useStudent();
+  const { saveCourse, savedCourses, myEnrollments, cart, addToCart , removeSavedCourse } =
+    useStudent();
+
   const isSaved = savedCourses.data?.some((c) => c.id === course?.id);
   const isEnrolled = myEnrollments.data?.some((c) => c.id === course?.id);
+  const isInCart = cart.data?.some((c) => c.id === course?.id);
+  // console.log(isInCart)
 
   if (isLoading) {
     return (
@@ -103,27 +107,42 @@ export default function CourseDetails() {
                     <button
                       className="btn bg-transparent border border-input text-text-primary btn-hover flex-1 py-3 font-semibold"
                       onClick={() => {
-                        // Enroll course
-                        enrollCourse.mutate(course.id, {
-                          onSuccess: () =>
-                            toast.success("Enrolled in course successfully!"),
-                          onError: () =>
-                            toast.error("Failed to enroll in course"),
-                        });
-
-                        // Remove from saved if already saved
-                        if (isSaved) {
-                          removeSavedCourse.mutate(course.id, {
-                            onSuccess: () =>
-                              toast.success("Course removed from saved!"),
-                            onError: () =>
-                              toast.error("Failed to remove course"),
-                          });
+                        if (isEnrolled) {
+                          toast.error(
+                            "You are already enrolled in this course"
+                          );
+                          return;
                         }
+
+                        if (isInCart) {
+                          toast.error("This course is already in your cart");
+                          return;
+                        }
+
+                        addToCart.mutate(course.id, {
+                          onSuccess: () => {
+                            toast.success("Added to cart!");
+
+                            // 🔥 Auto-remove from saved when added to cart
+                            if (isSaved) {
+                              removeSavedCourse.mutate(course.id);
+                            }
+                          },
+                          onError: () => toast.error("Failed to add to cart"),
+                        });
                       }}
-                      disabled={isEnrolled} // optional: disable if already enrolled
+                      disabled={isEnrolled || isInCart}
+                      className={`btn flex-1 py-3 font-semibold ${
+                        isEnrolled || isInCart
+                          ? "bg-gray-400 cursor-not-allowed"
+                          : "btn-primary btn-hover"
+                      }`}
                     >
-                      {isEnrolled ? "Enrolled" : "Buy Now"}
+                      {isEnrolled
+                        ? "Enrolled"
+                        : isInCart
+                        ? "In Cart"
+                        : "Buy Now"}
                     </button>
                   </div>
                 </div>

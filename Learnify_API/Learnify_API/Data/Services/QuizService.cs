@@ -34,6 +34,7 @@ namespace Learnify_API.Data.Services
                 Duration = q.Duration,           // دلوقتي بيجي من DB
                 PassingScore = q.PassingScore,   // دلوقتي بيجي من DB
                 TotalQuestions = q.TotalQuestions,
+                TotalMarks = q.TotalMarks,
                 QuestionsEndpoint = "questions",
                 Posted = $"{(DateTime.Now - q.CreatedAt).Days} days ago"
             }).ToList();
@@ -168,6 +169,7 @@ namespace Learnify_API.Data.Services
                 Title = q.Title,
                 Duration = q.Duration,
                 PassingScore = q.PassingScore,
+                TotalMarks = q.TotalMarks,
                 TotalQuestions = q.Questions?.Count ?? 0,
                 QuestionsEndpoint = "questions",
                 Posted = $"{(DateTime.Now - q.CreatedAt).Days} days ago"
