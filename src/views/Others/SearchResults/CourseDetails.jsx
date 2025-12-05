@@ -3,14 +3,16 @@ import useStudent from "@/hooks/useStudent";
 import React, { useState } from "react";
 import { useParams } from "react-router";
 import toast, { Toaster } from "react-hot-toast";
-
+import DefaultImage from "../../../../public/images/default-avatar.png";
 export default function CourseDetails() {
   const { id } = useParams();
   const [currentTab, setCurrentTab] = useState("about");
 
   const { CourseById } = useCourse(id);
   const { data: course, isLoading } = CourseById;
-
+ const imageUrl = course.image
+      ? `${import.meta.env.VITE_BASE_URL}${course.image}` // Vite
+      : DefaultImage;
   const { saveCourse, savedCourses, myEnrollments, cart, addToCart , removeSavedCourse } =
     useStudent();
 
@@ -47,8 +49,7 @@ export default function CourseDetails() {
               <div className="flex flex-col md:flex-row gap-6">
                 <img
                   src={
-                    course.image ||
-                    "https://via.placeholder.com/300x200?text=No+Image"
+                    imageUrl
                   }
                   alt={course.title}
                   className="w-full md:w-64 h-48 object-cover rounded-lg shadow-md"

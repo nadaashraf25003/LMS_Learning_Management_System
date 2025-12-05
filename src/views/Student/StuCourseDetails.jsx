@@ -7,6 +7,7 @@ import ConfirmToast from "@/utils/ConfirmToast";
 import useLesson from "@/hooks/useLesson";
 import useQuiz from "@/hooks/useQuiz";
 
+import DefaultImage from "../../../public/images/default-avatar.png";
 export default function StuCourseDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -14,6 +15,9 @@ export default function StuCourseDetails() {
 
   const { CourseById } = useCourse(id);
   const { data: course, isLoading } = CourseById;
+   const imageUrl = course.image
+      ? `${import.meta.env.VITE_BASE_URL}${course.image}` // Vite
+      : DefaultImage;
 
   const {
     saveCourse,
@@ -149,8 +153,7 @@ export default function StuCourseDetails() {
                 <div className="relative">
                   <img
                     src={
-                      course.image ||
-                      "https://via.placeholder.com/300x200?text=No+Image"
+                     imageUrl
                     }
                     alt={course.title}
                     className="w-full md:w-80 h-48 object-cover rounded-xl shadow-lg"

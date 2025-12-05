@@ -58,8 +58,9 @@ function Profile() {
   const data = profile.data;
   if (!data.user.avatar) data.user.avatar = DefaultImage;
   const avatarUrl = data.user.avatar
-    ? `${import.meta.env.VITE_API_URL}${data.user.avatar}` // Vite
+    ? `${import.meta.env.VITE_BASE_URL}${data.user.avatar}` // Vite
     : DefaultImage;
+    // console.log(avatarUrl);
   const tabs = Object.keys(data[`${UserRole}TabContent`] || {});
   const tabContent = data[`${UserRole}TabContent`];
 
@@ -105,7 +106,7 @@ function Profile() {
                   const icons = {
                     facebook: <FaFacebookF />,
                     twitter: <FaTwitter />,
-                    linkedin: <FaLinkedinIn />,
+                    // linkedin: <FaLinkedinIn />,
                     youtube: <FaYoutube />,
                     instagram: <FaInstagram />,
                     github: <FaGithub />,
@@ -114,7 +115,7 @@ function Profile() {
                   const colors = {
                     facebook: "bg-blue-600 hover:bg-blue-700",
                     twitter: "bg-sky-500 hover:bg-sky-600",
-                    linkedin: "bg-blue-700 hover:bg-blue-800",
+                    // linkedin: "bg-blue-700 hover:bg-blue-800",
                     youtube: "bg-red-600 hover:bg-red-700",
                     instagram: "bg-pink-500 hover:bg-pink-600",
                     github:
