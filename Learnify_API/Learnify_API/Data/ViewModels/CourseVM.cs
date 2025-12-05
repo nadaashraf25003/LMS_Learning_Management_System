@@ -23,6 +23,7 @@
 
         public int InstructorId { get; set; }
         public bool IsApproved { get; set; } = false;
+        public DateTime CreatedAt { get; set; }  // ← تم الإضافة هنا
         public List<LessonVM>? Lessons { get; set; }
         public List<QuizVM>? Quizzes { get; set; }
     }
