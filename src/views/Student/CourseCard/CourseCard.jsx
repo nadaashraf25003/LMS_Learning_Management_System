@@ -2,8 +2,12 @@
 import React from "react";
 import { Trash2, ShoppingCart } from "lucide-react";
 import { Link, useLocation } from "react-router";
+import DefaultImage from "../../../../public/images/default-avatar.png";
 const CourseCard = ({ course, onRemove, onAddToCart }) => {
   const location = useLocation().pathname.split("/").pop();
+   const imageUrl = course.image
+        ? `${import.meta.env.VITE_BASE_URL}${course.image}` // Vite
+        : DefaultImage;
 
   return (
     <div className="flex max-md:flex-col border rounded-lg p-4 w-full max-w-4xl items-center gap-6 card relative card-hover">
@@ -22,7 +26,7 @@ const CourseCard = ({ course, onRemove, onAddToCart }) => {
         className="relative w-72 h-40 overflow-hidden rounded-md max-md:w-full max-md:h-48 block"
       >
         <img
-          src={course.image}
+          src={imageUrl}
           alt={course.title}
           className="w-full h-full object-cover"
         />

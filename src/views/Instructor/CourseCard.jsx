@@ -1,9 +1,11 @@
 import React from "react";
 
-
+import DefaultImage from "../../../public/images/default-avatar.png";
 function CourseCard({ course, onClick, onRemove, onAddToCart, onEdit }) {
-  console.log(course.image)
-const image = course.image && course.image.trim() ? `/${course.image.trim()}` : "https://www.google.com/url?sa=t&source=web&rct=j&url=https%3A%2F%2Fwww.linkedin.com%2Fpulse%2Fe-courses-everything-you-need-know-quickly-easily-create-luis-madrid&ved=0CBUQjRxqFwoTCIjIpe70pJEDFQAAAAAdAAAAABAI&opi=89978449";
+  const imageUrl = course.image
+      ? `${import.meta.env.VITE_BASE_URL}${course.image}` // Vite
+      : DefaultImage;
+      console.log(imageUrl)
   return (
     <div
       className="card card-hover w-full max-w-sm bg-surface rounded-xl shadow-lg overflow-hidden transition-transform transform hover:-translate-y-1 hover:shadow-2xl cursor-pointer"
@@ -12,7 +14,7 @@ const image = course.image && course.image.trim() ? `/${course.image.trim()}` : 
       {/* Course Image */}
       <div className="relative h-48 w-full overflow-hidden">
         <img
-          src={image}
+          src={imageUrl}
           // alt={course.title}
           className="object-cover w-full h-full"
         />

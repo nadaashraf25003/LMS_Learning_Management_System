@@ -155,29 +155,26 @@ namespace Learnify_API.Controllers
         }
 
 
-        //  DELETE course (Admin or Instructor)
         [Authorize(Roles = "admin,instructor")]
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteCourse(int id)
         {
-            // Extract user info from token
             var userIdClaim = User.FindFirst("userId")?.Value;
-            var roleClaim = User.FindFirst(ClaimTypes.Role)?.Value;
+            var roleClaim = User.FindFirst(ClaimTypes.Role)?.Value ?? "";
 
-            if (userIdClaim == null || roleClaim == null)
-                return Unauthorized();
+            if (userIdClaim == null)
+                return Unauthorized(new { message = "User ID missing in token" });
 
-            var userId = int.Parse(userIdClaim);
-            var isAdmin = roleClaim.ToLower() == "admin";
+            int userId = int.Parse(userIdClaim);
+            bool isAdmin = roleClaim.Equals("admin", StringComparison.OrdinalIgnoreCase);
 
             var success = await _courseService.DeleteCourseAsync(id, userId, isAdmin);
 
             if (!success)
-                return NotFound(new { message = "Course not found or not authorized to delete" });
+                return NotFound(new { message = "Course not found or unauthorized" });
 
             return Ok(new { message = "Course deleted successfully!" });
         }
-
 
 
     }

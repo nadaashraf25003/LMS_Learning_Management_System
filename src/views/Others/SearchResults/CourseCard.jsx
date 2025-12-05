@@ -1,4 +1,9 @@
+import DefaultImage from "../../../../public/images/default-avatar.png";
 export default function CourseCard({ course, onClick }) {
+    const imageUrl = course.image
+      ? `${import.meta.env.VITE_BASE_URL}${course.image}` // Vite
+      : DefaultImage;
+  // console.log(imageUrl)
   return (
     <div
       className="group bg-[var(--color-card)] rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-[var(--color-border)] hover:border-[var(--color-primary)]/30 cursor-pointer animate-fade-in-up h-full flex flex-col"
@@ -7,7 +12,7 @@ export default function CourseCard({ course, onClick }) {
       {/* Image Section */}
       <div className="relative h-48 w-full overflow-hidden flex-shrink-0">
         <img
-          src={course.image || "https://via.placeholder.com/300x200?text=No+Image"}
+          src={imageUrl}
           alt={course.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />

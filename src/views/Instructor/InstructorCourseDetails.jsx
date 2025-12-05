@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import useCourse from "@/hooks/useCourse";
-
+import DefaultImage from "../../../public/images/default-avatar.png";
 export default function CourseDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -28,7 +28,10 @@ export default function CourseDetails() {
         </div>
       </div>
     );
-  }
+  } const imageUrl = course.image
+      ? `${import.meta.env.VITE_BASE_URL}${course.image}` // Vite
+      : DefaultImage;
+
 
   return (
     <div className="min-h-screen bg-[var(--color-background)] text-[var(--color-text-primary)]">
@@ -40,8 +43,7 @@ export default function CourseDetails() {
             <div className="flex flex-col lg:flex-row items-start gap-6 bg-[var(--color-card)] p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-[var(--color-border)]">
               <img
                 src={
-                  course.image ||
-                  "https://via.placeholder.com/400x250?text=No+Image"
+                  imageUrl
                 }
                 alt={course.title}
                 className="w-full lg:w-72 h-48 lg:h-40 object-cover rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300"
@@ -233,7 +235,7 @@ export default function CourseDetails() {
               <div className="space-y-4">
                 {[
                   { icon: "💰", label: "Price", value: `$${course.price}` },
-                  { icon: "👀", label: "Views", value: course.views },
+                  // { icon: "👀", label: "Views", value: course.views },
                   { icon: "⏱️", label: "Duration", value: course.hours },
                   {
                     icon: "👨‍🎓",
