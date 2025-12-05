@@ -103,8 +103,11 @@ public class DashboardService
 
         // Courses created by instructor
         var coursesCreatedList = await _context.Courses
+            .Include(c => c.Quizzes) // جلب الكويزات
+            .Include(c => c.Enrollments) // جلب الطلاب المسجلين
             .Where(c => c.InstructorId == instructorId)
             .ToListAsync();
+
         var coursesCreated = coursesCreatedList.Count;
 
         // Total students (students enrolled in instructor's courses)
@@ -119,15 +122,19 @@ public class DashboardService
             .Where(c => coursesCreatedList.Select(course => course.CourseId).Contains(c.CourseId))
             .CountAsync();
 
-        //// Projects supervised (if you have a FinalProjects table)
-        //var projectsSupervised = await _context.FinalProjects
-        //    .Where(fp => fp.InstructorId == instructorId)
-        //    .CountAsync();
+        // Total quizzes for instructor
+        var quizzesCreated = coursesCreatedList
+            .SelectMany(c => c.Quizzes ?? new List<Quiz>())
+            .ToList();
+        var totalQuizzes = quizzesCreated.Count;
 
-        //// LiveSessions for instructor
-        //var liveSessions = await _context.LiveSessions
-        //    .Where(ls => ls.InstructorId == instructorId)
-        //    .ToListAsync();
+        // Total students passed any quiz
+        var quizIds = quizzesCreated.Select(q => q.QuizId).ToList();
+        var studentsPassedQuizzes = await _context.StudentAnswers
+            .Where(sa => quizIds.Contains(sa.QuizId) && sa.Score >= sa.Quiz.PassingScore)
+            .Select(sa => sa.StudentId)
+            .Distinct()
+            .CountAsync();
 
         // Notifications for instructor
         var notifications = await _context.Notifications
@@ -144,14 +151,15 @@ public class DashboardService
 
             TotalStudents = totalStudents,
             CoursesCreated = coursesCreated,
-            //ProjectsSupervised = projectsSupervised,
+            TotalQuizzes = totalQuizzes, // عدد الكويزات
+            StudentsPassedQuizzes = studentsPassedQuizzes, // عدد الطلاب اللي نجحوا
             CertificatesIssued = certificatesIssued,
 
-            // Uncomment if your view model supports them
-            // LiveSessions = liveSessions,
             Notifications = notifications
         };
     }
+
+
 
     // -------------------------
     // ADMIN DASHBOARD
