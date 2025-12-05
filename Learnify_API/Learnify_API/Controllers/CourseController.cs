@@ -134,7 +134,7 @@ namespace Learnify_API.Controllers
         // UPDATE course (Instructor or Admin)
         //[Authorize(Roles = "admin,instructor")]
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> UpdateCourse(int id, [FromBody] CourseVM model)
+        public async Task<IActionResult> UpdateCourse(int id, [FromForm] CourseVM model)
         {
             // Extract user info from token
             var userIdClaim = User.FindFirst("userId")?.Value;

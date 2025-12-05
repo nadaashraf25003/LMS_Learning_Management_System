@@ -7,19 +7,34 @@ namespace Learnify_API.Data.Services
     public class CourseService
     {
         private readonly AppDbContext _context;
-        public CourseService(AppDbContext context)
+        private readonly IWebHostEnvironment _env;
+
+        public CourseService(AppDbContext context, IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
         }
 
         //  Add Course
         public async Task<bool> AddCourseAsync(CourseVM model)
         {
+            string imagePath = "/images/course/default-course.webp"; // default image
 
-            var stream = new MemoryStream();
-            model.ImageFormFile?.CopyTo(stream);
-            var base64 = Convert.ToBase64String(stream.ToArray());
-            base64 = "data:" + model.ImageFormFile?.ContentType + ";base64," + base64;
+            if (model.ImageFormFile != null && model.ImageFormFile.Length > 0)
+            {
+                var fileName = $"{Guid.NewGuid()}_{model.ImageFormFile.FileName}";
+                var fullPath = Path.Combine(_env.WebRootPath, "images/course", fileName);
+
+                var dir = Path.GetDirectoryName(fullPath);
+                if (!Directory.Exists(dir))
+                    Directory.CreateDirectory(dir);
+
+                using var stream = new FileStream(fullPath, FileMode.Create);
+                await model.ImageFormFile.CopyToAsync(stream);
+
+                imagePath = $"/images/course/{fileName}";
+            }
+
             var instructor = await _context.Instructors.FindAsync(model.InstructorId);
             if (instructor == null) return false;
 
@@ -34,20 +49,20 @@ namespace Learnify_API.Data.Services
                 Rating = model.Rating,
                 Hours = model.Hours ?? "0 hours",
                 Tag = model.Tag,
-                Image = base64,
+                Image = imagePath,
                 StudentsEnrolled = model.StudentsEnrolled,
                 CertificateIncluded = model.CertificateIncluded,
                 Duration = model.Duration ?? "0 hours",
-                Posted = model.Posted ?? "Just now", // اختياري
+                Posted = model.Posted ?? "Just now",
                 IsApproved = false,
-                // مش محتاجة تحطي CreatedAt هنا لأن default موجود في entity
             };
 
             _context.Courses.Add(course);
             await _context.SaveChangesAsync();
             return true;
         }
-        // Get All Pending (Unapproved) Courses — for Admin
+
+        // Get All Pending Courses (for Admin)
         public async Task<IEnumerable<CourseVM>> GetAllPendingCoursesAsync()
         {
             return await _context.Courses
@@ -59,7 +74,7 @@ namespace Learnify_API.Data.Services
                     Id = c.CourseId,
                     Title = c.Title,
                     Category = c.Category ?? "",
-                    Description = c.Description ?? "",  // ← ADD THIS
+                    Description = c.Description ?? "",
                     Author = c.Instructor.User.FullName ?? "Unknown",
                     AuthorId = c.InstructorId,
                     Views = c.Views,
@@ -78,9 +93,7 @@ namespace Learnify_API.Data.Services
                 .ToListAsync();
         }
 
-
-        //  Get All Approved Courses
-        // مثال التعديل على GetAllApprovedCoursesAsync
+        // Get All Approved Courses
         public async Task<IEnumerable<CourseVM>> GetAllApprovedCoursesAsync()
         {
             return await _context.Courses
@@ -107,12 +120,12 @@ namespace Learnify_API.Data.Services
                     Duration = c.Duration,
                     InstructorId = c.InstructorId,
                     IsApproved = c.IsApproved,
-                    CreatedAt = c.CreatedAt // ← هنا نضيف الوقت
+                    CreatedAt = c.CreatedAt
                 })
                 .ToListAsync();
         }
 
-        // مثال التعديل على GetCourseByIdAsync
+        // Get Course By Id
         public async Task<CourseVM?> GetCourseByIdAsync(int id)
         {
             var c = await _context.Courses
@@ -121,6 +134,7 @@ namespace Learnify_API.Data.Services
                  .Include(x => x.Lessons)
                  .Include(x => x.Quizzes)
                  .FirstOrDefaultAsync(x => x.CourseId == id);
+
             if (c == null) return null;
 
             return new CourseVM
@@ -143,7 +157,7 @@ namespace Learnify_API.Data.Services
                 Duration = c.Duration,
                 InstructorId = c.InstructorId,
                 IsApproved = c.IsApproved,
-                CreatedAt = c.CreatedAt, // ← هنا كمان
+                CreatedAt = c.CreatedAt,
                 Lessons = c.Lessons?
                   .OrderBy(l => l.Order)
                   .Select(l => new LessonVM
@@ -169,7 +183,6 @@ namespace Learnify_API.Data.Services
             };
         }
 
-
         // Approve Course (Admin)
         public async Task<bool> ApproveCourseAsync(int id)
         {
@@ -181,50 +194,60 @@ namespace Learnify_API.Data.Services
             return true;
         }
 
-
-        // Update course (Instructor or Admin)
+        // Update Course
         public async Task<bool> UpdateCourseAsync(int id, CourseVM model, int userId, bool isAdmin = false)
         {
             var course = await _context.Courses.FindAsync(id);
             if (course == null) return false;
 
-            // Authorization: only instructor who owns the course or admin can update
             if (!isAdmin && course.InstructorId != userId) return false;
 
-            // Update fields
             course.Title = model.Title;
             course.Description = model.Description;
             course.Category = model.Category;
             course.Price = model.Price ?? 0;
             course.Hours = model.Hours ?? course.Hours;
             course.Tag = model.Tag;
-            course.Image = string.IsNullOrEmpty(model.Image) ? course.Image : model.Image;
             course.CertificateIncluded = model.CertificateIncluded;
             course.Duration = model.Duration ?? course.Duration;
-            course.IsApproved = false; // mark as unapproved after edit
+            course.IsApproved = false;
+
+            if (model.ImageFormFile != null && model.ImageFormFile.Length > 0)
+            {
+                var fileName = $"{Guid.NewGuid()}_{model.ImageFormFile.FileName}";
+                var fullPath = Path.Combine(_env.WebRootPath, "images/course", fileName);
+
+                var dir = Path.GetDirectoryName(fullPath);
+                if (!Directory.Exists(dir))
+                    Directory.CreateDirectory(dir);
+
+                using var stream = new FileStream(fullPath, FileMode.Create);
+                await model.ImageFormFile.CopyToAsync(stream);
+
+                course.Image = $"/images/course/{fileName}";
+            }
 
             await _context.SaveChangesAsync();
             return true;
         }
 
-        // Delete Course (Instructor or Admin) 
+        // Delete Course
         public async Task<bool> DeleteCourseAsync(int id, int instructorId, bool isAdmin = false)
         {
             var course = await _context.Courses.FindAsync(id);
-            if (course == null)
-                return false;
+            if (course == null) return false;
 
             if (!isAdmin && course.InstructorId != instructorId)
-                return false; // not authorized
+                return false;
 
             _context.Courses.Remove(course);
             await _context.SaveChangesAsync();
             return true;
         }
 
+        // Enroll Student
         public async Task EnrollStudentAsync(int courseId, int studentId)
         {
-            // سجل الطالب في جدول Enrollments
             var enrollment = new Enrollment
             {
                 CourseId = courseId,
@@ -233,14 +256,10 @@ namespace Learnify_API.Data.Services
             };
             _context.Enrollments.Add(enrollment);
 
-            // زوّد عدد الطلاب في الكورس
             var course = await _context.Courses.FindAsync(courseId);
             if (course != null)
-            {
                 course.StudentsEnrolled += 1;
-            }
 
-            // احفظ كل التغييرات
             await _context.SaveChangesAsync();
         }
     }
