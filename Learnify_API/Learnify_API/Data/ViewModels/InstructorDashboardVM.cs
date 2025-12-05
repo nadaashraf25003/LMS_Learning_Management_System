@@ -14,6 +14,9 @@ namespace Learnify_API.Data.ViewModels
         public int CoursesCreated { get; set; }
         public int ProjectsSupervised { get; set; }
         public int CertificatesIssued { get; set; }
+        public int TotalQuizzes { get; set; }
+        public int StudentsPassedQuizzes { get; set; }
+
 
         // Relations
         //public List<LiveSession> LiveSessions { get; set; }
