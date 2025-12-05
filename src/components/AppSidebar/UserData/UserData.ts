@@ -15,7 +15,6 @@ import {
 // const UserName = localStorage.getItem("username") || "shadcn";
 // const userEmail = localStorage.getItem("useremail") || "m@example.com";
 
-
 const { user } = useTokenStore.getState();
 const UserName = user?.fullName ?? "shadcn";
 const userEmail = user?.email ?? "m@example.com";
@@ -62,26 +61,26 @@ export const sidebarData = {
         items: [
           { title: "My Courses", url: "/StudentLayout/MyCourses" },
           { title: "Saved Courses", url: "/StudentLayout/StuSavedCourses" },
-          { title: "Course Details", url: "/StudentLayout/StuCourseDetails" },
-          { title: "Lesson Page", url: "/StudentLayout/StudentLessonPage" },
+          // { title: "Course Details", url: "/StudentLayout/StuCourseDetails" },
+          // { title: "Lesson Page", url: "/StudentLayout/StudentLessonPage" },
         ],
       },
-      {
-        title: "Quiz",
-        url: "#",
-        icon: Bot,
-        items: [
-          { title: "Saved Quizzes", url: "/StudentLayout/StuQuizPage" },
-          { title: "Quiz Results", url: "/StudentLayout/StuQuizResult" },
-        ],
-      },
+      // {
+      //   title: "Quiz",
+      //   url: "#",
+      //   icon: Bot,
+      //   items: [
+      //     { title: "Saved Quizzes", url: "/StudentLayout/StuQuizPage" },
+      //     { title: "Quiz Results", url: "/StudentLayout/StuQuizResult" },
+      //   ],
+      // },
 
       {
         title: "Payments",
         url: "#",
         icon: PieChart,
         items: [
-          { title: "Checkout", url: "/StudentLayout/StuCheckout" },
+          // { title: "Checkout", url: "/StudentLayout/StuCheckout" },
           { title: "Invoice", url: "/StudentLayout/StuInvoice" },
           { title: "Cart", url: "/StudentLayout/StuShoppingCart" },
         ],
@@ -141,45 +140,55 @@ export const sidebarData = {
         url: "/InstructorLayout/InstrProfile",
         icon: Settings2,
       },
+      {
+        title: "Courses",
+        url: "/InstructorLayout/MyCourses",
+        icon: BookOpen,
+      },
       // {
       //   title: "Certificates",
       //   url: "/InstructorLayout/InstrCertificates",
       //   icon: Frame,
       // },
+        {
+        title: "Payments",
+        url: "/InstructorLayout/InstructorPayment",
+        icon: PieChart,
+      },
       {
-        title: "Courses",
+        title: "Management",
         url: "#",
-        icon: BookOpen,
+        icon: Bot,
         items: [
-          { title: "My Courses", url: "/InstructorLayout/MyCourses" },
           {
             title: "Lesson Management",
             url: "/InstructorLayout/LessonManagement",
           },
+          { title: "Quiz Management", url: "/InstructorLayout/QuizManagement" },
 
           { title: "All Students", url: "/InstructorLayout/AllStudents" },
         ],
       },
-      {
-        title: "Quiz",
-        url: "#",
-        icon: Bot,
-        items: [
-          { title: "Quiz Management", url: "/InstructorLayout/QuizManagement" },
-          { title: "Create Quiz", url: "/InstructorLayout/StuQuizResult" },
-        ],
-      },
-
-      {
-        title: "Payments",
-        url: "#",
-        icon: PieChart,
-        items: [
-          // { title: "Checkout", url: "/StudentLayout/StuCheckout" },
-          // { title: "Invoice", url: "/StudentLayout/StuInvoice" },
-          // { title: "Cart", url: "/StudentLayout/StuShoppingCart" },
-        ],
-      },
+      // {
+      //   title: "Quiz",
+      //   url: "#",
+      //   icon: Bot,
+      //   items: [
+      //     { title: "Quiz Management", url: "/InstructorLayout/QuizManagement" },
+      //     { title: "Create Quiz", url: "/InstructorLayout/StuQuizResult" },
+      //   ],
+      // },
+    
+      // {
+      //   title: "Payments",
+      //   url: "#",
+      //   icon: PieChart,
+      //   items: [
+      //     // { title: "Checkout", url: "/StudentLayout/StuCheckout" },
+      //     // { title: "Invoice", url: "/StudentLayout/StuInvoice" },
+      //     // { title: "Cart", url: "/StudentLayout/StuShoppingCart" },
+      //   ],
+      // },
     ],
     Setting: [
       {
@@ -235,11 +244,7 @@ export const sidebarData = {
         url: "/AdminLayout/AdminProfile",
         icon: Settings2,
       },
-      {
-        title: "Certificates",
-        url: "/StudentLayout/StuMyCertificates",
-        icon: Frame,
-      },
+     
       {
         title: "Course Management",
         url: "/AdminLayout/CourseManagement",

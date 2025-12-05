@@ -15,17 +15,17 @@ public class Lesson
     [Required, MaxLength(200)]
     public string Title { get; set; } = string.Empty;
 
-    [MaxLength(255)]
+    //[MaxLength(255)]
     public string? VideoUrl { get; set; }
 
-    [MaxLength(500)]
+    //[MaxLength(500)]
     public string? Description { get; set; }
 
     // Duration in minutes
     public int Duration { get; set; }
 
     // To determine lesson content type (Video, PDF, Quiz, etc.)
-    [MaxLength(50)]
+    //[MaxLength(50)]
     public string ContentType { get; set; } = "Video";
 
     // If there is document / material

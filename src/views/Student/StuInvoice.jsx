@@ -10,6 +10,7 @@ import {
   XCircle,
   Clock,
 } from "lucide-react";
+import jsPDF from "jspdf";
 import useStudent from "@/hooks/useStudent";
 
 export default function InvoicePage() {
@@ -72,34 +73,59 @@ export default function InvoicePage() {
   };
 
   // Handle download invoice
-  const handleDownloadInvoice = (checkout) => {
-    const { jsPDF } = require("jspdf");
-    const doc = new jsPDF();
+const handleDownloadInvoice = (checkout) => {
+  const doc = new jsPDF();
 
-    doc.setFontSize(16);
-    doc.text(`Invoice #${checkout.checkoutId}`, 10, 20);
-    doc.setFontSize(12);
-    doc.text(
-      `Date: ${new Date(checkout.checkoutDate).toLocaleDateString()}`,
-      10,
-      30
-    );
-    doc.text(`Payment Method: ${checkout.paymentMethod}`, 10, 40);
-    doc.text(`Payment Status: ${checkout.paymentStatus}`, 10, 50);
+  // ====== HEADER ======
+  doc.setFontSize(18);
+  doc.setFont("helvetica", "bold");
+  doc.text("INVOICE", 105, 20, { align: "center" });
 
-    doc.text("Courses:", 10, 60);
-    checkout.courses.forEach((course, index) => {
-      doc.text(`- ${course}`, 12, 70 + index * 10);
-    });
+  // Horizontal line
+  doc.setLineWidth(0.5);
+  doc.line(10, 25, 200, 25);
 
-    doc.text(
-      `Total: $${checkout.totalPrice.toFixed(2)}`,
-      10,
-      70 + checkout.courses.length * 10 + 10
-    );
+  // ====== Invoice Info ======
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "normal");
 
-    doc.save(`Invoice_${checkout.checkoutId}.pdf`);
-  };
+  doc.text(`Invoice #: ${checkout.checkoutId}`, 10, 35);
+  doc.text(
+    `Date: ${new Date(checkout.checkoutDate).toLocaleDateString()}`,
+    10,
+    42
+  );
+  doc.text(`Payment Method: ${checkout.paymentMethod}`, 10, 49);
+  doc.text(`Payment Status: ${checkout.paymentStatus}`, 10, 56);
+
+  // ====== Courses Table ======
+  doc.setFont("helvetica", "bold");
+  doc.text("Courses", 10, 68);
+  doc.setFont("helvetica", "normal");
+
+  const startY = 75;
+  checkout.courses.forEach((course, index) => {
+    doc.text(`- ${course}`, 12, startY + index * 8);
+  });
+
+  // ====== Total ======
+  const totalY = startY + checkout.courses.length * 8 + 10;
+  doc.setFont("helvetica", "bold");
+  doc.text(`Total: $${checkout.totalPrice.toFixed(2)}`, 10, totalY);
+
+  // ====== Footer ======
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "italic");
+  doc.text(
+    "Thank you for your purchase!",
+    105,
+    290,
+    { align: "center" }
+  );
+
+  doc.save(`Invoice_${checkout.checkoutId}.pdf`);
+};
+
 
   // Handle view details
   const handleViewDetails = (checkout) => {

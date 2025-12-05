@@ -163,7 +163,7 @@ function CreateCourse() {
                 }))
               }
               placeholder="e.g. 4"
-              className="w-1/2 border border-input p-3 rounded-xl focus:ring-2 focus:ring-primary bg-surface text-white"
+              className="w-1/2 border border-input p-3 rounded-xl focus:ring-2 focus:ring-primary bg-surface text-text-primary"
             />
 
             <select

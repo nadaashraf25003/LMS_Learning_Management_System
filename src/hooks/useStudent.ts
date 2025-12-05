@@ -19,6 +19,14 @@ export interface CheckoutVM {
   items: CourseVM[];
 }
 
+export interface CertificateVM {
+  certificateId?: string;
+  courseName?: string;
+  studentName?: string;
+  certificateUrl?: string;
+  issuedAt?: string;
+  [key: string]: any;
+}
 const useStudent = () => {
   const queryClient = useQueryClient();
 
@@ -170,6 +178,16 @@ const useStudent = () => {
       enabled: !!checkoutId,
     });
 
+  // -------- Get student certificates --------
+const getCertificates = useQuery<CertificateVM[]>({
+  queryKey: ["studentCertificates"],
+  queryFn: async () => {
+    const res = await api.get<CertificateVM[]>(Urls.studentCertificates);
+    return res.data || []; // res.data is the array directly
+  },
+  staleTime: 1000 * 60,
+  retry: 1,
+});
   return {
     // Saves
     saveCourse,
@@ -190,6 +208,8 @@ const useStudent = () => {
     createCheckout,
     getCheckouts,
     getCheckoutDetails,
+    // Certificates
+    getCertificates,
   };
 };
 

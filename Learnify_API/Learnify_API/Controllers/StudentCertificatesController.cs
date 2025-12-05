@@ -17,7 +17,8 @@ namespace Learnify_API.Controllers
         }
 
         // GET: api/StudentCertificates
-        [HttpGet ("StudentCertificates")]
+        //[Authorize(Roles = "student")]
+        [HttpGet("StudentCertificates")]
         public async Task<IActionResult> GetStudentCertificates()
         {
             // لو عايزة تجيب الـ studentId من الـ token
