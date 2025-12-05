@@ -39,31 +39,27 @@ public class DashboardService
             .Where(c => c.StudentId == studentId)
             .CountAsync();
 
-        // Quizzes passed & total
+        // Total quizzes for the courses the student is enrolled in
         var quizzesTotal = await _context.Quizzes
-            .Include(q => q.Course)
-            .Where(q => q.Course.Enrollments.Any(e => e.StudentId == studentId))
+            .Where(q => enrollments.Select(e => e.CourseId).Contains(q.CourseId))
             .CountAsync();
 
-        var quizzesPassed = await _context.Quizzes
-            .Include(q => q.Course)
-            .Where(q => q.Course.Enrollments.Any(e => e.StudentId == studentId) && q.TotalMarks >= q.PassingScore)
-            .CountAsync();
+        // Quizzes attempted & passed (use StudentAnswers table)
+        var studentAnswers = await _context.StudentAnswers
+            .Include(sa => sa.Quiz)
+            .Where(sa => sa.StudentId == studentId)
+            .ToListAsync();
+
+        var quizzesAttempted = studentAnswers.Count;
+        var quizzesPassed = studentAnswers.Count(sa => sa.Score >= sa.Quiz.PassingScore);
+
+        // Success rate based on quizzes total
+        var successRate = quizzesTotal == 0 ? 0 : (quizzesPassed * 100 / quizzesTotal);
 
         // Notifications
         var notifications = await _context.Notifications
             .Where(n => n.ReceiverEmail == student.Email)
             .ToListAsync();
-
-        //// LiveSessions (if you have LiveSessions entity)
-        //var liveSessions = await _context.LiveSessions
-        //    .Where(ls => ls.StudentId == studentId)
-        //    .ToListAsync();
-
-        //// FinalProjects
-        //var finalProjects = await _context.FinalProjects
-        //    .Where(fp => fp.StudentId == studentId)
-        //    .ToListAsync();
 
         // Construct view model
         var vm = new StudentDashboardVM
@@ -77,18 +73,17 @@ public class DashboardService
             CompletedCourses = completedCourses,
             CertificatesEarned = certificatesEarned,
 
-            QuizzesPassed = quizzesPassed,
             QuizzesTotal = quizzesTotal,
-            SuccessRate = quizzesTotal == 0 ? 0 : (quizzesPassed * 100 / quizzesTotal),
+            QuizzesAttempted = quizzesAttempted,
+            QuizzesPassed = quizzesPassed,
+            SuccessRate = successRate,
 
-            // Uncomment these if you want to send them to frontend
-            // LiveSessions = liveSessions,
-            // FinalProjects = finalProjects,
             Notifications = notifications
         };
 
         return vm;
     }
+
 
     // -------------------------
     // INSTRUCTOR DASHBOARD

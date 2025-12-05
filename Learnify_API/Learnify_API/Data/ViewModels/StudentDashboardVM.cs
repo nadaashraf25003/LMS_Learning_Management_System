@@ -19,6 +19,7 @@ namespace Learnify_API.Data.ViewModels
         public int QuizzesPassed { get; set; }
         public int QuizzesTotal { get; set; }
         public int SuccessRate { get; set; }
+        public int QuizzesAttempted { get; set; }
 
         // Relations from DB
         //public List<LiveSession> LiveSessions { get; set; }
