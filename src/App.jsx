@@ -15,7 +15,11 @@ const App = () => {
           <ThemeToggle />
           <Outlet />
           <ConfirmToast />
-          <Toaster />
+          <Toaster
+            toastOptions={{
+              duration: 5000, // 5000 ms = 5 seconds
+            }}
+          />
         </div>
         <ReactQueryDevtools />
       </QueryClientProvider>

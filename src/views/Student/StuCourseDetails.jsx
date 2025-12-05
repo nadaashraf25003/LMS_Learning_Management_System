@@ -25,9 +25,9 @@ export default function StuCourseDetails() {
     addToCart,
     cart,
   } = useStudent();
-  console.log(course);
+  // console.log(course);
   const { getStudentcourseProgress } = useLesson();
-const { checkQuizStatusMutation } = useQuiz();
+  const { checkQuizStatusMutation } = useQuiz();
   const { data: progressData } = getStudentcourseProgress(id);
   const isInCart = cart.data?.some((c) => c.id === course?.id);
   const isSaved = savedCourses.data?.some((c) => c.id === course?.id);
@@ -112,21 +112,22 @@ const { checkQuizStatusMutation } = useQuiz();
       onError: () => toast.error("Failed to enroll in course"),
     });
   };
-const isSubmitted = (quizId) => {
-  checkQuizStatusMutation.mutate(quizId, {
-    onSuccess: (data) => {
-      if (data?.status === "submitted") {
-        toast.error("You have already submitted this quiz.");
-        navigate(`/StudentLayout/StuQuizResult/${quizId}`);
-      } else {
-        navigate(`/StudentLayout/StuQuizPage/${quizId}`);
-      }
-    },
-    onError: () => {
-      toast.error("Failed to check quiz status.");
-    }
-  });
-};
+  const isSubmitted = (quizId) => {
+    checkQuizStatusMutation.mutate(quizId, {
+      onSuccess: (data) => {
+        if (data?.status === "submitted") {
+          console.log(data?.status)
+          // toast.error("You have already submitted this quiz.");
+          navigate(`/StudentLayout/StuQuizResult/${quizId}`);
+        } else {
+          navigate(`/StudentLayout/StuQuizPage/${id}/${quizId}`);
+        }
+      },
+      onError: () => {
+        toast.error("Failed to check quiz status.");
+      },
+    });
+  };
 
   return (
     <div className="min-h-screen bg-background text-text-primary">
@@ -390,9 +391,9 @@ const isSubmitted = (quizId) => {
               <div className="border-b border-border">
                 <nav className="flex gap-8">
                   {[
-                    { id: "about", label: "About Course", icon: "📚" },
-                    { id: "content", label: "Course Content", icon: "📋" },
-                    { id: "reviews", label: "Reviews", icon: "⭐" },
+                    { id: "about", label: "About Course", icon: "" },
+                    { id: "content", label: "Course Content", icon: "" },
+                    { id: "reviews", label: "Reviews", icon: "" },
                   ].map((tab) => (
                     <button
                       key={tab.id}
@@ -676,7 +677,7 @@ const isSubmitted = (quizId) => {
                                 </div>
                                 <div className="text-right">
                                   <span className="text-text-primary font-semibold">
-                                    Score: {quiz.totalMarks || "--"}
+                                    Total Score: {quiz.totalMarks || "--"}
                                   </span>
                                   <div className="text-sm text-text-secondary">
                                     Passing: {quiz.passingScore || "N/A"}

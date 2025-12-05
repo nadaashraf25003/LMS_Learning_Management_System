@@ -24,6 +24,8 @@ namespace Learnify_API.Data.ViewModels
         public List<ActionButton>? Actions { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? Department { get; set; }
+        public string? Image { get; set; }
+        public IFormFile? ImageFormFile { get; set; }
     }
     public class UserInformationVM
     {

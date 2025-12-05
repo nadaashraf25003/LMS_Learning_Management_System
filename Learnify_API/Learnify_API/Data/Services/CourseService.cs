@@ -15,6 +15,11 @@ namespace Learnify_API.Data.Services
         //  Add Course
         public async Task<bool> AddCourseAsync(CourseVM model)
         {
+
+            var stream = new MemoryStream();
+            model.ImageFormFile?.CopyTo(stream);
+            var base64 = Convert.ToBase64String(stream.ToArray());
+            base64 = "data:" + model.ImageFormFile?.ContentType + ";base64," + base64;
             var instructor = await _context.Instructors.FindAsync(model.InstructorId);
             if (instructor == null) return false;
 
@@ -29,7 +34,7 @@ namespace Learnify_API.Data.Services
                 Rating = model.Rating,
                 Hours = model.Hours ?? "0 hours",
                 Tag = model.Tag,
-                Image = model.Image ?? "/images/default-course.webp",
+                Image = base64,
                 StudentsEnrolled = model.StudentsEnrolled,
                 CertificateIncluded = model.CertificateIncluded,
                 Duration = model.Duration ?? "0 hours",
@@ -115,6 +120,7 @@ namespace Learnify_API.Data.Services
                  .FirstOrDefaultAsync(x => x.CourseId == id);
             if (c == null) return null;
 
+
             return new CourseVM
             {
                 Id = c.CourseId,
@@ -155,6 +161,7 @@ namespace Learnify_API.Data.Services
                       Title = q.Title,
                       Duration = q.Duration,
                       PassingScore = q.PassingScore,
+                      TotalMarks = q.TotalMarks,
                       TotalQuestions = q.TotalQuestions,
                       QuestionsEndpoint = $"/api/quizzes/{q.QuizId}/questions",
                       //Posted = q.Posted ?? ""
@@ -238,5 +245,5 @@ namespace Learnify_API.Data.Services
             // احفظ كل التغييرات
             await _context.SaveChangesAsync();
         }
-        }
+    }
 }

@@ -41,6 +41,32 @@ function StuMyCertificates() {
     pageStartIndex2 + CERTIFICATION_PER_PAGE
   );
 
+  const downloadCertificate = (item) => {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    const image = new Image();
+    image.src = "/certificate-template.png";
+
+    image.onload = () => {
+      canvas.width = image.width;
+      canvas.height = image.height;
+      ctx.drawImage(image, 0, 0);
+
+      ctx.fillStyle = "#333";
+      ctx.textAlign = "center";
+
+      ctx.font = "bold 60px Arial";
+      ctx.fillText(item.studentName, canvas.width / 2, canvas.height / 1.5 - 90);
+
+      ctx.font = "bold 50px Arial";
+      ctx.fillText(item.courseName, canvas.width / 2, canvas.height / 1.5 + 100);
+
+      const link = document.createElement("a");
+      link.download = `${item.studentName}-certificate.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    };
+  };
   // Fetch certificates from API
   useEffect(() => {
     const fetchCertificates = async () => {

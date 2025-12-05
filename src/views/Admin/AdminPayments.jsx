@@ -308,7 +308,7 @@ function AdminPayments() {
 
   return (
     <div className="p-4 md:p-6">
-      <Toaster position="top-center" reverseOrder={false} />
+      {/* <Toaster position="top-center" reverseOrder={false} /> */}
       <LandingHeading header="Payments Management" />
       
       <div className="mb-6">

@@ -97,51 +97,56 @@ const useQuiz = (id?: string) => {
       enabled: !!id,
     });
 
-// 🔹 Submit quiz for student
-const submitQuizMutation = useMutation({
-  mutationFn: async ({ quizId, answers }: { quizId: number; answers: Record<string, string> }) => {
-    const formattedAnswers: Record<string, string> = {};
-    Object.entries(answers).forEach(([qId, optId]) => {
-      formattedAnswers[qId] = optId.toString();
+  // 🔹 Submit quiz for student
+  const submitQuizMutation = useMutation({
+    mutationFn: async ({
+      quizId,
+      answers,
+    }: {
+      quizId: number;
+      answers: Record<string, string>;
+    }) => {
+      const formattedAnswers: Record<string, string> = {};
+      Object.entries(answers).forEach(([qId, optId]) => {
+        formattedAnswers[qId] = optId.toString();
+      });
+
+      const res = await api.post(
+        `${Urls.SubmitQuiz}${quizId}`,
+        formattedAnswers
+      );
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["quiz-student"] });
+      queryClient.invalidateQueries({ queryKey: ["quizzes-instructor"] });
+    },
+  });
+  // 🔹 Get student quiz result by quizId
+  const getQuizResultById = (quizId?: string) =>
+    useQuery({
+      queryKey: ["quiz-result", quizId],
+      queryFn: async () => {
+        if (!quizId) return null;
+        const res = await api.get(`${Urls.StudentQuizResult}/${quizId}`); // matches your controller route
+        return res.data;
+      },
+      enabled: !!quizId, // only fetch if quizId is provided
     });
 
-    const res = await api.post(`${Urls.SubmitQuiz}${quizId}`, formattedAnswers);
+  // const checkQuizStatusMutation = useMutation({
+  //   mutationFn: async (quizId: string) => {
+  //     const res = await api.get(`/Quiz/check/${quizId}`);
+  //     return res.data; // expected: { quizId: 1, status: "submitted", score: 100 }
+  //   },
+  // });
+
+const checkQuizStatusMutation = useMutation({
+  mutationFn: async (quizId) => {
+    const res = await api.get(`/Quiz/check/${quizId}`);
     return res.data;
   },
-  onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ["quiz-student"] });
-    queryClient.invalidateQueries({ queryKey: ["quizzes-instructor"] });
-  },
 });
-// 🔹 Get student quiz result by quizId
-const getQuizResultById = (quizId?: string) =>
-  useQuery({
-    queryKey: ["quiz-result", quizId],
-    queryFn: async () => {
-      if (!quizId) return null;
-      const res = await api.get(`${Urls.StudentQuizResult}/${quizId}`); // matches your controller route
-      return res.data;
-    },
-    enabled: !!quizId, // only fetch if quizId is provided
-  });
-
-// const checkQuizStatusMutation = useMutation({
-//   mutationFn: async (quizId: string) => {
-//     const res = await api.get(`/Quiz/check/${quizId}`);
-//     return res.data; // expected: { quizId: 1, status: "submitted", score: 100 }
-//   },
-// });
-
-const checkQuizStatusMutation = (quizId?: string) =>
-  useQuery({
-    queryKey: ["quiz-status", quizId],
-    queryFn: async () => {
-      if (!quizId) return null;
-      const res = await api.get(`/StudentQuizStatus/check/${quizId}`);
-      return res.data;
-    },
-    enabled: !!quizId,
-  });
   return {
     // Queries
     getQuizById,
@@ -155,7 +160,6 @@ const checkQuizStatusMutation = (quizId?: string) =>
     deleteQuizMutation,
     submitQuizMutation,
     checkQuizStatusMutation,
-    
   };
 };
 

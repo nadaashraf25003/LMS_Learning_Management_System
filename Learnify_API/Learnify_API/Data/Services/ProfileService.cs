@@ -94,6 +94,8 @@ namespace Learnify_API.Data.Services
                 {
                     await model.Avatar.CopyToAsync(ms);
                     user.ProfileImage = Convert.ToBase64String(ms.ToArray());
+                    var base64 = Convert.ToBase64String(ms.ToArray());
+                    base64 = "data:" + model.Avatar?.ContentType + ";base64," + base64;
                 }
             }
 
@@ -158,11 +160,11 @@ namespace Learnify_API.Data.Services
 
             // Stats
             var stats = new List<Stat>
-    {
-        new Stat { Label = "Courses", Value = instructor.Courses?.Count ?? 0 },
-        new Stat { Label = "Students", Value = instructor.Courses?.Sum(c => c.Enrollments?.Count ?? 0) ?? 0 },
-        // Earnings can be calculated if needed
-    };
+                {
+                    new Stat { Label = "Courses", Value = instructor.Courses?.Count ?? 0 },
+                    new Stat { Label = "Students", Value = instructor.Courses?.Sum(c => c.Enrollments?.Count ?? 0) ?? 0 },
+                    // Earnings can be calculated if needed
+                };
 
             // TabContent
             var tabContent = new InstructorTabContent

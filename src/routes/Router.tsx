@@ -1,6 +1,7 @@
 import { lazy } from "react";
 import { createBrowserRouter } from "react-router";
 import App from "../App.jsx";
+import StudentPayments from "@/views/Student/StudentPayment.jsx";
 // Lazy-loaded dashboards
 const InstrDashboard = lazy(
   () => import("@/views/Instructor/InstrDashboard.jsx")
@@ -175,6 +176,7 @@ export const router = createBrowserRouter([
           { path: "MyCourses", element: <MyCourses /> },
           { path: "StudentLessonPage/:courseid/:lessonId", element: <StudentLessonPage /> },
           { path: "LiveSessions", element: <LiveSessions /> },
+          { path: "StudentPayment", element: <StudentPayments /> },
           { path: "StuFinalProjects", element: <StuFinalProjects /> },
         ],
       },

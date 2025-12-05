@@ -16,6 +16,7 @@ namespace Learnify_API.Data.Models
 
         public string? Role { get; set; }
         public UserInfo User { get; set; } = new UserInfo();
+        public string? CoverImage { get; set; }
         public SocialLinks SocialLinks { get; set; } = new SocialLinks();
 
         [NotMapped]
