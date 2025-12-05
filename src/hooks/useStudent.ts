@@ -144,18 +144,18 @@ const useStudent = () => {
   });
 
   // In your useStudent hook
-const getCheckouts = useQuery({
-  queryKey: ["myCheckouts"],
-  queryFn: async () => {
-    const res = await api.get<{ success: boolean; data: CheckoutVM[] }>(
-      Urls.myCheckouts
-    );
-    // make sure to return an array even if API returns undefined
-    return res.data?.data || [];
-  },
-  staleTime: 1000 * 60, // 1 minute caching
-  retry: 1,
-});
+  const getCheckouts = useQuery({
+    queryKey: ["myCheckouts"],
+    queryFn: async () => {
+      const res = await api.get<{ success: boolean; data: CheckoutVM[] }>(
+        Urls.myCheckouts
+      );
+      // make sure to return an array even if API returns undefined
+      return res.data || [];
+    },
+    staleTime: 1000 * 60, // 1 minute caching
+    retry: 1,
+  });
 
   // -------- Checkout: Get single checkout details --------
   const getCheckoutDetails = (checkoutId: number) =>
@@ -165,7 +165,7 @@ const getCheckouts = useQuery({
         const res = await api.get<{ success: boolean; data: CheckoutVM }>(
           Urls.getCheckoutDetails.replace("{checkoutId}", checkoutId.toString())
         );
-        return res.data.data;
+        return res.data;
       },
       enabled: !!checkoutId,
     });

@@ -15,14 +15,23 @@ namespace Learnify_API.Data.Services
         //  Add Course
         public async Task<bool> AddCourseAsync(CourseVM model)
         {
+            string base64 = null;
 
-            var stream = new MemoryStream();
-            model.ImageFormFile?.CopyTo(stream);
-            var base64 = Convert.ToBase64String(stream.ToArray());
-            base64 = "data:" + model.ImageFormFile?.ContentType + ";base64," + base64;
+            // Handle image upload
+            if (model.ImageFormFile != null)
+            {
+                using var stream = new MemoryStream();
+                model.ImageFormFile.CopyTo(stream);
+
+                base64 = "data:" + model.ImageFormFile.ContentType + ";base64," +
+                         Convert.ToBase64String(stream.ToArray());
+            }
+
+            // Check instructor
             var instructor = await _context.Instructors.FindAsync(model.InstructorId);
             if (instructor == null) return false;
 
+            // Create course
             var course = new Course
             {
                 Title = model.Title,
@@ -38,7 +47,7 @@ namespace Learnify_API.Data.Services
                 StudentsEnrolled = model.StudentsEnrolled,
                 CertificateIncluded = model.CertificateIncluded,
                 Duration = model.Duration ?? "0 hours",
-                Posted = model.Posted ?? $"{(DateTime.Now - DateTime.Now).Days} days ago",
+                Posted = model.Posted ?? "0 days ago",
                 CreatedAt = DateTime.Now,
                 IsApproved = false
             };
@@ -47,6 +56,7 @@ namespace Learnify_API.Data.Services
             await _context.SaveChangesAsync();
             return true;
         }
+
         // Get All Pending (Unapproved) Courses — for Admin
         public async Task<IEnumerable<CourseVM>> GetAllPendingCoursesAsync()
         {

@@ -4,7 +4,8 @@ const OrderSummary = ({
   couponApplied = false,
   onApplyCoupon,
   onCheckout,
-  totalCourses = 0, // new prop
+  totalCourses = 0,
+  showActions = true, // new prop to toggle coupon & checkout
 }) => {
   const total = originalPrice - discount;
 
@@ -50,32 +51,35 @@ const OrderSummary = ({
 
       <hr className="mb-3" />
 
-      {/* Applied Note */}
-      {couponApplied && (
-        <p className="text-sm text-text-secondary mb-3">Coupon is applied.</p>
-      )}
+      {/* Only show coupon & checkout if showActions is true */}
+      {showActions && (
+        <>
+          {couponApplied && (
+            <p className="text-sm text-text-secondary mb-3">Coupon is applied.</p>
+          )}
 
-      {/* Coupon Input */}
-      {!couponApplied && (
-        <div className="flex mb-6">
-          <input
-            type="text"
-            placeholder="Enter Coupon Code"
-            className="flex-1 border border-gray-300 rounded-l-md px-3 py-2 outline-none text-sm"
-          />
-          <button
-            className="bg-secondary  text-white px-4 rounded-r-md text-sm"
-            onClick={onApplyCoupon}
-          >
-            Apply
+          {!couponApplied && (
+            <div className="flex mb-6">
+              <input
+                type="text"
+                placeholder="Enter Coupon Code"
+                className="flex-1 border border-gray-300 rounded-l-md px-3 py-2 outline-none text-sm"
+              />
+              <button
+                className="bg-secondary text-white px-4 rounded-r-md text-sm"
+                onClick={onApplyCoupon}
+              >
+                Apply
+              </button>
+            </div>
+          )}
+
+          {/* Checkout Button */}
+          <button className="w-full btn-secondary btn-hover" onClick={onCheckout}>
+            Checkout Now
           </button>
-        </div>
+        </>
       )}
-
-      {/* Checkout Button */}
-      <button className="w-full btn-secondary btn-hover" onClick={onCheckout}>
-        Checkout Now
-      </button>
     </div>
   );
 };
