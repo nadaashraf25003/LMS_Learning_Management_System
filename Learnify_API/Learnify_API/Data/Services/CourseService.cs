@@ -38,9 +38,9 @@ namespace Learnify_API.Data.Services
                 StudentsEnrolled = model.StudentsEnrolled,
                 CertificateIncluded = model.CertificateIncluded,
                 Duration = model.Duration ?? "0 hours",
-                Posted = model.Posted ?? $"{(DateTime.Now - DateTime.Now).Days} days ago",
-                CreatedAt = DateTime.Now,
-                IsApproved = false
+                Posted = model.Posted ?? "Just now", // اختياري
+                IsApproved = false,
+                // مش محتاجة تحطي CreatedAt هنا لأن default موجود في entity
             };
 
             _context.Courses.Add(course);
@@ -80,17 +80,19 @@ namespace Learnify_API.Data.Services
 
 
         //  Get All Approved Courses
+        // مثال التعديل على GetAllApprovedCoursesAsync
         public async Task<IEnumerable<CourseVM>> GetAllApprovedCoursesAsync()
         {
             return await _context.Courses
                 .Include(c => c.Instructor)
+                .ThenInclude(i => i.User)
                 .Where(c => c.IsApproved)
                 .Select(c => new CourseVM
                 {
                     Id = c.CourseId,
                     Title = c.Title,
                     Category = c.Category ?? "",
-                    Description = c.Description ?? "",  // ← ADD THIS
+                    Description = c.Description ?? "",
                     Author = c.Instructor.User.FullName ?? "Unknown",
                     AuthorId = c.InstructorId,
                     Views = c.Views,
@@ -104,22 +106,22 @@ namespace Learnify_API.Data.Services
                     CertificateIncluded = c.CertificateIncluded,
                     Duration = c.Duration,
                     InstructorId = c.InstructorId,
-                    IsApproved = c.IsApproved
+                    IsApproved = c.IsApproved,
+                    CreatedAt = c.CreatedAt // ← هنا نضيف الوقت
                 })
                 .ToListAsync();
         }
 
-        // Get Course by ID
+        // مثال التعديل على GetCourseByIdAsync
         public async Task<CourseVM?> GetCourseByIdAsync(int id)
         {
             var c = await _context.Courses
                  .Include(x => x.Instructor)
                      .ThenInclude(i => i.User)
-                 .Include(x => x.Lessons)       // ← Add lessons
-                 .Include(x => x.Quizzes)       // ← Add quizzes
+                 .Include(x => x.Lessons)
+                 .Include(x => x.Quizzes)
                  .FirstOrDefaultAsync(x => x.CourseId == id);
             if (c == null) return null;
-
 
             return new CourseVM
             {
@@ -141,7 +143,7 @@ namespace Learnify_API.Data.Services
                 Duration = c.Duration,
                 InstructorId = c.InstructorId,
                 IsApproved = c.IsApproved,
-
+                CreatedAt = c.CreatedAt, // ← هنا كمان
                 Lessons = c.Lessons?
                   .OrderBy(l => l.Order)
                   .Select(l => new LessonVM
@@ -151,12 +153,11 @@ namespace Learnify_API.Data.Services
                       Order = l.Order,
                       Duration = l.Duration,
                   }).ToList(),
-
                 Quizzes = c.Quizzes?
                   .Select(q => new QuizVM
                   {
                       Id = q.QuizId,
-                      CourseId = q.CourseId, // or q.LessonId if needed
+                      CourseId = q.CourseId,
                       LessonId = q.LessonId,
                       Title = q.Title,
                       Duration = q.Duration,
@@ -164,13 +165,10 @@ namespace Learnify_API.Data.Services
                       TotalMarks = q.TotalMarks,
                       TotalQuestions = q.TotalQuestions,
                       QuestionsEndpoint = $"/api/quizzes/{q.QuizId}/questions",
-                      //Posted = q.Posted ?? ""
                   }).ToList()
             };
-
-
-
         }
+
 
         // Approve Course (Admin)
         public async Task<bool> ApproveCourseAsync(int id)
