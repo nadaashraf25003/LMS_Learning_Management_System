@@ -1,63 +1,47 @@
-﻿using Learnify_API.Data.Services;
-using Learnify_API.Data.ViewModels;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
-namespace Learnify_API.Controllers
+[Route("api/admin/transactions")]
+[ApiController]
+public class AdminFinanceController : ControllerBase
 {
-    [Route("api/admin/finance")]
-    [ApiController]
-    [Authorize(Roles = "admin")] // بس الادمن يقدر يدخل
-    public class AdminFinanceController : ControllerBase
+    private readonly AdminFinanceService _service;
+
+    public AdminFinanceController(AdminFinanceService service)
     {
-        private readonly AdminFinanceService _financeService;
+        _service = service;
+    }
 
-        public AdminFinanceController(AdminFinanceService financeService)
-        {
-            _financeService = financeService;
-        }
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        return Ok(await _service.GetAllPayoutRequestsAsync());
+    }
 
-        // -------------------------------
-        // 1️⃣ كل طلبات السحب
-        // -------------------------------
-        [HttpGet("payouts")]
-        public async Task<IActionResult> GetAllPayoutRequests()
-        {
-            var payouts = await _financeService.GetAllPayoutRequestsAsync();
-            return Ok(payouts);
-        }
+    [HttpGet("stats")]
+    public async Task<IActionResult> GetStats()
+    {
+        return Ok(await _service.GetFinanceStatsAsync());
+    }
 
-        // -------------------------------
-        // 2️⃣ الموافقة على طلب سحب
-        // -------------------------------
-        [HttpPost("payouts/{payoutId}/approve")]
-        public async Task<IActionResult> ApprovePayout(int payoutId)
-        {
-            var result = await _financeService.ApprovePayoutAsync(payoutId);
-            if (!result) return BadRequest("Cannot approve this payout.");
-            return Ok("Payout approved successfully.");
-        }
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var result = await _service.GetPayoutRequestByIdAsync(id);
+        if (result == null) return NotFound();
+        return Ok(result);
+    }
 
-        // -------------------------------
-        // 3️⃣ رفض طلب سحب
-        // -------------------------------
-        [HttpPost("payouts/{payoutId}/reject")]
-        public async Task<IActionResult> RejectPayout(int payoutId)
-        {
-            var result = await _financeService.RejectPayoutAsync(payoutId);
-            if (!result) return BadRequest("Cannot reject this payout.");
-            return Ok("Payout rejected successfully.");
-        }
+    [HttpPut("{id}/status")]
+    public async Task<IActionResult> UpdateStatus(int id, [FromBody] string status)
+    {
+        var updated = await _service.UpdatePayoutStatusAsync(id, status);
+        return updated ? Ok("Status updated") : BadRequest("Cannot update status");
+    }
 
-        // -------------------------------
-        // 4️⃣ كل الـ Payments (اختياري)
-        // -------------------------------
-        [HttpGet("payments")]
-        public async Task<IActionResult> GetAllPayments()
-        {
-            var payments = await _financeService.GetAllPaymentsAsync();
-            return Ok(payments);
-        }
-
+    [HttpGet("export")]
+    public async Task<IActionResult> Export()
+    {
+        var csv = await _service.ExportPayoutsToCsvAsync();
+        return File(csv, "text/csv", "payouts.csv");
     }
 }

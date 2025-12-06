@@ -41,7 +41,6 @@ namespace Learnify_API.Data
         public DbSet<PayoutRequest> PayoutRequests { get; set; }
         public DbSet<PaymentSetting> PaymentSettings { get; set; }
         public DbSet<TaxDocument> TaxDocuments { get; set; }
-
         //public object Notifications { get; internal set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
