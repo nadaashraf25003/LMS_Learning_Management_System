@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import useLesson from "@/hooks/useLesson";
 import { Toaster, toast } from "react-hot-toast";
+import useQuiz from "@/hooks/useQuiz";
 
 export default function StudentLessonPage() {
   const { lessonId, courseid } = useParams();
@@ -13,7 +14,7 @@ export default function StudentLessonPage() {
     getStudentcourseProgress,
     completeLessonForStudent,
   } = useLesson(lessonId);
-
+  const { checkQuizStatusMutation } = useQuiz();
   const { data: lesson, isLoading } = getLessonForStudent(lessonId);
   const { data: progressData } = getStudentcourseProgress(courseid);
 
@@ -43,8 +44,20 @@ export default function StudentLessonPage() {
   };
 
   const handleTakeQuiz = (quiz) => {
-    // Navigate to quiz page
-    navigate(`/quiz/${quiz.id}`);
+    checkQuizStatusMutation.mutate(quiz, {
+      onSuccess: (data) => {
+        if (data?.status === "submitted") {
+          console.log(data?.status);
+          // toast.error("You have already submitted this quiz.");
+          navigate(`/StudentLayout/StuQuizResult/${quiz}`);
+        } else {
+          navigate(`/StudentLayout/StuQuizPage/${courseid}/${quiz}`);
+        }
+      },
+      onError: () => {
+        toast.error("Failed to check quiz status.");
+      },
+    });
   };
 
   if (isLoading) {

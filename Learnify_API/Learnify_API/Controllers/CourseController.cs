@@ -35,10 +35,9 @@ namespace Learnify_API.Controllers
             return Ok(new { message = "Course added successfully! Waiting for admin approval." });
         }
 
-
         // Get all pending (unapproved) courses
-        [Authorize (Roles = "instructor,admin")]
         [HttpGet("pending-courses")]
+        [Authorize] // both admin and instructor
         public async Task<IActionResult> GetPendingCourses()
         {
             var userIdClaim = User.FindFirst("userId")?.Value;
@@ -122,7 +121,7 @@ namespace Learnify_API.Controllers
         }
 
         //  Admin approves a course
-        //[Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin")]
         [HttpPut("approve/{id}")]
         public async Task<IActionResult> ApproveCourse(int id)
         {
@@ -133,7 +132,7 @@ namespace Learnify_API.Controllers
         }
 
         // UPDATE course (Instructor or Admin)
-        //[Authorize(Roles = "admin,instructor")]
+        [Authorize(Roles = "instructor")]
         [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdateCourse(int id, [FromForm] CourseVM model)
         {
@@ -156,26 +155,29 @@ namespace Learnify_API.Controllers
         }
 
 
+        //  DELETE course (Admin or Instructor)
         [Authorize(Roles = "admin,instructor")]
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteCourse(int id)
         {
+            // Extract user info from token
             var userIdClaim = User.FindFirst("userId")?.Value;
-            var roleClaim = User.FindFirst(ClaimTypes.Role)?.Value ?? "";
+            var roleClaim = User.FindFirst(ClaimTypes.Role)?.Value;
 
-            if (userIdClaim == null)
-                return Unauthorized(new { message = "User ID missing in token" });
+            if (userIdClaim == null || roleClaim == null)
+                return Unauthorized();
 
-            int userId = int.Parse(userIdClaim);
-            bool isAdmin = roleClaim.Equals("admin", StringComparison.OrdinalIgnoreCase);
+            var userId = int.Parse(userIdClaim);
+            var isAdmin = roleClaim.ToLower() == "admin";
 
             var success = await _courseService.DeleteCourseAsync(id, userId, isAdmin);
 
             if (!success)
-                return NotFound(new { message = "Course not found or unauthorized" });
+                return NotFound(new { message = "Course not found or not authorized to delete" });
 
             return Ok(new { message = "Course deleted successfully!" });
         }
+
 
 
     }

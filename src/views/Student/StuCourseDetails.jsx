@@ -15,9 +15,9 @@ export default function StuCourseDetails() {
 
   const { CourseById } = useCourse(id);
   const { data: course, isLoading } = CourseById;
-   const imageUrl = course.image
-      ? `${import.meta.env.VITE_BASE_URL}${course.image}` // Vite
-      : DefaultImage;
+  //  const imageUrl = course.image
+  //     ? `${import.meta.env.VITE_BASE_URL}${course.image}` // Vite
+  //     : DefaultImage;
 
   const {
     saveCourse,
@@ -152,9 +152,7 @@ export default function StuCourseDetails() {
               <div className="flex flex-col md:flex-row gap-8">
                 <div className="relative">
                   <img
-                    src={
-                     imageUrl
-                    }
+                    src={course.image ? course.image : DefaultImage}
                     alt={course.title}
                     className="w-full md:w-80 h-48 object-cover rounded-xl shadow-lg"
                   />

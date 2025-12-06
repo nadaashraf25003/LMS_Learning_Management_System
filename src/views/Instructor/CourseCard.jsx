@@ -2,10 +2,7 @@ import React from "react";
 
 import DefaultImage from "../../../public/images/default-avatar.png";
 function CourseCard({ course, onClick, onRemove, onAddToCart, onEdit }) {
-  const imageUrl = course.image
-      ? `${import.meta.env.VITE_BASE_URL}${course.image}` // Vite
-      : DefaultImage;
-      console.log(imageUrl)
+
   return (
     <div
       className="card card-hover w-full max-w-sm bg-surface rounded-xl shadow-lg overflow-hidden transition-transform transform hover:-translate-y-1 hover:shadow-2xl cursor-pointer"
@@ -14,7 +11,7 @@ function CourseCard({ course, onClick, onRemove, onAddToCart, onEdit }) {
       {/* Course Image */}
       <div className="relative h-48 w-full overflow-hidden">
         <img
-          src={imageUrl}
+          src={course.image ? course.image : DefaultImage}
           // alt={course.title}
           className="object-cover w-full h-full"
         />

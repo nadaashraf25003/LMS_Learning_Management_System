@@ -24,21 +24,19 @@ export interface CourseData {
 }
 
 class Course {
-  async addCourse(course: CourseData) {
-    try {
-      useAppStore.setState({ saveLoading: true });
-      const response = await api.post(Urls.addCourse, course);
-      if (response.status === 200) {
-        // useAppStore.commit({ type: "setToast", payload: "Login Success" });
-        return response.data;
-      }
-    } catch (err) {
-      console.log(err);
-    } finally {
-      useAppStore.setState({ saveLoading: false });
-    }
+  async addCourse(courseFormData: FormData) {
+  try {
+    useAppStore.setState({ saveLoading: true });
+    const response = await api.post(Urls.addCourse, courseFormData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return response.data;
+  } catch (err) {
+    console.log(err);
+  } finally {
+    useAppStore.setState({ saveLoading: false });
   }
-
+}
   async getPendingCourses() {
     try {
       useAppStore.setState({ isLoading: true });
@@ -99,22 +97,20 @@ class Course {
     }
   }
 
-async updateCourse(id: string, form: any) {
+async updateCourse(id: string, courseFormData: FormData) {
   try {
-    useAppStore.setState({ isLoading: true });
-
-    const response = await api.put(`${Urls.updateCourse}/${id}`, form);
-    if (response.status === 200) {
-      // toast.success(response.data.message, { position: "top-center" });
-      return response.data;
-    }
+    useAppStore.setState({ saveLoading: true });
+    const response = await api.put(`${Urls.updateCourse}/${id}`, courseFormData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return response.data;
   } catch (err) {
     console.log(err);
-    // toast.error("Failed to update course", { position: "top-center" });
   } finally {
-    useAppStore.setState({ isLoading: false });
+    useAppStore.setState({ saveLoading: false });
   }
 }
+
 
   async deleteCourse(id: string) {
     try {

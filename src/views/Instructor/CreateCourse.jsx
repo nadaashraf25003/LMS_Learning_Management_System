@@ -64,19 +64,32 @@ function CreateCourse() {
     try {
       setSaveLoading(true);
 
-      const submitForm = {
-        ...form,
-        duration: `${form.durationNumber || ""} ${
-          form.durationUnit || ""
-        }`.trim(),
-        description: form.description || "", // ensure never null
-      };
+      const formData = new FormData();
+      formData.append("title", form.title);
+      formData.append("description", form.description || "");
+      formData.append("category", form.category || "");
+      formData.append("hours", form.hours || "");
+      formData.append("price", form.price || 0);
+      formData.append("tag", form.tag || "");
+      formData.append(
+        "duration",
+        `${form.durationNumber || ""} ${form.durationUnit || ""}`.trim()
+      );
+      formData.append(
+        "certificateIncluded",
+        form.certificateIncluded ? "true" : "false"
+      );
+
+      // Image file
+      if (form.image instanceof File) {
+        formData.append("ImageFormFile", form.image); // ✅ must match backend
+      }
 
       let result;
       if (isEdit) {
-        result = await courseService.updateCourse(courseid, submitForm);
+        result = await courseService.updateCourse(courseid, formData);
       } else {
-        result = await courseService.addCourse(submitForm);
+        result = await courseService.addCourse(formData);
       }
 
       if (result) {
@@ -95,17 +108,18 @@ function CreateCourse() {
             tag: "",
             image: "",
             certificateIncluded: false,
-            duration: "",
+            durationNumber: "",
+            durationUnit: "",
           });
         } else {
-          navigate("/InstructorLayout/MyCourses"); //  Redirect after edit
+          navigate("/InstructorLayout/MyCourses"); // redirect after edit
         }
       } else {
-        toast.error("Failed to save course.888");
+        toast.error("Failed to save course");
       }
     } catch (err) {
       console.error(err);
-      toast.error("Failed to save coursdde.");
+      toast.error("Failed to save course.");
     } finally {
       setSaveLoading(false);
     }
@@ -229,11 +243,15 @@ function CreateCourse() {
           <label className="text-text-secondary font-medium">Cover Image</label>
 
           <input
-            accept="image/*"
             type="file"
             name="image"
             accept="image/*"
-            onChange={handleChange}
+            onChange={(e) =>
+              setForm((prev) => ({
+                ...prev,
+                image: e.target.files[0], // store File object
+              }))
+            }
             className="border border-input p-3 rounded-xl focus:ring-2 focus:ring-primary bg-surface text-text-primary"
           />
         </div>

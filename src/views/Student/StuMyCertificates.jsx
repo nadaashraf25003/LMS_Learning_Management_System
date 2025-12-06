@@ -17,17 +17,12 @@ function StuMyCertificates() {
   const { getCertificates } = useStudent(); // <-- fetch certificates via hook
 
   // Fetch student certificates using React Query
-  const {
-    data: certificates = [],
-    isLoading: loadingCertificates,
-  } = getCertificates;
-  console.log(certificates)
+  const { data: certificates = [], isLoading: loadingCertificates } =
+    getCertificates;
+  console.log(certificates);
 
   // For incomplete courses, assume you have a similar useQuery in your hook
-  const {
-    data: incompleteCourses = [],
-    isLoading: loadingCourses,
-  } = useQuery({
+  const { data: incompleteCourses = [], isLoading: loadingCourses } = useQuery({
     queryKey: ["incompleteCourses"],
     queryFn: async () => {
       const res = await fetch("/incompleteCourses"); // Replace with real endpoint
@@ -38,14 +33,26 @@ function StuMyCertificates() {
   });
 
   // Pagination for incomplete courses
-  const totalPages = Math.max(1, Math.ceil(incompleteCourses.length / COURSES_PER_PAGE));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(incompleteCourses.length / COURSES_PER_PAGE)
+  );
   const pageStartIndex = (currentPage - 1) * COURSES_PER_PAGE;
-  const pagecourse = incompleteCourses.slice(pageStartIndex, pageStartIndex + COURSES_PER_PAGE);
+  const pagecourse = incompleteCourses.slice(
+    pageStartIndex,
+    pageStartIndex + COURSES_PER_PAGE
+  );
 
   // Pagination for certificates
-  const totalPages2 = Math.max(1, Math.ceil(certificates.length / CERTIFICATION_PER_PAGE));
+  const totalPages2 = Math.max(
+    1,
+    Math.ceil(certificates.length / CERTIFICATION_PER_PAGE)
+  );
   const pageStartIndex2 = (currentPage2 - 1) * CERTIFICATION_PER_PAGE;
-  const pagecertification = certificates.slice(pageStartIndex2, pageStartIndex2 + CERTIFICATION_PER_PAGE);
+  const pagecertification = certificates.slice(
+    pageStartIndex2,
+    pageStartIndex2 + CERTIFICATION_PER_PAGE
+  );
 
   // Download certificate as image
   const downloadCertificate = (item) => {
@@ -63,10 +70,18 @@ function StuMyCertificates() {
       ctx.textAlign = "center";
 
       ctx.font = "bold 60px Arial";
-      ctx.fillText(item.studentName, canvas.width / 2, canvas.height / 1.5 - 90);
+      ctx.fillText(
+        item.studentName,
+        canvas.width / 2,
+        canvas.height / 1.5 - 90
+      );
 
       ctx.font = "bold 50px Arial";
-      ctx.fillText(item.courseName, canvas.width / 2, canvas.height / 1.5 + 100);
+      ctx.fillText(
+        item.courseName,
+        canvas.width / 2,
+        canvas.height / 1.5 + 100
+      );
 
       const link = document.createElement("a");
       link.download = `${item.studentName}-certificate.png`;
@@ -89,7 +104,7 @@ function StuMyCertificates() {
         </header>
 
         {/* Incomplete Courses Section */}
-        <section className="bg-card rounded-lg shadow-sm p-6 mb-8">
+        {/* <section className="bg-card rounded-lg shadow-sm p-6 mb-8">
           <h2 className="text-xl font-semibold text-text-primary mb-4">
             Continue Your Courses to Unlock New Certificates
           </h2>
@@ -137,7 +152,7 @@ function StuMyCertificates() {
               onPageChange={setCurrentPage}
             />
           </div>
-        </section>
+        </section> */}
 
         {/* Certificates Table */}
         <section className="bg-card rounded-lg shadow-sm overflow-hidden">
@@ -146,9 +161,10 @@ function StuMyCertificates() {
               <thead>
                 <tr className="bg-surface">
                   <th className="px-6 py-3">Item No.</th>
-                  <th className="px-6 py-3">Title</th>
-                  <th className="px-6 py-3">Marks</th>
-                  <th className="px-6 py-3">Out Of</th>
+                  <th className="px-6 py-3">Course Name</th>
+                  <th className="px-6 py-3">Student Name</th>
+                  {/* <th className="px-6 py-3">Marks</th> */}
+                  {/* <th className="px-6 py-3">Out Of</th> */}
                   <th className="px-6 py-3">Upload Date</th>
                   <th className="px-6 py-3">Certificate</th>
                 </tr>
@@ -157,13 +173,19 @@ function StuMyCertificates() {
               <tbody className="bg-card divide-y divide-gray-200">
                 {loading ? (
                   <tr>
-                    <td colSpan="7" className="text-center py-4 text-text-secondary">
+                    <td
+                      colSpan="7"
+                      className="text-center py-4 text-text-secondary"
+                    >
                       Loading...
                     </td>
                   </tr>
                 ) : pagecertification.length === 0 ? (
                   <tr className="text-center">
-                    <td colSpan="7" className="text-center py-4 text-text-secondary">
+                    <td
+                      colSpan="7"
+                      className="text-center py-4 text-text-secondary"
+                    >
                       No certificates found.
                     </td>
                   </tr>
@@ -171,14 +193,19 @@ function StuMyCertificates() {
                   pagecertification.map((item, index) => (
                     <tr key={item.id || index} className="text-center">
                       <td className="px-6 py-4">{index + 1}</td>
-                      <td className="px-6 py-4 font-medium text-text-primary">{item.title}</td>
-                      <td className="px-6 py-4">{item.marks}</td>
-                      <td className="px-6 py-4">{item.outOf}</td>
-                      <td className="px-6 py-4">{item.date}</td>
+                      <td className="px-6 py-4 font-medium text-text-primary">
+                        {item.courseName}
+                      </td>
+                      <td className="px-6 py-4">{item.studentName}</td>
+                      {/* <td className="px-6 py-4">{item.totalMarks}</td> */}
+                      <td className="px-6 py-4">
+                        {new Date(item.issuedAt).toLocaleDateString()}{" "}
+                        {/* Only date */}
+                      </td>
                       <td className="px-6 py-4">
                         <button
                           onClick={() => downloadCertificate(item)}
-                          className="text-blue-600 hover:text-blue-800 font-medium"
+                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-md"
                         >
                           Download
                         </button>

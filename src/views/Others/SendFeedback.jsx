@@ -10,14 +10,14 @@ import LandingHeading from "@/components/Landing/LandingHeading/LandingHeading";
 import toast, { Toaster } from "react-hot-toast";
 import Urls from "@/API/URL";
 
-const FEEDBACK_API_URL =Urls.AddFeedBack; // "Others/Add-Feedback"
+const FEEDBACK_API_URL = Urls.AddFeedBack; // "Others/Add-Feedback"
 
 function SendFeedback() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [screenshots, setScreenshots] = useState([]);
   const [success, setSuccess] = useState(false);
-  const fileInputRef = useRef(null);  
+  const fileInputRef = useRef(null);
 
   // رفع الملفات
   const handleFileChange = (e) => {
@@ -46,7 +46,7 @@ function SendFeedback() {
     formData.append("Email", email);
     formData.append("Massage", message); // خليها massage مش message
     screenshots.forEach((file) => {
-      formData.append("image", file); // خليها image مش screenshots
+      formData.append("imagefile", file); // ✅ match the property name in FeedBackVM
     });
 
     console.log("Sending feedback:", formData);

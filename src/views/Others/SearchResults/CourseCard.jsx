@@ -1,9 +1,9 @@
 import DefaultImage from "../../../../public/images/default-avatar.png";
 export default function CourseCard({ course, onClick }) {
-    const imageUrl = course.image
-      ? `${import.meta.env.VITE_BASE_URL}${course.image}` // Vite
-      : DefaultImage;
-  // console.log(imageUrl)
+  const imageUrl = course.image
+    ? `${import.meta.env.VITE_BASE_URL}${course.image}` // Vite
+    : DefaultImage;
+  // console.log(course)
   return (
     <div
       className="group bg-[var(--color-card)] rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-[var(--color-border)] hover:border-[var(--color-primary)]/30 cursor-pointer animate-fade-in-up h-full flex flex-col"
@@ -12,14 +12,14 @@ export default function CourseCard({ course, onClick }) {
       {/* Image Section */}
       <div className="relative h-48 w-full overflow-hidden flex-shrink-0">
         <img
-          src={imageUrl}
+          src={course.image ? course.image : DefaultImage}
           alt={course.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
-        
+
         {/* Overlay Gradient */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-        
+
         {/* Top Badges Container */}
         <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
           {/* Certificate Badge - Left */}
@@ -29,13 +29,13 @@ export default function CourseCard({ course, onClick }) {
               Certificate
             </div>
           )}
-          
+
           {/* Tag - Right */}
           <div className="bg-[var(--color-secondary)] text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg capitalize ml-auto">
             {course.tag || "Featured"}
           </div>
         </div>
-        
+
         {/* Duration - Bottom */}
         <div className="absolute bottom-3 left-3 bg-black/80 text-white text-xs font-medium px-3 py-1.5 rounded-full backdrop-blur-sm flex items-center gap-1">
           <span className="text-sm">⏱️</span>
@@ -90,11 +90,13 @@ export default function CourseCard({ course, onClick }) {
         {/* Footer Section */}
         <div className="flex items-center justify-between gap-3 pt-3 border-t border-[var(--color-border)]">
           {/* Price */}
-          <div className={`text-base font-bold flex items-center gap-1 ${
-            course.price === 0 
-              ? "text-green-600" 
-              : "text-[var(--color-primary)]"
-          }`}>
+          <div
+            className={`text-base font-bold flex items-center gap-1 ${
+              course.price === 0
+                ? "text-green-600"
+                : "text-[var(--color-primary)]"
+            }`}
+          >
             {course.price === 0 ? (
               <>
                 <span className="text-lg">🎁</span>
@@ -116,10 +118,15 @@ export default function CourseCard({ course, onClick }) {
           )}
 
           {/* Posted Date */}
-          <div className="flex items-center gap-1 text-xs text-[var(--text-secondary)] bg-[var(--color-surface)] px-2 py-1 rounded-full flex-shrink-0">
-            <span className="text-sm">📅</span>
-            <span className="truncate">{course.posted}</span>
-          </div>
+          {course.createdAt && (
+            <div className="flex items-center gap-1 text-xs text-[var(--text-secondary)] bg-[var(--color-surface)] px-2 py-1 rounded-full flex-shrink-0">
+              <span className="text-sm">📅</span>
+
+              <span className="truncate">
+                {new Date(course.createdAt).toLocaleDateString()}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 

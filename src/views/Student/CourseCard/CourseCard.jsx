@@ -5,9 +5,9 @@ import { Link, useLocation } from "react-router";
 import DefaultImage from "../../../../public/images/default-avatar.png";
 const CourseCard = ({ course, onRemove, onAddToCart }) => {
   const location = useLocation().pathname.split("/").pop();
-   const imageUrl = course.image
-        ? `${import.meta.env.VITE_BASE_URL}${course.image}` // Vite
-        : DefaultImage;
+  //  const imageUrl = course.image
+  //       ? `${import.meta.env.VITE_BASE_URL}${course.image}` // Vite
+  //       : DefaultImage;
 
   return (
     <div className="flex max-md:flex-col border rounded-lg p-4 w-full max-w-4xl items-center gap-6 card relative card-hover">
@@ -18,7 +18,7 @@ const CourseCard = ({ course, onRemove, onAddToCart }) => {
             bg-secondary hover:bg-[#e9965c] text-footer-text  transition max-md:hidden"
       >
         <Trash2 size={16} />
-      </button>
+      </button> 
 
       {/* Image Section */}
       <Link
@@ -26,7 +26,7 @@ const CourseCard = ({ course, onRemove, onAddToCart }) => {
         className="relative w-72 h-40 overflow-hidden rounded-md max-md:w-full max-md:h-48 block"
       >
         <img
-          src={imageUrl}
+         src={course.image ? course.image : DefaultImage}
           alt={course.title}
           className="w-full h-full object-cover"
         />
@@ -48,9 +48,16 @@ const CourseCard = ({ course, onRemove, onAddToCart }) => {
       <div>
         {/* Content */}
         <div className="flex-1">
-          <div className="text-text-secondary text-sm">
-            <span>{course.views}</span> • <span>{course.posted}</span>
-          </div>
+          
+       {course.createdAt && (
+            <div className="flex items-center gap-1 text-xs text-[var(--text-secondary)] bg-[var(--color-surface)] px-2 py-1 rounded-full flex-shrink-0">
+              <span className="text-sm">📅</span>
+
+              <span className="truncate">
+                {new Date(course.createdAt).toLocaleDateString()}
+              </span>
+            </div>
+          )}
           <h3 className="text-lg font-semibold text-text-primary mt-1">
             {course.title}
           </h3>

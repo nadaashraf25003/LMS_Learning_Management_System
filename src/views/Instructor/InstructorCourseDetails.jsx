@@ -42,9 +42,7 @@ export default function CourseDetails() {
             {/* Course Header */}
             <div className="flex flex-col lg:flex-row items-start gap-6 bg-[var(--color-card)] p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-[var(--color-border)]">
               <img
-                src={
-                  imageUrl
-                }
+                src={course.image ? course.image : DefaultImage}
                 alt={course.title}
                 className="w-full lg:w-72 h-48 lg:h-40 object-cover rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300"
               />

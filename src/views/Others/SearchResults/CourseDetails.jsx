@@ -10,17 +10,23 @@ export default function CourseDetails() {
 
   const { CourseById } = useCourse(id);
   const { data: course, isLoading } = CourseById;
- const imageUrl = course.image
-      ? `${import.meta.env.VITE_BASE_URL}${course.image}` // Vite
-      : DefaultImage;
-  const { saveCourse, savedCourses, myEnrollments, cart, addToCart , removeSavedCourse } =
-    useStudent();
+  // console.log(course)
+  const {
+    saveCourse,
+    savedCourses,
+    myEnrollments,
+    cart,
+    addToCart,
+    removeSavedCourse,
+  } = useStudent();
 
   const isSaved = savedCourses.data?.some((c) => c.id === course?.id);
   const isEnrolled = myEnrollments.data?.some((c) => c.id === course?.id);
   const isInCart = cart.data?.some((c) => c.id === course?.id);
   // console.log(isInCart)
-
+  // const imageUrl = course.image
+  //   ? `${import.meta.env.VITE_BASE_URL}${course.image}` // V  ite
+  //   : DefaultImage;
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -48,9 +54,7 @@ export default function CourseDetails() {
             <div className="card border border-border p-6 card-hover">
               <div className="flex flex-col md:flex-row gap-6">
                 <img
-                  src={
-                    imageUrl
-                  }
+                 src={course.image ? course.image : DefaultImage}
                   alt={course.title}
                   className="w-full md:w-64 h-48 object-cover rounded-lg shadow-md"
                 />
