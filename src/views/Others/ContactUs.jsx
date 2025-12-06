@@ -27,9 +27,9 @@ function ContactUs() {
       bio: "Nada is passionate about building modern, responsive web applications and mentoring new developers. She specializes in React, .NET, and JavaScript.",
       image: Image,
       socials: {
-        facebook: "https://facebook.com/nadaashraf",
-        linkedin: "https://linkedin.com/in/nadaashraf",
-        github: "https://github.com/nadaashraf",
+        facebook: "https://www.facebook.com/nadaasraf.asraf.3",
+        linkedin: "https://www.linkedin.com/in/nada-ashraf-386223287/",
+        github: "https://github.com/nadaashraf25003",
       },
     },
     {
@@ -44,25 +44,26 @@ function ContactUs() {
       },
     },
     {
-      name: "Rana Walid",
+      name: "Rana Waleed",
       role:  "Full Stack Developer",
-      bio: "Rana ensures every Learnify initiative runs smoothly, managing timelines, collaboration, and project goals effectively.",
+      bio: "A passionate Full Stack Developer with expertise in .NET, Python, and modern web technologies.I specialize in building smart, reliable, and scalable applications that solve real-world problems and support business growth.
+",
       image:Image,
       socials: {
-        facebook: "https://facebook.com/mariamali",
-        linkedin: "https://linkedin.com/in/mariamali",
-        github: "https://github.com/mariamali",
+        facebook: "https://www.facebook.com/rana.sakr.792",
+        linkedin: "https://www.linkedin.com/in/rana-sakr-a81a6634b/",
+        github: "https://github.com/ranaa-20",
       },
     },
     {
-      name: "Mariam Mohamed",
+      name: "Mariam Mohammed",
       role: "Full Stack Developer",
-      bio: "Mariam ensures every Learnify initiative runs smoothly, managing timelines, collaboration, and project goals effectively.",
+      bio: "Mariam Helal is a Full Stack .NET Developer skilled in building scalable web applications using ASP.NET Core, SQL Server, React, and TypeScript. She focuses on clean architecture, robust APIs, and modern, high-quality software solutions.",
       image:Image,
       socials: {
-        facebook: "https://facebook.com/mariamali",
-        linkedin: "https://linkedin.com/in/mariamali",
-        github: "https://github.com/mariamali",
+        facebook: "https://www.facebook.com/mariam.mohammed.140378/",
+        linkedin: "https://www.linkedin.com/in/mariammohamed23/",
+        github: "https://github.com/layla3052004",
       },
     },
     {
