@@ -18,11 +18,11 @@ export default function StudentLessonPage() {
   const { data: lesson, isLoading } = getLessonForStudent(lessonId);
   const { data: progressData } = getStudentcourseProgress(courseid);
 
-  useEffect(() => {
-    if (lesson && lesson.isCompleted) {
-      toast.success("You have already completed this lesson 🎉");
-    }
-  }, [lesson]);
+  // useEffect(() => {
+  //   if (lesson && lesson.isCompleted) {
+  //     toast.success("You have already completed this lesson 🎉");
+  //   }
+  // }, [lesson]);
 
   const handleCompleteLesson = () => {
     completeLessonForStudent.mutate(lesson.lessonId, {

@@ -245,7 +245,7 @@ function Dashboard({ role }) {
 
       {/* Content Sections */}
       <div className="space-y-6">
-        {role === "student" && (
+        {/* {role === "student" && (
           <>
             <Section
               title="Live Sessions"
@@ -277,7 +277,7 @@ function Dashboard({ role }) {
               )}
             </Section>
           </>
-        )}
+        )} */}
 
         <Section
           title="Notifications"

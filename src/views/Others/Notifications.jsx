@@ -29,7 +29,7 @@ function Notifications() {
   const { data, isLoading: loading } = getNotifications();
   const { notifications } = data || {};
   console.log(notifications);
-  const notificationsArray = notifications?.$values || [];
+  const notificationsArray =  data?.notifications  || [];
   const handleMarkAsRead = async (id) => {
 
     await markAsRead.mutateAsync(id, {
@@ -70,7 +70,7 @@ function Notifications() {
               toast.error ("Failed to delete notification");
             },
           });
-        }}
+        }}  
         onCancel={() => {
           toast.dismiss(t.id); // optional, already handled in ConfirmToast
         }}

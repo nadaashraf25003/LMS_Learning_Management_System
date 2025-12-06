@@ -11,9 +11,12 @@ import useTokenStore from "@/store/user";
 // const Image = localStorage.getItem("userimage") || DefaultImage;
 
 function LayoutContent({ shouldHide }) {
-  const Image = useTokenStore((state) => state.user?.image) || DefaultImage;
-  const { open } = useSidebar(); //  Now it's inside the provider
+  const Image = useTokenStore((state) => state.user?.image)
+    ? `${import.meta.env.VITE_BASE_URL}${user.image}`
+    : DefaultImage;
 
+  console.log("User Image:", Image);
+  const { open } = useSidebar(); //  Now it's inside the provider
   return (
     <>
       <Navbar role="student" />
@@ -59,12 +62,12 @@ function StuStudentLayout() {
               <LogoModes />
             </div>
 
-            <img
+            {/* <img
               src={Image}
               alt="profile"
               className="w-10 h-10 rounded-full object-cover cursor-pointer"
               onClick={() => navigate("/StudentLayout/StuProfile")}
-            />
+            /> */}
           </header>
           <Outlet />
         </div>

@@ -98,7 +98,7 @@ function Profile() {
               </span>
             </div>
 
-            {data.socialLinks && (
+            {/* {data.socialLinks && (
               <div className="flex space-x-2 justify-center sm:justify-start">
                 {Object.entries(data.socialLinks).map(([platform, link]) => {
                   if (!link) return null;
@@ -140,7 +140,7 @@ function Profile() {
                   );
                 })}
               </div>
-            )}
+            )} */}
           </div>
         </div>
 

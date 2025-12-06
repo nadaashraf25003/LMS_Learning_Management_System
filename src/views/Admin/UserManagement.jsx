@@ -29,8 +29,9 @@ function UserManagement() {
   const [currentPage, setCurrentPage] = useState(1);
 
   const { user } = useTokenStore.getState();
-  const Image = user?.image || DefaultImage;
+  // const Image = user?.image || DefaultImage;
 
+  console.log(user.profileImage);
   useEffect(() => {
     setLoading(true);
     api
@@ -194,7 +195,7 @@ function UserManagement() {
               <th className="px-4 py-2 text-left">Name</th>
               <th className="px-4 py-2 text-left">Email</th>
               <th className="px-4 py-2 text-left">Role</th>
-              <th className="px-4 py-2 text-left">Phone</th>
+              {/* <th className="px-4 py-2 text-left">Phone</th> */}
               <th className="px-4 py-2 text-left">Enrollment Date</th>
               <th className="px-4 py-2 text-center">Actions</th>
             </tr>
@@ -217,14 +218,21 @@ function UserManagement() {
                 >
                   <td className="px-4 py-3">
                     <img
-                      src={Image}
+                      src={
+                        user.profileImage
+                          ? `${import.meta.env.VITE_BASE_URL}${
+                              user.profileImage
+                            }` // Vite
+                          : DefaultImage
+                      }
+                      alt={user.fullName}
                       className="w-10 h-10 rounded-full object-cover"
                     />
                   </td>
                   <td className="px-4 py-3">{user.fullName || "-"}</td>
                   <td className="px-4 py-3">{user.email || "-"}</td>
                   <td className="px-4 py-3 capitalize">{user.role || "-"}</td>
-                  <td className="px-4 py-3">{user.phone || "-"}</td>
+                  {/* <td className="px-4 py-3">{user.phone || "-"}</td> */}
                   <td className="px-4 py-3">
                     {user.createdAt
                       ? new Date(user.createdAt).toISOString().split("T")[0]
