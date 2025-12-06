@@ -203,6 +203,8 @@ namespace Learnify_API.Data.Services
         }
 
         // -------- Enroll student in a course --------
+        // -------- Enroll student in a course --------
+        // -------- Enroll student in a course --------
         public async Task<bool> EnrollCourseAsync(int studentId, int courseId)
         {
             // التأكد من أن الطالب مش مسجل قبل كده
@@ -211,7 +213,7 @@ namespace Learnify_API.Data.Services
 
             if (exists) return false;
 
-            // إنشاء Enrollment
+            // تسجيل الطالب
             var enrollment = new Enrollment
             {
                 StudentId = studentId,
@@ -220,38 +222,31 @@ namespace Learnify_API.Data.Services
             };
 
             _context.Enrollments.Add(enrollment);
-            await _context.SaveChangesAsync();
 
-            // معالجة فلوس المدرس
-            var course = await _context.Courses
-                .Include(c => c.Instructor)
-                .FirstOrDefaultAsync(c => c.CourseId == courseId);
-
+            // زيادة عدد الطلاب المسجلين في الكورس
+            var course = await _context.Courses.FindAsync(courseId);
             if (course != null)
             {
-                decimal price = course.Price;
-                decimal platformCut = price * 0.05m; // 5% للموقع
-                decimal instructorAmount = price - platformCut;
+                course.StudentsEnrolled += 1;
 
-                // إنشاء سجل Payout
-                var payout = new InstructorPayout
+                // إنشاء PayoutRequest للـ instructor (Pending)
+                var payoutRequest = new PayoutRequest
                 {
                     InstructorId = course.InstructorId,
-                    Amount = instructorAmount,
+                    Amount = course.Price * 0.95m, // خصم 5% للموقع لو حابة
                     Status = "Pending",
-                    PaymentId = enrollment.EnrollmentId
+                    RequestDate = DateTime.Now,
+                    Method = "Unpaid", // ممكن تحددي طريقة افتراضية
+                    Notes = "Payout for new enrollment"
                 };
-                var cours = await _context.Courses.FindAsync(courseId);
-                if (cours != null)
-                {
-                    cours.StudentsEnrolled += 1;
-                }
-                _context.InstructorPayouts.Add(payout);
-                await _context.SaveChangesAsync();
+
+                _context.PayoutRequests.Add(payoutRequest);
             }
 
+            await _context.SaveChangesAsync();
             return true;
         }
+
 
 
         // Optional: Remove enrollment

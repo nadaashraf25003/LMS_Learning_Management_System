@@ -52,7 +52,8 @@ namespace Learnify_API
             builder.Services.AddSingleton<IEmailSender, EmailSender>();
             builder.Services.AddScoped<INotificationService, NotificationService>();
             builder.Services.AddScoped<ICertificateService, CertificateService>();
-
+            builder.Services.AddScoped<InstructorFinanceService>();
+            builder.Services.AddScoped<AdminFinanceService>();
             // Identity
             builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
             {
