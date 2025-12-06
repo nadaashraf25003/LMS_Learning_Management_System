@@ -49,7 +49,7 @@ const CourseCard = ({ course, onRemove, onAddToCart }) => {
         {/* Content */}
         <div className="flex-1">
           
-       {course.createdAt && (
+       {/* {course.createdAt && (
             <div className="flex items-center gap-1 text-xs text-[var(--text-secondary)] bg-[var(--color-surface)] px-2 py-1 rounded-full flex-shrink-0">
               <span className="text-sm">📅</span>
 
@@ -57,7 +57,7 @@ const CourseCard = ({ course, onRemove, onAddToCart }) => {
                 {new Date(course.createdAt).toLocaleDateString()}
               </span>
             </div>
-          )}
+          )} */}
           <h3 className="text-lg font-semibold text-text-primary mt-1">
             {course.title}
           </h3>

@@ -43,15 +43,15 @@ export default function StudentLessonPage() {
     }
   };
 
-  const handleTakeQuiz = (quiz) => {
-    checkQuizStatusMutation.mutate(quiz, {
+  const handleTakeQuiz = (quizId) => {
+    checkQuizStatusMutation.mutate(quizId, {
       onSuccess: (data) => {
         if (data?.status === "submitted") {
           console.log(data?.status);
           // toast.error("You have already submitted this quiz.");
-          navigate(`/StudentLayout/StuQuizResult/${quiz}`);
+          navigate(`/StudentLayout/StuQuizResult/${quizId}`);
         } else {
-          navigate(`/StudentLayout/StuQuizPage/${courseid}/${quiz}`);
+          navigate(`/StudentLayout/StuQuizPage/${courseid}/${quizId}`);
         }
       },
       onError: () => {
@@ -527,7 +527,7 @@ export default function StudentLessonPage() {
                       <div
                         key={quiz.id}
                         className="p-4 border border-border rounded-lg hover:bg-muted cursor-pointer transition-all duration-200 group"
-                        onClick={() => handleTakeQuiz(quiz)}
+                        onClick={() => handleTakeQuiz(quiz.id)}
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1">

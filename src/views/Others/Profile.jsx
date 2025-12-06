@@ -36,7 +36,7 @@ function Profile() {
           <div className="h-3 bg-gray-300 rounded w-32"></div>
         </div>
       </div>
-    );
+    );  
   }
 
   if (profile.isError || !profile.data) {
@@ -192,7 +192,7 @@ function Profile() {
       )}
 
       {/* Tabs Section */}
-      <div className="card mb-8">
+      {/* <div className="card mb-8">
         <div className="border-b border-border">
           <div className="flex overflow-x-auto scrollbar-hide">
             {tabs.map((item) => (
@@ -217,7 +217,7 @@ function Profile() {
         <div className="p-4 sm:p-6">
           <TabContent data={tabContent[activeTab]} />
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

@@ -118,7 +118,7 @@ export default function CourseCard({ course, onClick }) {
           )}
 
           {/* Posted Date */}
-          {course.createdAt && (
+          {/* {course.createdAt && (
             <div className="flex items-center gap-1 text-xs text-[var(--text-secondary)] bg-[var(--color-surface)] px-2 py-1 rounded-full flex-shrink-0">
               <span className="text-sm">📅</span>
 
@@ -126,7 +126,7 @@ export default function CourseCard({ course, onClick }) {
                 {new Date(course.createdAt).toLocaleDateString()}
               </span>
             </div>
-          )}
+          )} */}
         </div>
       </div>
 
