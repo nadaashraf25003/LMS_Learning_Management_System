@@ -1,5 +1,6 @@
 ﻿using Learnify_API.Data.Models;
 using Learnify_API.Data.ViewModels;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Learnify_API.Data.Services
@@ -15,11 +16,14 @@ namespace Learnify_API.Data.Services
             _env = env;
         }
 
+        // ---------------------------------------------------------
         //  Add Course
+        // ---------------------------------------------------------
         public async Task<bool> AddCourseAsync(CourseVM model)
         {
-            string imagePath = "/images/course/default-course.webp"; // default image
+            string imagePath = "/images/course/default-course.png"; // DEFAULT IMAGE
 
+            // handle image upload
             if (model.ImageFormFile != null && model.ImageFormFile.Length > 0)
             {
                 var fileName = $"{Guid.NewGuid()}_{model.ImageFormFile.FileName}";
@@ -37,7 +41,8 @@ namespace Learnify_API.Data.Services
 
             // Check instructor
             var instructor = await _context.Instructors.FindAsync(model.InstructorId);
-            if (instructor == null) return false;
+            if (instructor == null)
+                return false;
 
             // Create course
             var course = new Course
@@ -57,15 +62,19 @@ namespace Learnify_API.Data.Services
                 Duration = model.Duration ?? "0 hours",
                 Posted = model.Posted ?? "Just now",
                 IsApproved = false,
+                CreatedAt = DateTime.Now
             };
 
             _context.Courses.Add(course);
             await _context.SaveChangesAsync();
+
             return true;
         }
 
-        // Get All Pending Courses (for Admin)
 
+        // ---------------------------------------------------------
+        //  Get All Pending Courses (Admin)
+        // ---------------------------------------------------------
         public async Task<IEnumerable<CourseVM>> GetAllPendingCoursesAsync()
         {
             return await _context.Courses
@@ -76,9 +85,9 @@ namespace Learnify_API.Data.Services
                 {
                     Id = c.CourseId,
                     Title = c.Title,
-                    Category = c.Category ?? "",
-                    Description = c.Description ?? "",
-                    Author = c.Instructor.User.FullName ?? "Unknown",
+                    Category = c.Category,
+                    Description = c.Description,
+                    Author = c.Instructor.User.FullName,
                     AuthorId = c.InstructorId,
                     Views = c.Views,
                     Posted = c.Posted,
@@ -96,7 +105,9 @@ namespace Learnify_API.Data.Services
                 .ToListAsync();
         }
 
-        // Get All Approved Courses
+        // ---------------------------------------------------------
+        //  Get All Approved Courses
+        // ---------------------------------------------------------
         public async Task<IEnumerable<CourseVM>> GetAllApprovedCoursesAsync()
         {
             return await _context.Courses
@@ -107,9 +118,9 @@ namespace Learnify_API.Data.Services
                 {
                     Id = c.CourseId,
                     Title = c.Title,
-                    Category = c.Category ?? "",
-                    Description = c.Description ?? "",
-                    Author = c.Instructor.User.FullName ?? "Unknown",
+                    Category = c.Category,
+                    Description = c.Description,
+                    Author = c.Instructor.User.FullName,
                     AuthorId = c.InstructorId,
                     Views = c.Views,
                     Posted = c.Posted,
@@ -128,15 +139,16 @@ namespace Learnify_API.Data.Services
                 .ToListAsync();
         }
 
-        // Get Course By Id
+        // ---------------------------------------------------------
+        //  Get Course By Id
+        // ---------------------------------------------------------
         public async Task<CourseVM?> GetCourseByIdAsync(int id)
         {
             var c = await _context.Courses
-                 .Include(x => x.Instructor)
-                     .ThenInclude(i => i.User)
-                 .Include(x => x.Lessons)
-                 .Include(x => x.Quizzes)
-                 .FirstOrDefaultAsync(x => x.CourseId == id);
+                .Include(x => x.Instructor).ThenInclude(i => i.User)
+                .Include(x => x.Lessons)
+                .Include(x => x.Quizzes)
+                .FirstOrDefaultAsync(x => x.CourseId == id);
 
             if (c == null) return null;
 
@@ -144,9 +156,9 @@ namespace Learnify_API.Data.Services
             {
                 Id = c.CourseId,
                 Title = c.Title,
-                Description = c.Description ?? "",
-                Category = c.Category ?? "",
-                Author = c.Instructor.User.FullName ?? "Unknown",
+                Description = c.Description,
+                Category = c.Category,
+                Author = c.Instructor.User.FullName,
                 AuthorId = c.InstructorId,
                 Views = c.Views,
                 Posted = c.Posted,
@@ -161,32 +173,36 @@ namespace Learnify_API.Data.Services
                 InstructorId = c.InstructorId,
                 IsApproved = c.IsApproved,
                 CreatedAt = c.CreatedAt,
+
                 Lessons = c.Lessons?
-                  .OrderBy(l => l.Order)
-                  .Select(l => new LessonVM
-                  {
-                      LessonId = l.LessonId,
-                      Title = l.Title,
-                      Order = l.Order,
-                      Duration = l.Duration,
-                  }).ToList(),
+                    .OrderBy(l => l.Order)
+                    .Select(l => new LessonVM
+                    {
+                        LessonId = l.LessonId,
+                        Title = l.Title,
+                        Order = l.Order,
+                        Duration = l.Duration,
+                    }).ToList(),
+
                 Quizzes = c.Quizzes?
-                  .Select(q => new QuizVM
-                  {
-                      Id = q.QuizId,
-                      CourseId = q.CourseId,
-                      LessonId = q.LessonId,
-                      Title = q.Title,
-                      Duration = q.Duration,
-                      PassingScore = q.PassingScore,
-                      TotalMarks = q.TotalMarks,
-                      TotalQuestions = q.TotalQuestions,
-                      QuestionsEndpoint = $"/api/quizzes/{q.QuizId}/questions",
-                  }).ToList()
+                    .Select(q => new QuizVM
+                    {
+                        Id = q.QuizId,
+                        CourseId = q.CourseId,
+                        LessonId = q.LessonId,
+                        Title = q.Title,
+                        Duration = q.Duration,
+                        PassingScore = q.PassingScore,
+                        TotalMarks = q.TotalMarks,
+                        TotalQuestions = q.TotalQuestions,
+                        QuestionsEndpoint = $"/api/quizzes/{q.QuizId}/questions"
+                    }).ToList()
             };
         }
 
-        // Approve Course (Admin)
+        // ---------------------------------------------------------
+        //  Approve Course (Admin)
+        // ---------------------------------------------------------
         public async Task<bool> ApproveCourseAsync(int id)
         {
             var course = await _context.Courses.FindAsync(id);
@@ -197,13 +213,16 @@ namespace Learnify_API.Data.Services
             return true;
         }
 
-        // Update Course
-        public async Task<bool> UpdateCourseAsync(int id, CourseVM model, int userId, bool isAdmin = false)
+        // ---------------------------------------------------------
+        //  Update Course
+        // ---------------------------------------------------------
+        public async Task<bool> UpdateCourseAsync([FromForm] int id, CourseVM model, int userId, bool isAdmin = false)
         {
             var course = await _context.Courses.FindAsync(id);
             if (course == null) return false;
 
-            if (!isAdmin && course.InstructorId != userId) return false;
+            if (!isAdmin && course.InstructorId != userId)
+                return false;
 
             course.Title = model.Title;
             course.Description = model.Description;
@@ -215,6 +234,7 @@ namespace Learnify_API.Data.Services
             course.Duration = model.Duration ?? course.Duration;
             course.IsApproved = false;
 
+            // image upload
             if (model.ImageFormFile != null && model.ImageFormFile.Length > 0)
             {
                 var fileName = $"{Guid.NewGuid()}_{model.ImageFormFile.FileName}";
@@ -234,7 +254,9 @@ namespace Learnify_API.Data.Services
             return true;
         }
 
-        // Delete Course
+        // ---------------------------------------------------------
+        //  Delete Course
+        // ---------------------------------------------------------
         public async Task<bool> DeleteCourseAsync(int id, int instructorId, bool isAdmin = false)
         {
             var course = await _context.Courses.FindAsync(id);
@@ -248,7 +270,9 @@ namespace Learnify_API.Data.Services
             return true;
         }
 
-        // Enroll Student
+        // ---------------------------------------------------------
+        //  Enroll Student
+        // ---------------------------------------------------------
         public async Task EnrollStudentAsync(int courseId, int studentId)
         {
             var enrollment = new Enrollment
@@ -257,6 +281,7 @@ namespace Learnify_API.Data.Services
                 StudentId = studentId,
                 EnrollmentDate = DateTime.Now
             };
+
             _context.Enrollments.Add(enrollment);
 
             var course = await _context.Courses.FindAsync(courseId);

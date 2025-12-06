@@ -20,7 +20,7 @@ namespace Learnify_API.Controllers
         //Instructor adds course
         [Authorize(Roles = "instructor")]
         [HttpPost("add")]
-        public async Task<IActionResult> AddCourse([FromBody] CourseVM model)
+        public async Task<IActionResult> AddCourse([FromForm] CourseVM model)
         {
             // Get instructor id from JWT token
             var instructorIdClaim = User.Claims.FirstOrDefault(c => c.Type == "userId");
@@ -35,9 +35,10 @@ namespace Learnify_API.Controllers
             return Ok(new { message = "Course added successfully! Waiting for admin approval." });
         }
 
+
         // Get all pending (unapproved) courses
+        [Authorize (Roles = "instructor,admin")]
         [HttpGet("pending-courses")]
-        [Authorize] // both admin and instructor
         public async Task<IActionResult> GetPendingCourses()
         {
             var userIdClaim = User.FindFirst("userId")?.Value;

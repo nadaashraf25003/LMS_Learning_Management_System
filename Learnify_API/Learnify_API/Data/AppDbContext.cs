@@ -37,6 +37,10 @@ namespace Learnify_API.Data
         public DbSet<CartItem> CartItems { get; set; }
         public DbSet<Checkout> Checkouts { get; set; }
         public DbSet<StudentAnswer> StudentAnswers { get; set; }
+        public DbSet<Payment> Payments { get; set; }
+        public DbSet<PayoutRequest> PayoutRequests { get; set; }
+        public DbSet<PaymentSetting> PaymentSettings { get; set; }
+        public DbSet<TaxDocument> TaxDocuments { get; set; }
 
         //public object Notifications { get; internal set; }
 
@@ -170,6 +174,9 @@ namespace Learnify_API.Data
                 .WithMany()
                 .HasForeignKey(sa => sa.QuizId)
                 .OnDelete(DeleteBehavior.Cascade); // optional, only if Quiz deletion should remove answers
+
+
+
 
 
         }
