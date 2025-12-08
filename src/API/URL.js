@@ -83,7 +83,8 @@ const Urls = {
   AddQuestions: "/Question/add",
   UpdateQuestion: "/Question/update/",
   DeleteQuestion: "/Question/delete/",
-  
+  // Payment
+  getPayments :"/admin/transactions",
 
 };
 

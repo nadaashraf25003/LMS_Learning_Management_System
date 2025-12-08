@@ -150,11 +150,11 @@ export const sidebarData = {
       //   url: "/InstructorLayout/InstrCertificates",
       //   icon: Frame,
       // },
-        {
-        title: "Payments",
-        url: "/InstructorLayout/InstructorPayment",
-        icon: PieChart,
-      },
+      //   {
+      //   title: "Payments",
+      //   url: "/InstructorLayout/InstructorPayment",
+      //   icon: PieChart,
+      // },
       {
         title: "Management",
         url: "#",
@@ -285,16 +285,16 @@ export const sidebarData = {
       //   ],
       // },
 
-      {
-        title: "Payments",
-        url: "/AdminLayout/AdminPayments",
-        icon: PieChart,
-        // items: [
-        //   { title: "Payments", url: "/AdminLayout/AdminPayments" },
-        //   { title: "Invoice", url: "/StudentLayout/StuInvoice" },
-        //   { title: "Cart", url: "/StudentLayout/StuShoppingCart" },
-        // ],
-      },
+      // {
+      //   title: "Payments",
+      //   url: "/AdminLayout/AdminPayments",
+      //   icon: PieChart,
+      //   // items: [
+      //   //   { title: "Payments", url: "/AdminLayout/AdminPayments" },
+      //   //   { title: "Invoice", url: "/StudentLayout/StuInvoice" },
+      //   //   { title: "Cart", url: "/StudentLayout/StuShoppingCart" },
+      //   // ],
+      // },
     ],
     Setting: [
       {

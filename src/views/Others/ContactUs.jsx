@@ -46,8 +46,7 @@ function ContactUs() {
     {
       name: "Rana Waleed",
       role:  "Full Stack Developer",
-      bio: "A passionate Full Stack Developer with expertise in .NET, Python, and modern web technologies.I specialize in building smart, reliable, and scalable applications that solve real-world problems and support business growth.
-",
+      bio: "A passionate Full Stack Developer with expertise in .NET, Python, and modern web technologies.I specialize in building smart, reliable, and scalable applications that solve real-world problems and support business growth.",
       image:Image,
       socials: {
         facebook: "https://www.facebook.com/rana.sakr.792",
