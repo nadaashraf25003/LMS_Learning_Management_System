@@ -3,7 +3,7 @@ import axios from "axios";
 
 let retry = 2;
 const api = axios.create({
-  baseURL: "/api",
+  baseURL: import.meta.env.VITE_BASE_URL,
   withCredentials: true, // important for sending cookies
   headers: {
     "Content-Type": "application/json",
