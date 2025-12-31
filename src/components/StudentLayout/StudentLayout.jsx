@@ -15,7 +15,7 @@ function LayoutContent({ shouldHide }) {
     ? `${import.meta.env.VITE_BASE_URL}${user.image}`
     : DefaultImage;
 
-  console.log("User Image:", Image);
+  // console.log("User Image:", Image);
   const { open } = useSidebar(); //  Now it's inside the provider
   return (
     <>
@@ -24,7 +24,7 @@ function LayoutContent({ shouldHide }) {
       <div
         className={`transition-all duration-300 mt-16 ${
           open ? "ml-56" : "mx-auto"
-        } max-md:ml-5`}
+        } max-md:ml-0`}
       >
         <Outlet />
         {!shouldHide && <Footer />}

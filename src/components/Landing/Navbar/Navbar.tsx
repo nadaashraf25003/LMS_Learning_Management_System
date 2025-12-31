@@ -27,7 +27,7 @@ const Navbar = () => {
     setUser(undefined);
     navigate("/");
   };
-  console.log("object")
+  // console.log("object")
 
   return (
     <header className="bg-primary/90 py-3 text-white sticky top-0 z-50 backdrop-blur-md">

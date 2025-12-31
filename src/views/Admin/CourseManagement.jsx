@@ -230,6 +230,80 @@ function CourseManagement() {
           </tbody>
         </table>
       </div>
+      {/* ===== Mobile Cards ===== */}
+      <div className="sm:hidden space-y-4">
+        {pageCourses.length === 0 ? (
+          <div className="text-center text-gray-500 py-6">
+            No courses found.
+          </div>
+        ) : (
+          pageCourses.map((course, idx) => (
+            <div
+              key={course.id ?? idx}
+              className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 space-y-3"
+            >
+              {/* Image & Title */}
+              <div className="flex items-center gap-3">
+                <img
+                  src={course.image || DefaultImage}
+                  className="w-14 h-14 rounded-md object-cover"
+                  alt={course.title}
+                />
+                <div>
+                  <h3 className="font-semibold text-sm">
+                    {truncateWords(course.title, 6)}
+                  </h3>
+                  <p className="text-xs text-gray-500">
+                    {course.author || "Unknown"}
+                  </p>
+                </div>
+              </div>
+
+              {/* Info */}
+              <div className="text-xs grid grid-cols-2 gap-2">
+                <span>
+                  <b>Category:</b> {course.category || "-"}
+                </span>
+                <span>
+                  <b>Price:</b> {course.price || "Free"}
+                </span>
+                <span>
+                  <b>Hours:</b> {course.hours || "N/A"}
+                </span>
+                <span>
+                  <b>Status:</b> {course.isApproved ? "Approved" : "Pending"}
+                </span>
+              </div>
+
+              {/* Actions */}
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  className="px-3 py-1 text-xs bg-primary text-white rounded"
+                  onClick={() => setSelectedCourse(course)}
+                >
+                  View
+                </button>
+
+                {!course.isApproved && (
+                  <button
+                    className="px-3 py-1 text-xs bg-yellow-500 text-white rounded"
+                    onClick={() => handleApprove(course)}
+                  >
+                    Approve
+                  </button>
+                )}
+
+                <button
+                  className="px-3 py-1 text-xs bg-red-500 text-white rounded"
+                  onClick={() => handleDelete(course)}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
 
       {/* View Course Modal */}
       {selectedCourse && (
@@ -302,7 +376,15 @@ function CourseManagement() {
               <div className="py-2">
                 <span className="font-medium block mb-2">Description:</span>
                 <p className="text-text-secondary text-sm leading-relaxed">
-                  {selectedCourse.description || "No description available."}
+                  {selectedCourse.description
+                    ? selectedCourse.description
+                        .split(" ")
+                        .slice(0, 15)
+                        .join(" ") +
+                      (selectedCourse.description.split(" ").length > 10
+                        ? "..."
+                        : "")
+                    : "No description available."}
                 </p>
               </div>
             </div>

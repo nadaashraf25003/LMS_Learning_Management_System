@@ -33,35 +33,62 @@ function TermsofUse() {
            <LandingHeading header="Terms of Use" />
         </header>
 
-        {/* Policies Table */}
-        <div className="bg-card rounded-lg shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-card">
-                <tr>
-                  <th className="px-6 py-4 text-left text-sm font-medium text-text-primary uppercase tracking-wider w-1/4">
-                    Policy
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-medium text-text-primary uppercase tracking-wider w-3/4">
-                    Description
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {policies.map((policy, index) => (
-                  <tr key={index} className="transition-colors">
-                    <td className="px-6 py-4">
-                      <h3 className="text-lg font-semibold text-text-primary">{policy.title}</h3>
-                    </td>
-                    <td className="px-6 py-4">
-                      <p className="text-text-secondary leading-relaxed">{policy.description}</p>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+       {/* Policies Section */}
+<div className="bg-card rounded-lg shadow-sm overflow-hidden">
+
+  {/* ===== Desktop Table ===== */}
+  <div className="hidden md:block overflow-x-auto">
+    <table className="w-full">
+      <thead className="bg-card">
+        <tr>
+          <th className="px-6 py-4 text-left text-sm font-medium uppercase w-1/4">
+            Policy
+          </th>
+          <th className="px-6 py-4 text-left text-sm font-medium uppercase w-3/4">
+            Description
+          </th>
+        </tr>
+      </thead>
+
+      <tbody className="divide-y">
+        {policies.map((policy, index) => (
+          <tr key={index}>
+            <td className="px-6 py-4">
+              <h3 className="text-lg font-semibold">
+                {policy.title}
+              </h3>
+            </td>
+            <td className="px-6 py-4">
+              <p className="leading-relaxed text-text-secondary">
+                {policy.description}
+              </p>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  {/* ===== Mobile Cards ===== */}
+  <div className="md:hidden p-4 space-y-4">
+    {policies.map((policy, index) => (
+      <div
+        key={index}
+        className="border rounded-lg p-4 shadow-sm space-y-2"
+      >
+        <h3 className="text-lg font-semibold">
+          {policy.title}
+        </h3>
+
+        <p className="text-sm text-text-secondary leading-relaxed">
+          {policy.description}
+        </p>
+      </div>
+    ))}
+  </div>
+
+</div>
+
 
         {/* Footer */}
         <footer className="mt-8 pt-6 border-t border-gray-200 text-center text-text-secondary text-sm">

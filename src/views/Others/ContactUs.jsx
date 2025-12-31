@@ -118,11 +118,11 @@ function ContactUs() {
                     onClick={() => setSelectedMember(member)}
                   >
                     <div className="flex items-center gap-4">
-                      {/* <img
+                      <img
                         src={member.image}
                         alt={member.name}
                         className="w-16 h-16 rounded-full object-cover border-2 border-blue-500"
-                      /> */}
+                      />
                       <div>
                         <h3 className="text-lg font-semibold text-text-primary">
                           {member.name}

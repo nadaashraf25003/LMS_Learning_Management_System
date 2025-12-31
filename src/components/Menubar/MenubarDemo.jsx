@@ -9,7 +9,7 @@ export function MenubarDemo({ role }) {
   
   // const Role = useTokenStore((state) => state.user?.role) ? true : false;
   const navigate = useNavigate();
-  console.log(role)
+  // console.log(role)
 
   // Hook calls
   const { cart } = useStudent();
@@ -24,7 +24,7 @@ export function MenubarDemo({ role }) {
 
   return (
     <Menubar>
-      <MenubarMenu>
+      <MenubarMenu >
         {role=="student" && (
           <MenubarTrigger
             onClick={() => navigate("/StudentLayout/StuShoppingCart")}

@@ -154,58 +154,53 @@ function StuMyCertificates() {
           </div>
         </section> */}
 
-        {/* Certificates Table */}
+        {/* Certificates Section */}
         <section className="bg-card rounded-lg shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
+          {/* ===== Desktop Table ===== */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
-                <tr className="bg-surface">
-                  <th className="px-6 py-3">Item No.</th>
-                  <th className="px-6 py-3">Course Name</th>
-                  <th className="px-6 py-3">Student Name</th>
-                  {/* <th className="px-6 py-3">Marks</th> */}
-                  {/* <th className="px-6 py-3">Out Of</th> */}
-                  <th className="px-6 py-3">Upload Date</th>
+                <tr className="bg-surface text-sm">
+                  <th className="px-6 py-3">#</th>
+                  <th className="px-6 py-3">Course</th>
+                  <th className="px-6 py-3">Student</th>
+                  <th className="px-6 py-3">Date</th>
                   <th className="px-6 py-3">Certificate</th>
                 </tr>
               </thead>
 
-              <tbody className="bg-card divide-y divide-gray-200">
+              <tbody className="divide-y">
                 {loading ? (
                   <tr>
-                    <td
-                      colSpan="7"
-                      className="text-center py-4 text-text-secondary"
-                    >
+                    <td colSpan="5" className="text-center py-6">
                       Loading...
                     </td>
                   </tr>
                 ) : pagecertification.length === 0 ? (
-                  <tr className="text-center">
-                    <td
-                      colSpan="7"
-                      className="text-center py-4 text-text-secondary"
-                    >
+                  <tr>
+                    <td colSpan="5" className="text-center py-6">
                       No certificates found.
                     </td>
                   </tr>
                 ) : (
                   pagecertification.map((item, index) => (
-                    <tr key={item.id || index} className="text-center">
-                      <td className="px-6 py-4">{index + 1}</td>
-                      <td className="px-6 py-4 font-medium text-text-primary">
+                    <tr key={item.id || index} className="text-center text-sm">
+                      <td className="px-6 py-4">
+                        {(currentPage2 - 1) * CERTIFICATION_PER_PAGE +
+                          index +
+                          1}
+                      </td>
+                      <td className="px-6 py-4 font-medium">
                         {item.courseName}
                       </td>
                       <td className="px-6 py-4">{item.studentName}</td>
-                      {/* <td className="px-6 py-4">{item.totalMarks}</td> */}
                       <td className="px-6 py-4">
-                        {new Date(item.issuedAt).toLocaleDateString()}{" "}
-                        {/* Only date */}
+                        {new Date(item.issuedAt).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4">
                         <button
                           onClick={() => downloadCertificate(item)}
-                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-md"
+                          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
                         >
                           Download
                         </button>
@@ -215,6 +210,46 @@ function StuMyCertificates() {
                 )}
               </tbody>
             </table>
+          </div>
+
+          {/* ===== Mobile Cards ===== */}
+          <div className="md:hidden space-y-4 p-4">
+            {loading ? (
+              <p className="text-center">Loading...</p>
+            ) : pagecertification.length === 0 ? (
+              <p className="text-center">No certificates found.</p>
+            ) : (
+              pagecertification.map((item, index) => (
+                <div
+                  key={item.id || index}
+                  className="border rounded-lg p-4 shadow-sm space-y-2"
+                >
+                  <p className="text-sm text-gray-500">
+                    Certificate #
+                    {(currentPage2 - 1) * CERTIFICATION_PER_PAGE + index + 1}
+                  </p>
+
+                  <h3 className="font-semibold text-lg">{item.courseName}</h3>
+
+                  <p className="text-sm">
+                    <span className="font-medium">Student:</span>{" "}
+                    {item.studentName}
+                  </p>
+
+                  <p className="text-sm">
+                    <span className="font-medium">Issued:</span>{" "}
+                    {new Date(item.issuedAt).toLocaleDateString()}
+                  </p>
+
+                  <button
+                    onClick={() => downloadCertificate(item)}
+                    className="w-full mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                  >
+                    Download Certificate
+                  </button>
+                </div>
+              ))
+            )}
           </div>
         </section>
 

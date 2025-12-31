@@ -155,7 +155,7 @@ export const router = createBrowserRouter([
           { path: "HelpPage", element: <HelpPage /> },
           { path: "AllFeedback", element: <FeedbackManagement /> },
           { path: "Notifications", element: <Notifications /> },
-          { path: "SettingPage", element: <SettingPage /> },
+          { path: "SettingPage", element: <TermsofUse /> },
           { path: "EditProfile", element: <EditProfile /> },
         ],
       },

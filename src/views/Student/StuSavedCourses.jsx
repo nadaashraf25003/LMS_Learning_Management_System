@@ -5,6 +5,7 @@ import LandingHeading from "@/components/Landing/LandingHeading/LandingHeading";
 import useStudent from "@/hooks/useStudent";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router";
+import FullSpinner from "@/components/ui/Full Spinner/FullSpinner";
 
 // Lazy load CourseCard
 const CourseCard = lazy(() => import("@/views/Others/SearchResults/CourseCard"));
@@ -20,7 +21,8 @@ export default function StuSavedCourses() {
     });
   };
 
-  if (savedCourses.isLoading) return <p>Loading...</p>;
+  if (savedCourses.isLoading) return  <FullSpinner />;
+ 
   
   const courses = savedCourses.data || [];
   // console.log("courses", courses);

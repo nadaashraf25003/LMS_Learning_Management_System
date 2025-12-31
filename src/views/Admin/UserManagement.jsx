@@ -31,7 +31,7 @@ function UserManagement() {
   const { user } = useTokenStore.getState();
   // const Image = user?.image || DefaultImage;
 
-  console.log(user.profileImage);
+  // console.log(user.profileImage);
   useEffect(() => {
     setLoading(true);
     api
@@ -39,11 +39,11 @@ function UserManagement() {
       .then((res) => {
         // assume res.data is an array of user objects
         setUsers(Array.isArray(res.data.users) ? res.data.users : res.data);
-        console.log("Fetched users:", users);
-        console.log("Fetched users:", res.data.users);
+        // console.log("Fetched users:", users);
+        // console.log("Fetched users:", res.data.users);
       })
       .catch((err) => {
-        console.error("Error fetching users:", err);
+        // console.error("Error fetching users:", err);
         setUsers([]);
       })
       .finally(() => {
@@ -93,7 +93,7 @@ function UserManagement() {
   // Placeholder action handlers
   const handleView = (user) => {
     setSelectedUser(user);
-    console.log("View user", user);
+    // console.log("View user", user);
   };
 
   const closeModal = () => setSelectedUser(null);
@@ -285,7 +285,11 @@ function UserManagement() {
             >
               <div className="flex items-center gap-3">
                 <img
-                  src={Image}
+                  src={
+                    user.profileImage
+                      ? `${import.meta.env.VITE_BASE_URL}${user.profileImage}` // Vite
+                      : DefaultImage
+                  }
                   className="w-12 h-12 rounded-full object-cover"
                 />
                 <div>
@@ -359,9 +363,15 @@ function UserManagement() {
             {/* Header with Avatar */}
             <div className="text-center mb-6">
               <img
-                src={Image}
+                src={
+                  selectedUser.profileImage
+                    ? `${import.meta.env.VITE_BASE_URL}${
+                        selectedUser.profileImage
+                      }` // Vite
+                    : DefaultImage
+                }
                 className="w-24 h-24 rounded-full mx-auto mb-3 object-cover border-2 border-border"
-                alt={selectedUser.fullName}
+                // alt={selectedUser.fullName}
               />
               <h2 className="text-xl font-semibold text-text-primary mb-1">
                 {selectedUser.fullName}
@@ -400,8 +410,12 @@ function UserManagement() {
                 <span className="font-medium text-text-secondary block mb-2">
                   About:
                 </span>
-                <p className="text-text-primary text-sm leading-relaxed">
-                  {selectedUser.about || "No description available."}
+
+                <p className="text-text-secondary text-sm leading-relaxed">
+                  {selectedUser.about
+                    ? selectedUser.about.split(" ").slice(0, 15).join(" ") +
+                      (selectedUser.about.split(" ").length > 10 ? "..." : "")
+                    : "No description available."}
                 </p>
               </div>
             </div>

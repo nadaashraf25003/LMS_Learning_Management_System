@@ -131,13 +131,13 @@ function FeedbackManagement() {
               className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-4 flex items-center gap-4"
             >
               <img
-                src={fb.image || DefaultImage}
+                src={fb.feedbackimage || DefaultImage}
                 className="w-14 h-14 rounded-full"
               />
               <div>
                 <p className="font-semibold">{fb.email}</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {fb.message}
+                <p className="text-sm text-gray-600 dark:text-gray-400 pt-2">
+                  {fb.massage}
                 </p>
               </div>
             </div>

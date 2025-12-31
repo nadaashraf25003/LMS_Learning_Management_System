@@ -17,7 +17,7 @@ import useProfile from "@/hooks/useProfile";
 function Profile() {
   const navigate = useNavigate();
   const { profile, UserRole } = useProfile();
-  console.log(profile.data);
+  // console.log(profile.data);
   const [activeTab, setActiveTab] = useState("");
 
   useEffect(() => {

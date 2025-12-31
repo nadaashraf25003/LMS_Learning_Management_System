@@ -19,7 +19,7 @@ export function AppSidebar({ role = "student", ...props }: React.ComponentProps<
 
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader className="mt-16">
+      <SidebarHeader className="mt-16 max-md:mt-2">
         <TeamSwitcher teams={currentData.teams || []} />
       </SidebarHeader>
       <SidebarContent>

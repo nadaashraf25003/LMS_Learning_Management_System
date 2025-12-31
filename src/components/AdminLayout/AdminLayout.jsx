@@ -23,7 +23,7 @@ function LayoutContent({ shouldHide }) {
       <div
         className={`transition-all duration-300 mt-16 ${
           open ? "ml-56" : "mx-auto"
-        } max-md:ml-5`}
+        } max-md:ml-0`}
       >
         <Outlet />
         {!shouldHide && (

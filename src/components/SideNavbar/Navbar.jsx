@@ -36,7 +36,7 @@ export default function Page({ role }) {
     <div>
       <AppSidebar role={role} />
       <SidebarInset>
-        <header className="fixed w-full z-10 bg-sidebar shadow-md flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 justify-between pr-32">
+        <header className="fixed w-full z-10 bg-sidebar shadow-md flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 justify-between pr-8">
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger className="-ml-1" />
             <Separator
@@ -67,7 +67,7 @@ export default function Page({ role }) {
               </BreadcrumbList>
             </Breadcrumb>
           </div>
-          <MenubarDemo role={role}/>
+          <MenubarDemo role={role} className="mr-0"/>
         </header>
         {/* <div className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-red-300">
             <div className="grid auto-rows-min gap-4 md:grid-cols-3">
